@@ -1,0 +1,211 @@
+from collections.abc import Sequence
+
+from neo4j import GraphDatabase
+from neo4j.exceptions import Neo4jError, ServiceUnavailable
+from sqlalchemy.orm import Session, selectinload
+
+from app.config import settings
+from app.models import Shipment
+from app.schemas import GraphEdge, GraphNode, ShipmentGraphRead
+
+
+class ShipmentGraph:
+    def __init__(self) -> None:
+        self._driver = None
+        if settings.neo4j_enabled:
+            self._driver = GraphDatabase.driver(
+                settings.neo4j_uri,
+                auth=(settings.neo4j_user, settings.neo4j_password),
+            )
+
+    def close(self) -> None:
+        if self._driver is not None:
+            self._driver.close()
+
+    def sync_shipment(self, shipment: Shipment) -> None:
+        if self._driver is None:
+            return
+        try:
+            with self._driver.session() as session:
+                session.execute_write(self._write_shipment, shipment)
+        except (Neo4jError, ServiceUnavailable):
+            return
+
+    @staticmethod
+    def _write_shipment(tx, shipment: Shipment) -> None:
+        tx.run(
+            """
+            MERGE (s:Shipment {id: $id})
+            SET s.reference = $reference,
+                s.status = $status,
+                s.exporterCountry = $exporter_country,
+                s.importerCountry = $importer_country,
+                s.transportMode = $transport_mode
+            """,
+            id=shipment.id,
+            reference=shipment.shipment_reference,
+            status=shipment.status,
+            exporter_country=shipment.exporter_country,
+            importer_country=shipment.importer_country,
+            transport_mode=shipment.transport_mode,
+        )
+
+        for consignment in shipment.consignments:
+            tx.run(
+                """
+                MATCH (s:Shipment {id: $shipment_id})
+                MERGE (c:Consignment {id: $id})
+                SET c.productName = $product_name,
+                    c.customsStatus = $customs_status,
+                    c.destinationCountry = $destination_country
+                MERGE (origin:Country {name: $origin_country})
+                MERGE (destination:Country {name: $destination_country})
+                MERGE (s)-[:CONTAINS]->(c)
+                MERGE (c)-[:ORIGINATES_IN]->(origin)
+                MERGE (c)-[:DESTINED_FOR]->(destination)
+                """,
+                shipment_id=shipment.id,
+                id=consignment.id,
+                product_name=consignment.product_name,
+                customs_status=consignment.customs_status,
+                origin_country=consignment.country_of_origin,
+                destination_country=consignment.destination_country,
+            )
+
+        for leg in shipment.route_legs:
+            tx.run(
+                """
+                MATCH (s:Shipment {id: $shipment_id})
+                MERGE (leg:RouteLeg {id: $id})
+                SET leg.sequenceNumber = $sequence_number,
+                    leg.originCountry = $origin_country,
+                    leg.destinationCountry = $destination_country,
+                    leg.transportMode = $transport_mode,
+                    leg.carrierName = $carrier_name
+                MERGE (origin:Country {name: $origin_country})
+                MERGE (destination:Country {name: $destination_country})
+                MERGE (s)-[:HAS_ROUTE_LEG]->(leg)
+                MERGE (leg)-[:FROM]->(origin)
+                MERGE (leg)-[:TO]->(destination)
+                """,
+                shipment_id=shipment.id,
+                id=leg.id,
+                sequence_number=leg.sequence_number,
+                origin_country=leg.origin_country,
+                destination_country=leg.destination_country,
+                transport_mode=leg.transport_mode,
+                carrier_name=leg.carrier_name,
+            )
+
+        for event in shipment.events:
+            if event.consignment_id:
+                target_id = event.consignment_id
+                query = """
+                MATCH (target:Consignment {id: $target_id})
+                MERGE (event:ShipmentEvent {id: $id})
+                SET event.eventType = $event_type,
+                    event.locationCountry = $location_country,
+                    event.occurredAt = $occurred_at
+                MERGE (country:Country {name: $location_country})
+                MERGE (event)-[:OCCURRED_IN]->(country)
+                MERGE (event)-[:AFFECTS_CONSIGNMENT]->(target)
+                """
+            else:
+                target_id = shipment.id
+                query = """
+                MATCH (target:Shipment {id: $target_id})
+                MERGE (event:ShipmentEvent {id: $id})
+                SET event.eventType = $event_type,
+                    event.locationCountry = $location_country,
+                    event.occurredAt = $occurred_at
+                MERGE (country:Country {name: $location_country})
+                MERGE (event)-[:OCCURRED_IN]->(country)
+                MERGE (event)-[:AFFECTS_SHIPMENT]->(target)
+                """
+            tx.run(
+                query,
+                target_id=target_id,
+                id=event.id,
+                event_type=event.event_type,
+                location_country=event.location_country,
+                occurred_at=event.occurred_at.isoformat(),
+            )
+
+
+def load_graph_shipment(db: Session, shipment_id: str) -> Shipment | None:
+    return (
+        db.query(Shipment)
+        .options(
+            selectinload(Shipment.consignments),
+            selectinload(Shipment.route_legs),
+            selectinload(Shipment.events),
+        )
+        .filter(Shipment.id == shipment_id)
+        .first()
+    )
+
+
+def build_graph_response(shipment: Shipment) -> ShipmentGraphRead:
+    nodes: dict[str, GraphNode] = {}
+    edges: dict[str, GraphEdge] = {}
+
+    def add_node(node_id: str, label: str, node_type: str) -> None:
+        nodes[node_id] = GraphNode(id=node_id, label=label, type=node_type)
+
+    def add_edge(source: str, target: str, label: str) -> None:
+        edge_id = f"{source}:{label}:{target}"
+        edges[edge_id] = GraphEdge(id=edge_id, source=source, target=target, label=label)
+
+    shipment_node = f"shipment:{shipment.id}"
+    add_node(shipment_node, shipment.shipment_reference, "Shipment")
+
+    add_country_nodes([shipment.exporter_country, shipment.importer_country], nodes)
+
+    for consignment in shipment.consignments:
+        consignment_node = f"consignment:{consignment.id}"
+        add_node(
+            consignment_node,
+            f"{consignment.product_name} ({consignment.customs_status})",
+            "Consignment",
+        )
+        origin_node = country_node_id(consignment.country_of_origin)
+        destination_node = country_node_id(consignment.destination_country)
+        add_country_nodes([consignment.country_of_origin, consignment.destination_country], nodes)
+        add_edge(shipment_node, consignment_node, "CONTAINS")
+        add_edge(consignment_node, origin_node, "ORIGINATES_IN")
+        add_edge(consignment_node, destination_node, "DESTINED_FOR")
+
+    for leg in sorted(shipment.route_legs, key=lambda item: item.sequence_number):
+        leg_node = f"route-leg:{leg.id}"
+        add_node(
+            leg_node,
+            f"Leg {leg.sequence_number}: {leg.origin_country} to {leg.destination_country}",
+            "RouteLeg",
+        )
+        add_country_nodes([leg.origin_country, leg.destination_country], nodes)
+        add_edge(shipment_node, leg_node, "HAS_ROUTE_LEG")
+        add_edge(leg_node, country_node_id(leg.origin_country), "FROM")
+        add_edge(leg_node, country_node_id(leg.destination_country), "TO")
+
+    for event in shipment.events:
+        event_node = f"event:{event.id}"
+        add_node(event_node, event.event_type, "ShipmentEvent")
+        add_country_nodes([event.location_country], nodes)
+        add_edge(event_node, country_node_id(event.location_country), "OCCURRED_IN")
+        if event.consignment_id:
+            add_edge(event_node, f"consignment:{event.consignment_id}", "AFFECTS_CONSIGNMENT")
+        else:
+            add_edge(event_node, shipment_node, "AFFECTS_SHIPMENT")
+
+    return ShipmentGraphRead(nodes=list(nodes.values()), edges=list(edges.values()))
+
+
+def add_country_nodes(countries: Sequence[str], nodes: dict[str, GraphNode]) -> None:
+    for country in countries:
+        nodes[country_node_id(country)] = GraphNode(
+            id=country_node_id(country), label=country, type="Country"
+        )
+
+
+def country_node_id(country: str) -> str:
+    return f"country:{country.lower().replace(' ', '-')}"

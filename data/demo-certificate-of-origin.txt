@@ -1,0 +1,6 @@
+Document Number: COO-TT-001
+Document Date: 2026-08-29
+Product Name: Lithium batteries
+Quantity: 120
+Declared Value: 18000
+Country of Origin: India

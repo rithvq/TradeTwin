@@ -1,0 +1,7 @@
+Document Number: SAFE-IND-UAE-001
+Document Date: 2026-09-01
+Product Name: Lithium batteries
+Quantity: 120
+Declared Value: USD 18000.00
+Country of Origin: India
+HS Code: 850760

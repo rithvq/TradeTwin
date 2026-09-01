@@ -1,0 +1,229 @@
+[
+  {
+    "rule_id": "TT-IN-EXPORT-001",
+    "title": "India demo export declaration requirement",
+    "jurisdiction": "India",
+    "procedure_type": "export",
+    "effective_from": "2026-01-01",
+    "effective_to": null,
+    "source_url": "https://example.com/rules/india/export",
+    "version": "2026.1",
+    "conditions": {
+      "shipment_exporter_country": "India"
+    },
+    "required_documents": [
+      "commercial_invoice",
+      "packing_list",
+      "export_declaration"
+    ],
+    "outcome_if_failed": {
+      "status": "CONDITIONALLY_COMPLIANT",
+      "violation": "India export document package is incomplete.",
+      "recommended_action": "Attach commercial invoice, packing list, and export declaration before departure."
+    }
+  },
+  {
+    "rule_id": "TT-UAE-TRANSIT-001",
+    "title": "UAE demo transit declaration requirement",
+    "jurisdiction": "UAE",
+    "procedure_type": "transit",
+    "effective_from": "2026-01-01",
+    "effective_to": null,
+    "source_url": "https://example.com/rules/uae/transit",
+    "version": "2026.1",
+    "conditions": {
+      "route_contains_jurisdiction": true,
+      "consignment_destination_is_not_jurisdiction": true,
+      "event_location_country": "UAE",
+      "event_types": [
+        "ARRIVED_AT_TRANSIT_PORT",
+        "TRANSSHIPMENT",
+        "TEMPORARY_STORAGE"
+      ]
+    },
+    "required_documents": [
+      "transit_declaration"
+    ],
+    "outcome_if_failed": {
+      "status": "CONDITIONALLY_COMPLIANT",
+      "violation": "UAE transit declaration is missing for cargo remaining in transit.",
+      "recommended_action": "Attach the UAE transit declaration for cargo moving onward."
+    }
+  },
+  {
+    "rule_id": "TT-UAE-IMPORT-001",
+    "title": "UAE demo import entry requirement",
+    "jurisdiction": "UAE",
+    "procedure_type": "import",
+    "effective_from": "2026-01-01",
+    "effective_to": null,
+    "source_url": "https://example.com/rules/uae/import",
+    "version": "2026.1",
+    "conditions": {
+      "consignment_destination_is_jurisdiction": true,
+      "event_location_country": "UAE",
+      "event_types": [
+        "UNLOADED"
+      ]
+    },
+    "required_documents": [
+      "import_declaration",
+      "commercial_invoice"
+    ],
+    "outcome_if_failed": {
+      "status": "NON_COMPLIANT",
+      "violation": "UAE import entry documents are missing for unloaded goods.",
+      "recommended_action": "File the UAE import declaration and attach the commercial invoice."
+    }
+  },
+  {
+    "rule_id": "TT-DE-IMPORT-001",
+    "title": "Germany demo import document requirement",
+    "jurisdiction": "Germany",
+    "procedure_type": "import",
+    "effective_from": "2026-01-01",
+    "effective_to": null,
+    "source_url": "https://example.com/rules/germany/import",
+    "version": "2026.1",
+    "conditions": {
+      "consignment_destination_is_jurisdiction": true
+    },
+    "required_documents": [
+      "import_declaration",
+      "commercial_invoice",
+      "packing_list"
+    ],
+    "outcome_if_failed": {
+      "status": "CONDITIONALLY_COMPLIANT",
+      "violation": "Germany import document package is incomplete.",
+      "recommended_action": "Attach Germany import declaration, commercial invoice, and packing list before arrival."
+    }
+  },
+  {
+    "rule_id": "TT-UAE-LITHIUM-SAFETY-001",
+    "title": "UAE demo lithium battery safety certificate requirement",
+    "jurisdiction": "UAE",
+    "procedure_type": "transit",
+    "effective_from": "2026-01-01",
+    "effective_to": null,
+    "source_url": "https://example.com/rules/uae/lithium-battery-safety",
+    "version": "2026.1",
+    "conditions": {
+      "route_contains_jurisdiction": true,
+      "consignment_destination_is_not_jurisdiction": true,
+      "event_location_country": "UAE",
+      "event_types": [
+        "ARRIVED_AT_TRANSIT_PORT",
+        "TRANSSHIPMENT",
+        "TEMPORARY_STORAGE"
+      ],
+      "product_keywords": [
+        "lithium battery",
+        "lithium batteries"
+      ]
+    },
+    "required_documents": [
+      "lithium_battery_safety_certificate"
+    ],
+    "outcome_if_failed": {
+      "status": "CONDITIONALLY_COMPLIANT",
+      "violation": "Lithium battery safety certificate is missing for UAE transit.",
+      "recommended_action": "Attach the lithium battery safety certificate before onward movement."
+    }
+  },
+  {
+    "rule_id": "TT-DE-COO-001",
+    "title": "Germany demo certificate of origin requirement",
+    "jurisdiction": "Germany",
+    "procedure_type": "import",
+    "effective_from": "2026-01-01",
+    "effective_to": null,
+    "source_url": "https://example.com/rules/germany/certificate-of-origin",
+    "version": "2026.1",
+    "conditions": {
+      "consignment_destination_is_jurisdiction": true,
+      "country_of_origin_is_not_jurisdiction": true
+    },
+    "required_documents": [
+      "certificate_of_origin"
+    ],
+    "outcome_if_failed": {
+      "status": "CONDITIONALLY_COMPLIANT",
+      "violation": "Certificate of origin is missing for Germany import.",
+      "recommended_action": "Attach a certificate of origin before import review."
+    }
+  },
+  {
+    "rule_id": "TT-UAE-TEMP-STORAGE-001",
+    "title": "UAE demo temporary storage authorization requirement",
+    "jurisdiction": "UAE",
+    "procedure_type": "temporary_storage",
+    "effective_from": "2026-01-01",
+    "effective_to": null,
+    "source_url": "https://example.com/rules/uae/temporary-storage",
+    "version": "2026.1",
+    "conditions": {
+      "event_location_country": "UAE",
+      "event_types": [
+        "TEMPORARY_STORAGE"
+      ]
+    },
+    "required_documents": [
+      "temporary_storage_authorization"
+    ],
+    "outcome_if_failed": {
+      "status": "CONDITIONALLY_COMPLIANT",
+      "violation": "Temporary storage authorization is missing in UAE.",
+      "recommended_action": "Attach temporary storage authorization before warehousing."
+    }
+  },
+  {
+    "rule_id": "TT-UAE-TRANSSHIPMENT-001",
+    "title": "UAE demo transshipment permit requirement",
+    "jurisdiction": "UAE",
+    "procedure_type": "transshipment",
+    "effective_from": "2026-01-01",
+    "effective_to": null,
+    "source_url": "https://example.com/rules/uae/transshipment",
+    "version": "2026.1",
+    "conditions": {
+      "event_location_country": "UAE",
+      "event_types": [
+        "TRANSSHIPMENT"
+      ]
+    },
+    "required_documents": [
+      "transshipment_permit"
+    ],
+    "outcome_if_failed": {
+      "status": "CONDITIONALLY_COMPLIANT",
+      "violation": "Transshipment permit is missing in UAE.",
+      "recommended_action": "Attach the UAE transshipment permit before transfer."
+    }
+  },
+  {
+    "rule_id": "TT-DE-RESTRICTED-001",
+    "title": "Germany demo restricted goods screen",
+    "jurisdiction": "Germany",
+    "procedure_type": "import",
+    "effective_from": "2026-01-01",
+    "effective_to": null,
+    "source_url": "https://example.com/rules/germany/restricted-goods",
+    "version": "2026.1",
+    "conditions": {
+      "consignment_destination_is_jurisdiction": true,
+      "product_keywords": [
+        "restricted",
+        "weapon",
+        "sanctioned"
+      ],
+      "fail_when_matched": true
+    },
+    "required_documents": [],
+    "outcome_if_failed": {
+      "status": "NON_COMPLIANT",
+      "violation": "Restricted-goods keyword matched for Germany import.",
+      "recommended_action": "Stop movement and request manual compliance review."
+    }
+  }
+]

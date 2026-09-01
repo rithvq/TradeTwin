@@ -1,0 +1,148 @@
+name: tradetwin
+
+services:
+  web:
+    build:
+      context: ./apps/web
+    env_file:
+      - path: .env.example
+      - path: .env
+        required: false
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    depends_on:
+      shipment-service:
+        condition: service_started
+      compliance-service:
+        condition: service_started
+      document-service:
+        condition: service_started
+      intelligence-service:
+        condition: service_started
+
+  api:
+    build:
+      context: ./apps/api
+    env_file:
+      - path: .env.example
+      - path: .env
+        required: false
+    ports:
+      - "${API_PORT:-8000}:8000"
+
+  shipment-service:
+    build:
+      context: ./services/shipment-service
+    env_file:
+      - path: .env.example
+      - path: .env
+        required: false
+    ports:
+      - "${SHIPMENT_SERVICE_PORT:-8011}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      neo4j:
+        condition: service_started
+
+  compliance-service:
+    build:
+      context: ./services/compliance-service
+    env_file:
+      - path: .env.example
+      - path: .env
+        required: false
+    ports:
+      - "${COMPLIANCE_SERVICE_PORT:-8012}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      shipment-service:
+        condition: service_started
+      document-service:
+        condition: service_started
+
+  document-service:
+    build:
+      context: ./services/document-service
+    env_file:
+      - path: .env.example
+      - path: .env
+        required: false
+    ports:
+      - "${DOCUMENT_SERVICE_PORT:-8013}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_started
+
+  intelligence-service:
+    build:
+      context: ./services/intelligence-service
+    env_file:
+      - path: .env.example
+      - path: .env
+        required: false
+    ports:
+      - "${INTELLIGENCE_SERVICE_PORT:-8014}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      shipment-service:
+        condition: service_started
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    env_file:
+      - path: .env.example
+      - path: .env
+        required: false
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./infra/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  neo4j:
+    image: neo4j:5-community
+    environment:
+      NEO4J_AUTH: ${NEO4J_AUTH:-neo4j/123456789}
+    ports:
+      - "${NEO4J_HTTP_PORT:-7474}:7474"
+      - "${NEO4J_BOLT_PORT:-7687}:7687"
+    volumes:
+      - neo4j-data:/data
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+
+  minio:
+    image: minio/minio:latest
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-tradetwin-local}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-123456789}
+    command: ["server", "/data", "--console-address", ":9001"]
+    ports:
+      - "${MINIO_API_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - minio-data:/data
+
+volumes:
+  postgres-data:
+  neo4j-data:
+  redis-data:
+  minio-data:
