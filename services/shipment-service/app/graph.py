@@ -31,6 +31,15 @@ class ShipmentGraph:
         except (Neo4jError, ServiceUnavailable):
             return
 
+    def delete_shipment(self, shipment_id: str) -> None:
+        if self._driver is None:
+            return
+        try:
+            with self._driver.session() as session:
+                session.execute_write(self._delete_shipment, shipment_id)
+        except (Neo4jError, ServiceUnavailable):
+            return
+
     @staticmethod
     def _write_shipment(tx, shipment: Shipment) -> None:
         tx.run(
@@ -130,6 +139,33 @@ class ShipmentGraph:
                 location_country=event.location_country,
                 occurred_at=event.occurred_at.isoformat(),
             )
+
+    @staticmethod
+    def _delete_shipment(tx, shipment_id: str) -> None:
+        tx.run(
+            """
+            MATCH (shipment:Shipment {id: $shipment_id})
+            OPTIONAL MATCH (shipment)-[:CONTAINS]->(consignment:Consignment)
+            OPTIONAL MATCH (shipment)-[:HAS_ROUTE_LEG]->(leg:RouteLeg)
+            WITH shipment,
+                 collect(DISTINCT consignment) AS consignments,
+                 collect(DISTINCT leg) AS legs
+            OPTIONAL MATCH (shipmentEvent:ShipmentEvent)-[:AFFECTS_SHIPMENT]->(shipment)
+            WITH shipment,
+                 consignments,
+                 legs,
+                 collect(DISTINCT shipmentEvent) AS shipmentEvents
+            OPTIONAL MATCH (consignmentEvent:ShipmentEvent)-[:AFFECTS_CONSIGNMENT]->
+                (affectedConsignment:Consignment)
+            WHERE affectedConsignment IN consignments
+            WITH [shipment] + consignments + legs + shipmentEvents +
+                collect(DISTINCT consignmentEvent) AS nodes
+            UNWIND nodes AS node
+            WITH node WHERE node IS NOT NULL
+            DETACH DELETE node
+            """,
+            shipment_id=shipment_id,
+        )
 
 
 def load_graph_shipment(db: Session, shipment_id: str) -> Shipment | None:

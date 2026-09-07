@@ -129,3 +129,46 @@ def test_uae_unloading_updates_consignment_destination_states() -> None:
         graph = graph_response.json()
         assert any(node["type"] == "Shipment" for node in graph["nodes"])
         assert any(edge["label"] == "AFFECTS_CONSIGNMENT" for edge in graph["edges"])
+
+
+def test_delete_shipment_removes_it_from_list_and_detail() -> None:
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+    now = datetime.now(UTC).replace(microsecond=0)
+    with TestClient(app) as client:
+        shipment_response = client.post(
+            "/shipments",
+            json={
+                "shipment_reference": "TT-DELETE-TEST",
+                "exporter_country": "India",
+                "importer_country": "Germany",
+                "transport_mode": "SEA",
+                "planned_departure_at": now.isoformat(),
+                "planned_arrival_at": (now + timedelta(days=14)).isoformat(),
+                "consignments": [
+                    {
+                        "product_name": "Lithium batteries",
+                        "product_description": "Rechargeable lithium batteries.",
+                        "quantity": 12,
+                        "declared_value": "1800.00",
+                        "currency": "USD",
+                        "country_of_origin": "India",
+                        "destination_country": "Germany",
+                    }
+                ],
+                "route_legs": [],
+            },
+        )
+        assert shipment_response.status_code == 201
+        shipment_id = shipment_response.json()["id"]
+
+        delete_response = client.delete(f"/shipments/{shipment_id}")
+        assert delete_response.status_code == 204
+
+        detail_response = client.get(f"/shipments/{shipment_id}")
+        assert detail_response.status_code == 404
+
+        list_response = client.get("/shipments")
+        references = [item["shipment_reference"] for item in list_response.json()]
+        assert "TT-DELETE-TEST" not in references

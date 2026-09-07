@@ -71,6 +71,17 @@ export async function apiFetch<T>(path: string, options?: RequestInit): Promise<
   return response.json() as Promise<T>;
 }
 
+export async function deleteShipment(shipmentId: string): Promise<void> {
+  const response = await fetch(`${shipmentApiBaseUrl}/shipments/${shipmentId}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(detail || `Request failed with ${response.status}`);
+  }
+}
+
 export function displayStatus(status: string): string {
   return status
     .toLowerCase()

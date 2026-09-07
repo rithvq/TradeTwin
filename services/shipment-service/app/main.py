@@ -25,6 +25,7 @@ from app.service import (
     add_event,
     add_route_leg,
     create_shipment,
+    delete_shipment,
     get_shipment,
     get_timeline,
     list_shipments,
@@ -85,6 +86,15 @@ def list_shipments_endpoint(db: Session = Depends(get_db)):
 @app.get("/shipments/{shipment_id}", response_model=ShipmentRead)
 def get_shipment_endpoint(shipment_id: str, db: Session = Depends(get_db)):
     return get_shipment(db, shipment_id)
+
+
+@app.delete("/shipments/{shipment_id}", status_code=204)
+def delete_shipment_endpoint(
+    shipment_id: str,
+    db: Session = Depends(get_db),
+    graph: ShipmentGraph = Depends(get_graph),
+):
+    delete_shipment(db, shipment_id, graph)
 
 
 @app.post("/shipments/{shipment_id}/consignments", response_model=ConsignmentRead, status_code=201)

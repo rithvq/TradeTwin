@@ -38,6 +38,13 @@ def get_shipment(db: Session, shipment_id: str) -> Shipment:
     return shipment
 
 
+def delete_shipment(db: Session, shipment_id: str, graph: ShipmentGraph) -> None:
+    shipment = get_shipment(db, shipment_id)
+    db.delete(shipment)
+    db.commit()
+    graph.delete_shipment(shipment_id)
+
+
 def create_shipment(db: Session, payload: ShipmentCreate, graph: ShipmentGraph) -> Shipment:
     shipment = Shipment(
         shipment_reference=payload.shipment_reference,

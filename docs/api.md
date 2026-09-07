@@ -33,6 +33,7 @@ Base URL: `http://localhost:8011`
 - `POST /shipments`
 - `GET /shipments`
 - `GET /shipments/{id}`
+- `DELETE /shipments/{id}`
 - `POST /shipments/{id}/consignments`
 - `POST /shipments/{id}/route-legs`
 - `POST /shipments/{id}/events`

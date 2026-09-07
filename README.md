@@ -89,6 +89,7 @@ The Shipment Service runs on http://localhost:8011 and exposes:
 - `POST /shipments`
 - `GET /shipments`
 - `GET /shipments/{id}`
+- `DELETE /shipments/{id}`
 - `POST /shipments/{id}/consignments`
 - `POST /shipments/{id}/route-legs`
 - `POST /shipments/{id}/events`

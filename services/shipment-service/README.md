@@ -8,6 +8,7 @@ Owner of Phase 1 shipment lifecycle state, consignments, route legs, timeline ev
 - `POST /shipments`
 - `GET /shipments`
 - `GET /shipments/{id}`
+- `DELETE /shipments/{id}`
 - `POST /shipments/{id}/consignments`
 - `POST /shipments/{id}/route-legs`
 - `POST /shipments/{id}/events`
