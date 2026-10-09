@@ -1,5 +1,11 @@
 # TradeTwin Architecture
 
+The current primary workflow is [India domestic shipments](india-domestic.md).
+Structured domestic location metadata extends existing shipment records; legacy
+international records remain intact. Domestic rules, delivery-state projection
+and synthetic risk inputs are selected for records with domestic details.
+The earlier phase descriptions below provide historical architecture context.
+
 ## Phase 7 Scope
 
 Phase 7 prepares TradeTwin for project evaluation with compliance report export, demo authentication and RBAC, audit logs, API documentation, Docker deployment documentation, a threat model, a legal disclaimer, and a guided walkthrough. It intentionally does not implement production OCR, live LLM extraction, real customs filing, or real customs rules.

@@ -59,6 +59,18 @@ def test_upload_and_extract_safety_certificate_metadata() -> None:
         assert payload["extracted_fields"]["country_of_origin"] == "India"
 
 
+def test_empty_and_unsupported_uploads_are_rejected():
+    with TestClient(app) as client:
+        empty = client.post("/shipments/shipment-demo/documents",
+                            data={"document_type": "commercial_invoice"},
+                            files={"file": ("empty.txt", b"", "text/plain")})
+        unsupported = client.post("/shipments/shipment-demo/documents",
+                                  data={"document_type": "commercial_invoice"},
+                                  files={"file": ("image.png", b"image", "image/png")})
+        assert empty.status_code == 422
+        assert unsupported.status_code == 415
+
+
 def test_assessment_evidence_records_link_rule_document_and_event() -> None:
     with TestClient(app) as client:
         upload_response = client.post(

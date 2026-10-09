@@ -14,6 +14,16 @@ LEGAL_DISCLAIMER = (
 )
 
 
+def report_origin(shipment):
+    return (
+        (shipment.get("domestic") or {}).get("origin", {}).get("city", shipment["exporter_country"])
+    )
+
+
+def report_destination(item, fallback="destination_country"):
+    return (item.get("domestic") or {}).get("destination", {}).get("city", item.get(fallback, ""))
+
+
 def build_html_report(
     shipment: dict[str, Any],
     assessment: ComplianceAssessmentRead,
@@ -29,8 +39,8 @@ def build_html_report(
         f"""
         <tr>
           <td>{escape(item["product_name"])}</td>
-          <td>{escape(item["country_of_origin"])}</td>
-          <td>{escape(item["destination_country"])}</td>
+          <td>{escape(report_origin(shipment))}</td>
+          <td>{escape(report_destination(item))}</td>
           <td>{escape(str(item["quantity"]))}</td>
           <td>{escape(str(item["declared_value"]))} {escape(item["currency"])}</td>
           <td>{escape(item["customs_status"])}</td>
@@ -58,8 +68,7 @@ def build_html_report(
         for record in evidence_records
     )
     route_summary = (
-        f"{escape(recommended_route.label)} - "
-        f"{escape(' to '.join(recommended_route.countries))}"
+        f"{escape(recommended_route.label)} - {escape(' to '.join(recommended_route.countries))}"
         if recommended_route
         else "No route recommendation generated."
     )
@@ -85,8 +94,9 @@ def build_html_report(
   <h1>TradeTwin Compliance Report</h1>
   <p class="badge">{escape(assessment.status)}</p>
   <p><strong>Shipment:</strong> {escape(shipment["shipment_reference"])}</p>
-  <p><strong>Route:</strong> {escape(shipment["exporter_country"])}
-    to {escape(shipment["importer_country"])} via {escape(shipment["transport_mode"])}</p>
+  <p><strong>Route:</strong> {escape(report_origin(shipment))}
+    to {escape(report_destination(shipment, "importer_country"))}
+    via {escape(shipment["transport_mode"])}</p>
   <div class="disclaimer">{escape(LEGAL_DISCLAIMER)}</div>
 
   <h2>Consignments</h2>
@@ -130,6 +140,7 @@ def build_pdf_report(
     route_options: RouteOptimizationRead | None,
 ) -> bytes:
     from reportlab.lib.pagesizes import letter
+    from reportlab.lib.utils import simpleSplit
     from reportlab.pdfgen import canvas
 
     buffer = BytesIO()
@@ -139,12 +150,14 @@ def build_pdf_report(
 
     def draw_line(text: str, size: int = 10, bold: bool = False) -> None:
         nonlocal y
-        if y < 56:
-            pdf.showPage()
-            y = height - 48
-        pdf.setFont("Helvetica-Bold" if bold else "Helvetica", size)
-        pdf.drawString(48, y, text[:110])
-        y -= size + 8
+        font = "Helvetica-Bold" if bold else "Helvetica"
+        for line in simpleSplit(text, font, size, width - 96):
+            if y < 56:
+                pdf.showPage()
+                y = height - 48
+            pdf.setFont(font, size)
+            pdf.drawString(48, y, line)
+            y -= size + 8
 
     draw_line("TradeTwin Compliance Report", 16, True)
     draw_line(f"Shipment: {shipment['shipment_reference']}", 11, True)
@@ -155,8 +168,8 @@ def build_pdf_report(
     draw_line("Consignments", 13, True)
     for item in shipment.get("consignments", []):
         draw_line(
-            f"{item['product_name']} - {item['country_of_origin']} to "
-            f"{item['destination_country']} - {item['customs_status']}"
+            f"{item['product_name']} - {report_origin(shipment)} to "
+            f"{report_destination(item)} - {item['customs_status']}"
         )
 
     draw_line("Rule Results", 13, True)

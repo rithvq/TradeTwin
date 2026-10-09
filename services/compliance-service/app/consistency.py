@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 import hashlib
+import re
 from collections import defaultdict
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 from typing import Any
 
+from app.domestic import domestic_questions
 from app.evaluator import evaluate_compliance
 from app.schemas import (
+    ComplianceRule,
     ConflictSeverity,
     ConsistencyCheckRead,
     ConsistencyConflict,
@@ -27,13 +30,22 @@ def check_consistency(
 ) -> ConsistencyCheckRead:
     answers = answers or {}
     conflicts = [
+        *(domestic_location_conflicts(shipment, documents) if shipment.get("domestic") else []),
         *origin_conflicts(shipment, documents),
         *hs_code_conflicts(shipment, documents),
         *invoice_value_conflicts(shipment, documents),
         *quantity_conflicts(shipment, documents),
-        *missing_certificate_conflicts(shipment, documents),
-        *procedure_conflicts(shipment, events, documents, answers),
-        *route_conflicts(shipment, events),
+        *(
+            missing_certificate_conflicts(shipment, documents)
+            if not shipment.get("domestic")
+            else []
+        ),
+        *(
+            procedure_conflicts(shipment, events, documents, answers)
+            if not shipment.get("domestic")
+            else []
+        ),
+        *(route_conflicts(shipment, events) if not shipment.get("domestic") else []),
     ]
     conflicts.sort(key=lambda conflict: (severity_rank(conflict.severity), conflict.title))
     return ConsistencyCheckRead(
@@ -48,12 +60,11 @@ def highest_value_question(
     events: list[dict[str, Any]],
     documents: list[UploadedDocumentMetadata],
     answers: dict[str, str] | None = None,
+    rules: list[ComplianceRule] | None = None,
 ) -> InformationGainQuestionRead | None:
     answers = answers or {}
-    candidates = build_question_candidates(shipment, events, documents)
-    unanswered = [
-        question for question in candidates if question.attribute_key not in answers
-    ]
+    candidates = build_question_candidates(shipment, events, documents, rules)
+    unanswered = [question for question in candidates if question.attribute_key not in answers]
     if not unanswered:
         return None
     unanswered.sort(key=lambda question: (-question.impact_score, question.question))
@@ -64,15 +75,19 @@ def question_catalog(
     shipment: dict[str, Any],
     events: list[dict[str, Any]],
     documents: list[UploadedDocumentMetadata],
+    rules: list[ComplianceRule] | None = None,
 ) -> list[InformationGainQuestionRead]:
-    return build_question_candidates(shipment, events, documents)
+    return build_question_candidates(shipment, events, documents, rules)
 
 
 def build_question_candidates(
     shipment: dict[str, Any],
     events: list[dict[str, Any]],
     documents: list[UploadedDocumentMetadata],
+    rules: list[ComplianceRule] | None = None,
 ) -> list[InformationGainQuestionRead]:
+    if shipment.get("domestic"):
+        return domestic_questions(shipment)
     candidates: list[InformationGainQuestionRead] = []
 
     for consignment in shipment.get("consignments", []):
@@ -93,7 +108,11 @@ def build_question_candidates(
                         "remain sealed onboard in UAE?"
                     ),
                     impact_score=100,
-                    affects_rules=[UAE_TRANSIT_RULE_ID, UAE_LITHIUM_RULE_ID],
+                    affects_rules=[
+                        UAE_TRANSIT_RULE_ID,
+                        UAE_LITHIUM_RULE_ID,
+                        "TT-UAE-TRANSIT-HANDLING-001",
+                    ],
                     why_this_matters=(
                         "This confirms whether UAE transit rules remain the right "
                         "procedure instead of triggering an import-style treatment."
@@ -123,13 +142,12 @@ def build_question_candidates(
                 )
             )
 
-    assessment = evaluate_compliance(shipment, events, documents)
+    assessment = evaluate_compliance(shipment, events, documents, rules)
     seen_attributes = {candidate.attribute_key for candidate in candidates}
     for consignment_result in assessment.consignment_results:
         for missing_document in consignment_result.missing_documents:
             attribute_key = (
-                f"document_available:{consignment_result.consignment_id}:"
-                f"{missing_document}"
+                f"document_available:{consignment_result.consignment_id}:{missing_document}"
             )
             if attribute_key in seen_attributes:
                 continue
@@ -316,9 +334,8 @@ def quantity_conflicts(
         consignment = consignment_for_group(shipment, group_key)
         if consignment and numeric_values:
             recorded_quantity = to_decimal(consignment.get("quantity"))
-            if (
-                recorded_quantity is not None
-                and recorded_quantity not in set(numeric_values.values())
+            if recorded_quantity is not None and recorded_quantity not in set(
+                numeric_values.values()
             ):
                 conflicts.append(
                     conflict(
@@ -375,8 +392,7 @@ def procedure_conflicts(
     conflicts = []
     for consignment in shipment.get("consignments", []):
         is_uae_transit = (
-            route_contains(shipment, "UAE")
-            and consignment.get("destination_country") != "UAE"
+            route_contains(shipment, "UAE") and consignment.get("destination_country") != "UAE"
         )
         uae_import_documents = [
             document
@@ -429,9 +445,7 @@ def route_conflicts(
         if previous_leg.get("destination_country") != next_leg.get("origin_country"):
             conflicts.append(
                 ConsistencyConflict(
-                    conflict_id=(
-                        f"route_gap:{previous_leg['id']}:{next_leg['id']}"
-                    ),
+                    conflict_id=(f"route_gap:{previous_leg['id']}:{next_leg['id']}"),
                     conflict_type="route_inconsistency",
                     severity=ConflictSeverity.HIGH,
                     title="Route leg sequence is inconsistent",
@@ -509,6 +523,38 @@ def extracted_field(document: UploadedDocumentMetadata, field_name: str) -> Any:
     if isinstance(extracted_fields, dict) and field_name in extracted_fields:
         return extracted_fields[field_name]
     return document.metadata.get(field_name)
+
+
+def domestic_location_conflicts(shipment, documents):
+    conflicts = []
+    for document in documents:
+        item = next(
+            (
+                item
+                for item in shipment.get("consignments", [])
+                if item["id"] == document.consignment_id
+            ),
+            None,
+        )
+        expected = {"origin_state": shipment["domestic"]["origin"]["state"]}
+        if item and item.get("domestic"):
+            expected["destination_state"] = item["domestic"]["destination"]["state"]
+        for field, value in expected.items():
+            actual = extracted_field(document, field)
+            if actual and str(actual).strip().casefold() != value.casefold():
+                conflicts.append(
+                    conflict(
+                        shipment,
+                        document.consignment_id or "shipment",
+                        [document],
+                        "domestic_location_mismatch",
+                        ConflictSeverity.HIGH,
+                        "Document state conflicts with shipment",
+                        f"{field}: document reports {actual}; shipment records {value}.",
+                        "Dispatch and delivery states determine domestic procedure applicability.",
+                    )
+                )
+    return conflicts
 
 
 def conflict(
@@ -613,10 +659,11 @@ def is_lithium(consignment: dict[str, Any]) -> bool:
 def to_decimal(value: Any) -> Decimal | None:
     if value is None or value == "":
         return None
-    cleaned = str(value).upper().replace("USD", "").replace("EUR", "").replace("AED", "")
+    cleaned = re.sub(r"\b[A-Z]{3}\b", "", str(value).upper())
     cleaned = cleaned.replace(",", "").strip()
     try:
-        return Decimal(cleaned)
+        parsed = Decimal(cleaned)
+        return parsed if parsed.is_finite() else None
     except (InvalidOperation, ValueError):
         return None
 

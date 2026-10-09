@@ -1,4 +1,5 @@
 [tool.pytest.ini_options]
+addopts = "--import-mode=importlib"
 testpaths = [
   "apps/api",
   "services/shipment-service",

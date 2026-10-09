@@ -2,43 +2,107 @@
   {
     "hs_code": "850760",
     "title": "Lithium-ion accumulators",
-    "keywords": ["lithium", "battery", "batteries", "accumulator", "rechargeable"],
+    "keywords": [
+      "lithium",
+      "battery",
+      "batteries",
+      "accumulator",
+      "rechargeable"
+    ],
     "tariff_notes": "Demo note: rechargeable lithium-ion accumulators commonly require battery safety documentation and transport handling review."
   },
   {
     "hs_code": "850650",
     "title": "Lithium primary cells and batteries",
-    "keywords": ["lithium", "primary", "cell", "battery", "batteries"],
+    "keywords": [
+      "lithium",
+      "primary",
+      "cell",
+      "battery",
+      "batteries"
+    ],
     "tariff_notes": "Demo note: primary lithium cells may require different handling evidence than rechargeable accumulators."
   },
   {
     "hs_code": "851713",
     "title": "Smartphones and mobile telephones",
-    "keywords": ["smartphone", "phone", "mobile", "handset", "consumer electronics"],
+    "keywords": [
+      "smartphone",
+      "phone",
+      "mobile",
+      "handset",
+      "consumer electronics"
+    ],
     "tariff_notes": "Demo note: consumer communication devices may need invoice, packing, and origin evidence."
   },
   {
     "hs_code": "852872",
     "title": "Television reception apparatus",
-    "keywords": ["television", "display", "monitor", "screen", "electronics"],
+    "keywords": [
+      "television",
+      "display",
+      "monitor",
+      "screen",
+      "electronics"
+    ],
     "tariff_notes": "Demo note: display equipment can require product-specific declaration detail."
   },
   {
     "hs_code": "854239",
     "title": "Electronic integrated circuits",
-    "keywords": ["integrated circuit", "semiconductor", "chip", "electronics", "component"],
+    "keywords": [
+      "integrated circuit",
+      "semiconductor",
+      "chip",
+      "electronics",
+      "component"
+    ],
     "tariff_notes": "Demo note: electronics components often require accurate technical descriptions."
   },
   {
     "hs_code": "392690",
     "title": "Other articles of plastics",
-    "keywords": ["plastic", "article", "component", "packaging", "polymer"],
+    "keywords": [
+      "plastic",
+      "article",
+      "component",
+      "packaging",
+      "polymer"
+    ],
     "tariff_notes": "Demo note: generic plastic articles usually need material and intended-use detail."
   },
   {
     "hs_code": "950300",
     "title": "Toys, models, and puzzles",
-    "keywords": ["toy", "game", "model", "puzzle", "children"],
+    "keywords": [
+      "toy",
+      "game",
+      "model",
+      "puzzle",
+      "children"
+    ],
     "tariff_notes": "Demo note: toys may trigger age-grade and safety certificate review in real programs."
+  },
+  {
+    "hs_code": "620520",
+    "title": "Cotton shirts (demo)",
+    "keywords": [
+      "cotton",
+      "shirt",
+      "shirts",
+      "garment"
+    ],
+    "tariff_notes": "Demo taxonomy entry. Confirm garment construction, intended wearer and the applicable Indian HSN classification; this entry does not determine a GST rate."
+  },
+  {
+    "hs_code": "482010",
+    "title": "Notebooks and similar stationery (demo)",
+    "keywords": [
+      "notebook",
+      "notebooks",
+      "stationery",
+      "paper"
+    ],
+    "tariff_notes": "Demo taxonomy entry. Confirm the precise paper article and Indian HSN classification. No GST rate is inferred."
   }
 ]

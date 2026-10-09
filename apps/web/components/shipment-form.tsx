@@ -2,6 +2,7 @@
 
 import type { FormEvent } from "react";
 import { useEffect, useState } from "react";
+import { ArrowRight, Plus, Sparkles } from "lucide-react";
 import { apiFetch, type Shipment } from "../lib/shipments";
 
 type ConsignmentDraft = {
@@ -36,7 +37,7 @@ type ShipmentDraft = {
 };
 
 const inputClassName =
-  "mt-2 w-full rounded border border-slate-300 bg-white px-3 py-2 text-slate-950 outline-none placeholder:text-slate-400 focus:border-teal-600 focus:ring-2 focus:ring-teal-100";
+  "mt-2 w-full rounded border border-slate-300 bg-white px-3 py-2 text-slate-950 outline-none placeholder:text-secondary focus:border-teal-600 focus:ring-2 focus:ring-teal-100";
 
 const countryOptions = [
   "India",
@@ -424,14 +425,18 @@ export function ShipmentForm() {
   }
 
   return (
-    <section className="rounded border border-slate-200 bg-white p-5 sm:p-6">
+    <section className="tt-panel p-5 sm:p-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-xl font-semibold text-slate-950">Create Shipment</h2>
+        <div>
+          <p className="tt-kicker">New digital twin</p>
+          <h2 className="mt-1 text-xl font-semibold text-slate-950">Create shipment</h2>
+        </div>
         <button
           type="button"
           onClick={loadDemoScenario}
-          className="rounded border border-teal-700 px-3 py-2 text-sm font-semibold text-teal-800 hover:bg-teal-50"
+          className="flex items-center justify-center gap-2 rounded border border-teal-700 px-3 py-2 text-sm font-semibold text-teal-800 hover:bg-teal-50"
         >
+          <Sparkles className="size-4" aria-hidden="true" />
           Load demo scenario
         </button>
       </div>
@@ -527,8 +532,9 @@ export function ShipmentForm() {
             <button
               type="button"
               onClick={addRouteLeg}
-              className="rounded border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+              className="flex items-center gap-2 rounded border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
             >
+              <Plus className="size-4" aria-hidden="true" />
               Add route leg
             </button>
           </div>
@@ -617,8 +623,9 @@ export function ShipmentForm() {
             <button
               type="button"
               onClick={addConsignment}
-              className="rounded border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+              className="flex items-center gap-2 rounded border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
             >
+              <Plus className="size-4" aria-hidden="true" />
               Add consignment
             </button>
           </div>
@@ -769,9 +776,10 @@ export function ShipmentForm() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full rounded bg-teal-700 px-4 py-3 font-semibold text-white hover:bg-teal-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+          className="flex w-full items-center justify-center gap-2 rounded bg-teal-700 px-4 py-3 font-semibold text-white hover:bg-teal-800 disabled:cursor-not-allowed disabled:bg-slate-400"
         >
           {submitting ? "Creating shipment..." : "Create shipment"}
+          {!submitting ? <ArrowRight className="size-4" aria-hidden="true" /> : null}
         </button>
       </form>
     </section>

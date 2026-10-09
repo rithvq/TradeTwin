@@ -6,6 +6,7 @@ from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from tradetwin_security import enabled, identity
 
 from app.config import settings
 
@@ -23,6 +24,11 @@ ROLE_RANK = {"viewer": 1, "operator": 2, "admin": 3}
 def get_current_principal(
     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(bearer_scheme)],
 ) -> Principal:
+    if enabled():
+        user = identity.get()
+        if not user:
+            raise HTTPException(status_code=401, detail="Sign in required")
+        return Principal(actor_id=user["id"], role=user["role"])
     if credentials is None:
         if settings.auth_required:
             raise HTTPException(

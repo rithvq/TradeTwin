@@ -6,6 +6,7 @@ alembic==1.16.4
 psycopg[binary]==3.2.9
 python-multipart==0.0.32
 minio==7.2.20
+cryptography==50.0.1
 pypdf==6.16.2
 pdfplumber==0.11.10
 pytest==8.4.1

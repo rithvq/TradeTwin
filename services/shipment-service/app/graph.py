@@ -1,3 +1,4 @@
+import logging
 from collections.abc import Sequence
 
 from neo4j import GraphDatabase
@@ -7,6 +8,8 @@ from sqlalchemy.orm import Session, selectinload
 from app.config import settings
 from app.models import Shipment
 from app.schemas import GraphEdge, GraphNode, ShipmentGraphRead
+
+logger = logging.getLogger(__name__)
 
 
 class ShipmentGraph:
@@ -22,26 +25,33 @@ class ShipmentGraph:
         if self._driver is not None:
             self._driver.close()
 
-    def sync_shipment(self, shipment: Shipment) -> None:
+    def sync_shipment(self, shipment: Shipment) -> bool:
         if self._driver is None:
-            return
+            return True
         try:
             with self._driver.session() as session:
                 session.execute_write(self._write_shipment, shipment)
+            return True
         except (Neo4jError, ServiceUnavailable):
-            return
+            logger.exception("Shipment graph synchronization failed for %s", shipment.id)
+            return False
 
-    def delete_shipment(self, shipment_id: str) -> None:
+    def delete_shipment(self, shipment_id: str) -> bool:
         if self._driver is None:
-            return
+            return True
         try:
             with self._driver.session() as session:
                 session.execute_write(self._delete_shipment, shipment_id)
+            return True
         except (Neo4jError, ServiceUnavailable):
-            return
+            logger.exception("Shipment graph deletion failed for %s", shipment_id)
+            return False
 
     @staticmethod
     def _write_shipment(tx, shipment: Shipment) -> None:
+        if shipment.domestic:
+            ShipmentGraph._write_domestic(tx, shipment)
+            return
         tx.run(
             """
             MERGE (s:Shipment {id: $id})
@@ -141,7 +151,31 @@ class ShipmentGraph:
             )
 
     @staticmethod
+    def _write_domestic(tx, shipment):
+        graph = build_domestic_graph(shipment)
+        # Keep all projected domestic nodes under the owning shipment for idempotent replacement.
+        tx.run("MATCH (n {projectionShipment: $shipment}) DETACH DELETE n", shipment=shipment.id)
+        for node in graph.nodes:
+            tx.run(
+                f"CREATE (n:DomesticTwinNode:{node.type} "
+                "{id: $id, label: $label, kind: $kind, projectionShipment: $shipment})",
+                id=node.id,
+                label=node.label,
+                kind=node.type,
+                shipment=shipment.id,
+            )
+        for edge in graph.edges:
+            # Relationship names come exclusively from build_domestic_graph constants.
+            tx.run(
+                "MATCH (a:DomesticTwinNode {id: $source}), (b:DomesticTwinNode {id: $target}) "
+                f"MERGE (a)-[:{edge.label}]->(b)",
+                source=edge.source,
+                target=edge.target,
+            )
+
+    @staticmethod
     def _delete_shipment(tx, shipment_id: str) -> None:
+        tx.run("MATCH (n {projectionShipment: $shipment}) DETACH DELETE n", shipment=shipment_id)
         tx.run(
             """
             MATCH (shipment:Shipment {id: $shipment_id})
@@ -182,6 +216,8 @@ def load_graph_shipment(db: Session, shipment_id: str) -> Shipment | None:
 
 
 def build_graph_response(shipment: Shipment) -> ShipmentGraphRead:
+    if shipment.domestic:
+        return build_domestic_graph(shipment)
     nodes: dict[str, GraphNode] = {}
     edges: dict[str, GraphEdge] = {}
 
@@ -245,3 +281,51 @@ def add_country_nodes(countries: Sequence[str], nodes: dict[str, GraphNode]) -> 
 
 def country_node_id(country: str) -> str:
     return f"country:{country.lower().replace(' ', '-')}"
+
+
+def build_domestic_graph(shipment):
+    nodes, edges = {}, {}
+
+    def node(key, label, kind):
+        nodes[key] = GraphNode(id=key, label=label, type=kind)
+        return key
+
+    def place(location):
+        return node(
+            f"location:{shipment.id}:{location['state']}:{location['pincode']}",
+            f"{location['city']}, {location['state']} ({location['pincode']})",
+            "Location",
+        )
+
+    def edge(source, target, label):
+        key = f"{source}:{label}:{target}"
+        edges[key] = GraphEdge(id=key, source=source, target=target, label=label)
+
+    root = node(f"shipment:{shipment.id}", shipment.shipment_reference, "Shipment")
+    origin = place(shipment.domestic["origin"])
+    for item in shipment.consignments:
+        key = node(
+            f"consignment:{item.id}", f"{item.product_name} ({item.customs_status})", "Consignment"
+        )
+        edge(root, key, "CONTAINS")
+        edge(key, origin, "ORIGINATES_IN")
+        edge(key, place(item.domestic["destination"]), "DESTINED_FOR")
+    for leg in shipment.route_legs:
+        key = node(
+            f"route-leg:{leg.id}",
+            f"Leg {leg.sequence_number}: {leg.domestic['origin']['city']} "
+            f"to {leg.domestic['destination']['city']}",
+            "RouteLeg",
+        )
+        edge(root, key, "HAS_ROUTE_LEG")
+        edge(key, place(leg.domestic["origin"]), "FROM")
+        edge(key, place(leg.domestic["destination"]), "TO")
+    for event in shipment.events:
+        key = node(f"event:{event.id}", event.event_type, "ShipmentEvent")
+        edge(key, place(event.event_metadata["location"]), "OCCURRED_IN")
+        edge(
+            key,
+            f"consignment:{event.consignment_id}" if event.consignment_id else root,
+            "AFFECTS_CONSIGNMENT" if event.consignment_id else "AFFECTS_SHIPMENT",
+        )
+    return ShipmentGraphRead(nodes=list(nodes.values()), edges=list(edges.values()))

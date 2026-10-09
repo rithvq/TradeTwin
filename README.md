@@ -1,4 +1,41 @@
 # TradeTwin
+
+## Route Memory
+
+The Optimizer now opens profile-scoped route memory, reviewed carrier offers and dated
+decision comparisons linked to shipment events, document readiness and regulation versions.
+See [state-relations setup and limits](docs/state-relations.md) for optional truck routing,
+refresh behavior and the distinction between quoted prices, observations and estimates.
+
+## Confidential Documents
+
+Document files and sensitive extracted metadata are encrypted at rest. Before starting
+a fresh checkout, run `python scripts/init-document-key.py` once. Preserve and securely
+back up `.secrets/document-keyring.json`; losing it prevents document recovery.
+Read [rollout, migration and security limits](docs/confidential-documents.md) before
+rebuilding an existing deployment.
+
+## Source-Backed Rule Updates
+
+The Regulations workspace supports official-source retrieval, optional AI drafting,
+source quotations, administrator review and versioned publication. Set
+`REGULATION_CATALOG_MODE=reviewed` to evaluate only database-published rules;
+the default `demo` retains bundled scenarios. See
+[configuration, workflow and limitations](docs/dynamic-regulations.md).
+
+## India Domestic Scope
+
+The primary workflow now covers domestic Indian road shipments, including
+interstate movement, Indian locations, INR values, tax invoices and e-way bill
+document readiness. See [India domestic scope and walkthrough](docs/india-domestic.md)
+for coverage, migration, tests and limitations. The phase descriptions below
+document the earlier international prototype retained for historical compatibility.
+
+Profile login is now required by default. Follow [OAuth setup](docs/oauth-setup.md)
+to configure sign-in and understand how existing data is preserved separately.
+
+See [the functional audit and verification report](docs/audit-2026-09-08.md)
+for tested workflows, runtime connectivity, repeatable checks, and prototype limitations.
 TradeTwin is an AI-driven Digital Twin for Cross-Jurisdiction Trade Compliance.
 
 This repository now includes Phase 7: project-evaluation readiness with reports, demo auth/RBAC, audit logs, documentation, tests, and a guided walkthrough. It still does not implement production OCR, live LLM extraction, real customs filing, or real customs rules.
@@ -20,6 +57,7 @@ For local overrides, copy `.env.example` to `.env` and export the values you wan
 Open:
 
 - Web: http://localhost:3000
+- Orbital dashboard: http://localhost:3000/dashboard
 - API health: http://localhost:8000/health
 - Shipment service health: http://localhost:8011/health
 - Compliance service health: http://localhost:8012/health
@@ -27,6 +65,16 @@ Open:
 - Intelligence service health: http://localhost:8014/health
 - Neo4j browser: http://localhost:7474
 - MinIO console: http://localhost:9001
+
+The orbital dashboard uses live shipment, compliance, risk, and service-health data
+from the existing microservices. Aggregate values without a dedicated endpoint yet
+(pending reviews, recent regulation changes, missing-document totals, graph
+relationships, and route alternatives) are visibly marked as demo values.
+
+Dashboard previews:
+
+- [Desktop dashboard](docs/screenshots/tradetwin-dashboard-desktop.png)
+- [Mobile dashboard](docs/screenshots/tradetwin-dashboard-mobile.png)
 
 Default local Neo4j login:
 

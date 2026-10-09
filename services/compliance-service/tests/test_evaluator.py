@@ -1,5 +1,6 @@
 import os
 import sys
+from datetime import date
 from pathlib import Path
 
 os.environ["DATABASE_URL"] = "sqlite+pysqlite:///:memory:"
@@ -11,11 +12,107 @@ for module_name in list(sys.modules):
     if module_name == "app" or module_name.startswith("app."):
         del sys.modules[module_name]
 
-from app.evaluator import evaluate_compliance  # noqa: E402
+from app.evaluator import effective_rules, evaluate_compliance, load_rules  # noqa: E402
 from app.schemas import ComplianceStatus, UploadedDocumentMetadata  # noqa: E402
 
 LITHIUM_ID = "consignment-lithium"
 ELECTRONICS_ID = "consignment-electronics"
+
+
+def domestic_shipment(value=50001, state="Maharashtra"):
+    return {
+        "id": "domestic",
+        "transport_mode": "ROAD",
+        "domestic": {
+            "origin": {"state": "Tamil Nadu", "city": "Chennai", "pincode": "600001"},
+            "destination": {"state": state, "city": "Pune", "pincode": "411001"},
+            "registered_consignor": True,
+            "ordinary_goods": True,
+            "movement_reason": "SUPPLY",
+        },
+        "consignments": [
+            {
+                "id": "shirts",
+                "product_name": "Cotton shirts",
+                "domestic": {
+                    "destination": {"state": state},
+                    "consignment_value": value,
+                },
+            },
+            {
+                "id": "stationery",
+                "product_name": "Stationery",
+                "domestic": {
+                    "destination": {"state": "Karnataka"},
+                    "consignment_value": 20000,
+                },
+            },
+        ],
+    }
+
+
+def domestic_documents():
+    return [
+        UploadedDocumentMetadata(
+            document_id=f"invoice-{item}",
+            document_type="tax_invoice",
+            consignment_id=item,
+            jurisdiction="India",
+            metadata={"verification_status": "EXTRACTED"},
+        )
+        for item in ("shirts", "stationery")
+    ]
+
+
+def test_domestic_threshold_and_independent_consignment_outcomes():
+    result = evaluate_compliance(domestic_shipment(), [], domestic_documents())
+    by_id = {item.consignment_id: item for item in result.consignment_results}
+    assert by_id["shirts"].status == ComplianceStatus.CONDITIONALLY_COMPLIANT
+    assert by_id["shirts"].missing_documents == ["eway_bill"]
+    assert by_id["stationery"].status == ComplianceStatus.COMPLIANT
+    assert {rule.procedure_type for rule in result.applicable_rules} <= {"domestic", "interstate"}
+    boundary = evaluate_compliance(domestic_shipment(50000), [], domestic_documents())
+    assert boundary.status == ComplianceStatus.COMPLIANT
+
+
+def test_domestic_documents_resolve_missing_eway_without_cross_consignment_leak():
+    documents = domestic_documents() + [
+        UploadedDocumentMetadata(
+            document_id="eway",
+            document_type="eway_bill",
+            consignment_id="stationery",
+            jurisdiction="India",
+            metadata={"verification_status": "EXTRACTED"},
+        )
+    ]
+    assert evaluate_compliance(domestic_shipment(), [], documents).missing_documents == [
+        "eway_bill"
+    ]
+    documents[-1].consignment_id = "shirts"
+    assert (
+        evaluate_compliance(domestic_shipment(), [], documents).status == ComplianceStatus.COMPLIANT
+    )
+
+
+def test_intrastate_needs_state_confirmation_and_unsupported_movement_stays_unresolved():
+    shipment = domestic_shipment(state="Tamil Nadu")
+    assert (
+        evaluate_compliance(shipment, [], domestic_documents()).status
+        == ComplianceStatus.INSUFFICIENT_INFORMATION
+    )
+    result = evaluate_compliance(
+        shipment, [], domestic_documents(), answers={"eway_bill_required:shirts": "yes"}
+    )
+    assert result.missing_documents == ["eway_bill"]
+    result = evaluate_compliance(
+        shipment, [], domestic_documents(), answers={"eway_bill_required:shirts": "no"}
+    )
+    assert result.status == ComplianceStatus.COMPLIANT
+    shipment["domestic"]["ordinary_goods"] = False
+    assert (
+        evaluate_compliance(shipment, [], domestic_documents()).status
+        == ComplianceStatus.INSUFFICIENT_INFORMATION
+    )
 
 
 def test_transit_rules_differ_from_import_rules() -> None:
@@ -59,9 +156,7 @@ def test_missing_battery_certificate_creates_conditional_compliance() -> None:
     assert lithium_uae is not None
 
     battery_rule = next(
-        rule
-        for rule in lithium_uae.applicable_rules
-        if rule.rule_id == "TT-UAE-LITHIUM-SAFETY-001"
+        rule for rule in lithium_uae.applicable_rules if rule.rule_id == "TT-UAE-LITHIUM-SAFETY-001"
     )
     assert battery_rule.status == ComplianceStatus.CONDITIONALLY_COMPLIANT
     assert battery_rule.missing_documents == ["lithium_battery_safety_certificate"]
@@ -86,13 +181,48 @@ def test_extracted_safety_certificate_satisfies_lithium_battery_rule() -> None:
     assert lithium_uae is not None
 
     battery_rule = next(
-        rule
-        for rule in lithium_uae.applicable_rules
-        if rule.rule_id == "TT-UAE-LITHIUM-SAFETY-001"
+        rule for rule in lithium_uae.applicable_rules if rule.rule_id == "TT-UAE-LITHIUM-SAFETY-001"
     )
     assert battery_rule.status == ComplianceStatus.COMPLIANT
     assert battery_rule.supporting_document_ids == ["uploaded-safety-certificate"]
     assert battery_rule.shipment_event_id == "event-arrived-uae"
+
+
+def test_rule_effective_dates_and_version_replacement():
+    original = load_rules()[0]
+    expired = original.model_copy(update={"effective_to": "2026-02-01"})
+    future = original.model_copy(update={"effective_from": "2027-01-01"})
+    replacement = original.model_copy(update={"version": "2026.2"})
+    assert effective_rules([expired, future], date(2026, 9, 8)) == []
+    assert effective_rules([original, replacement], date(2026, 9, 8)) == [replacement]
+
+
+def test_empty_rule_set_does_not_fall_back_to_demo_rules():
+    result = evaluate_compliance(sample_shipment(), sample_events(), [], rules=[])
+    assert result.applicable_rules == []
+    assert result.status == ComplianceStatus.INSUFFICIENT_INFORMATION
+
+
+def test_answer_changes_transit_result_without_applying_import_rules():
+    result = evaluate_compliance(
+        sample_shipment(),
+        sample_events(),
+        complete_documents(),
+        answers={f"sealed_onboard_uae:{LITHIUM_ID}": "no"},
+    )
+    transit = find_result(result, LITHIUM_ID, "UAE", "transit")
+    assert transit.status == ComplianceStatus.CONDITIONALLY_COMPLIANT
+    assert "handling procedure" in transit.recommended_action
+    assert find_result(result, LITHIUM_ID, "UAE", "import") is None
+
+
+def test_unknown_import_jurisdiction_cannot_be_marked_compliant():
+    shipment = sample_shipment()
+    shipment["consignments"][0]["destination_country"] = "Canada"
+    result = evaluate_compliance(shipment, sample_events(), complete_documents())
+    assert find_result(result, LITHIUM_ID, "Canada", "import").status == (
+        ComplianceStatus.INSUFFICIENT_INFORMATION
+    )
 
 
 def find_result(assessment, consignment_id: str, jurisdiction: str, procedure_type: str):

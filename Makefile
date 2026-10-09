@@ -1,6 +1,7 @@
 .PHONY: up down logs test lint health
 
 up:
+	python scripts/init-document-key.py
 	docker compose up --build
 
 down:

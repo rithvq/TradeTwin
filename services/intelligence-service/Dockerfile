@@ -6,9 +6,10 @@ ENV PIP_DEFAULT_TIMEOUT=120
 ENV PIP_RETRIES=5
 
 WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir --timeout 120 --retries 5 -r requirements.txt
-COPY . .
+COPY services/intelligence-service/requirements.txt .
+COPY packages/security /opt/tradetwin-security
+RUN pip install --no-cache-dir --timeout 120 --retries 5 -r requirements.txt /opt/tradetwin-security
+COPY services/intelligence-service/ .
 
 EXPOSE 8000
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

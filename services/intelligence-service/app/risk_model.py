@@ -5,6 +5,7 @@ from typing import Any
 
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 
+from app.domestic_risk import score_domestic
 from app.schemas import RiskFactor
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
@@ -27,6 +28,8 @@ def score_shipment(
     shipment: dict[str, Any],
     events: list[dict[str, Any]],
 ) -> dict[str, Any]:
+    if shipment.get("domestic"):
+        return score_domestic(shipment)
     features = extract_features(shipment, events)
     model = trained_model()
     vector = [[features[name] for name in FEATURE_NAMES]]

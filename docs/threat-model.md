@@ -2,6 +2,11 @@
 
 This model covers the local project-evaluation prototype.
 
+Current document protection now includes authenticated file/metadata encryption and
+profile isolation. See [confidential document storage](confidential-documents.md) for
+the exact coverage, key management, migration risks and remaining deployment controls.
+The historical table below describes the earlier prototype baseline.
+
 ## Assets
 
 - Shipment, consignment, event, and route data.

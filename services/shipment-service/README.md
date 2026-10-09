@@ -5,6 +5,7 @@ Owner of Phase 1 shipment lifecycle state, consignments, route legs, timeline ev
 ## Endpoints
 
 - `GET /health`
+- `POST /demo/seed`
 - `POST /shipments`
 - `GET /shipments`
 - `GET /shipments/{id}`
@@ -22,4 +23,4 @@ On startup the service seeds a demonstration shipment for India to UAE to German
 - Consignment A: Lithium batteries from India to Germany
 - Consignment B: Consumer electronics from India to UAE
 
-The seeded timeline records creation in India, loading both consignments, arrival in UAE, and unloading consumer electronics in UAE.
+The seeded timeline records creation in India, loading both consignments, arrival in UAE, and unloading consumer electronics in UAE. `POST /demo/seed` returns the existing scenario or recreates it when it has been deleted.

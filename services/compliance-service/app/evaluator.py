@@ -1,8 +1,10 @@
 import json
 from collections import defaultdict
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any
 
+from app.domestic import evaluate_domestic
 from app.schemas import (
     ApplicableRuleResult,
     ComplianceAssessmentResult,
@@ -42,14 +44,28 @@ def evaluate_compliance(
     events: list[dict[str, Any]],
     uploaded_documents: list[UploadedDocumentMetadata],
     rules: list[ComplianceRule] | None = None,
+    answers: dict[str, str] | None = None,
+    as_of: date | None = None,
 ) -> ComplianceAssessmentResult:
-    active_rules = rules or load_rules()
+    active_rules = effective_rules(load_rules() if rules is None else rules, as_of)
+    if shipment.get("domestic"):
+        return evaluate_domestic(
+            shipment,
+            events,
+            uploaded_documents,
+            active_rules,
+            answers or {},
+            evaluate_rule,
+            aggregate_status,
+            unique_ordered,
+        )
+    answers = answers or {}
     consignments = shipment.get("consignments", [])
     group_results: dict[tuple[str, str, str], list[ApplicableRuleResult]] = defaultdict(list)
 
     for consignment in consignments:
         for rule in active_rules:
-            if not rule_applies(rule, shipment, consignment, events):
+            if not rule_applies(rule, shipment, consignment, events, answers):
                 continue
             event_id = find_matching_event_id(rule, consignment, events)
             result = evaluate_rule(rule, consignment, uploaded_documents, event_id)
@@ -60,6 +76,25 @@ def evaluate_compliance(
         build_consignment_result(consignments, key, rule_results)
         for key, rule_results in group_results.items()
     ]
+    for consignment in consignments:
+        for jurisdiction, procedure in (
+            (shipment.get("exporter_country"), "export"),
+            (consignment.get("destination_country"), "import"),
+        ):
+            if jurisdiction and not any(
+                rule.jurisdiction == jurisdiction and rule.procedure_type == procedure
+                for rule in active_rules
+            ):
+                consignment_results.append(
+                    ConsignmentComplianceResult(
+                        consignment_id=consignment["id"],
+                        product_name=consignment["product_name"],
+                        jurisdiction=jurisdiction,
+                        procedure_type=procedure,
+                        status=ComplianceStatus.INSUFFICIENT_INFORMATION,
+                        recommended_action=f"Provide versioned {jurisdiction} {procedure} rules.",
+                    )
+                )
     consignment_results.sort(
         key=lambda item: (item.product_name, item.jurisdiction, item.procedure_type)
     )
@@ -95,6 +130,23 @@ def evaluate_compliance(
         recommended_action="; ".join(recommended_actions) or "No action required.",
         consignment_results=consignment_results,
     )
+
+
+def effective_rules(
+    rules: list[ComplianceRule],
+    as_of: date | None = None,
+) -> list[ComplianceRule]:
+    assessment_date = as_of or datetime.now(UTC).date()
+    selected: dict[str, ComplianceRule] = {}
+    for rule in rules:
+        if date.fromisoformat(rule.effective_from) > assessment_date:
+            continue
+        if rule.effective_to and date.fromisoformat(rule.effective_to) < assessment_date:
+            continue
+        previous = selected.get(rule.rule_id)
+        if previous is None or rule.effective_from >= previous.effective_from:
+            selected[rule.rule_id] = rule
+    return list(selected.values())
 
 
 def evaluate_rule(
@@ -200,8 +252,14 @@ def rule_applies(
     shipment: dict[str, Any],
     consignment: dict[str, Any],
     events: list[dict[str, Any]],
+    answers: dict[str, str] | None = None,
 ) -> bool:
     conditions = rule.conditions
+    if conditions.get("scope") == "india_domestic":
+        return False
+    for attribute, expected in conditions.get("answer_equals", {}).items():
+        if (answers or {}).get(f"{attribute}:{consignment['id']}") != expected:
+            return False
 
     exporter_country = conditions.get("shipment_exporter_country")
     if exporter_country and shipment.get("exporter_country") != exporter_country:

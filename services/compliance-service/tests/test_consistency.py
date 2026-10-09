@@ -17,6 +17,36 @@ for module_name in list(sys.modules):
 from tests.test_evaluator import LITHIUM_ID, sample_events, sample_shipment
 from app.consistency import check_consistency, highest_value_question
 from app.schemas import UploadedDocumentMetadata
+from tests.test_evaluator import domestic_shipment
+
+
+def test_domestic_state_conflict_and_one_question_at_a_time():
+    shipment = domestic_shipment(state="Tamil Nadu")
+    shipment["domestic"]["registered_consignor"] = None
+    shipment["domestic"]["ordinary_goods"] = None
+    question = highest_value_question(shipment, [], [])
+    assert question.attribute_key == "registered_consignor"
+    question = highest_value_question(shipment, [], [], answers={"registered_consignor": "yes"})
+    assert question.attribute_key == "ordinary_goods"
+    question = highest_value_question(
+        shipment, [], [], answers={"registered_consignor": "yes", "ordinary_goods": "yes"}
+    )
+    assert question.attribute_key == "eway_bill_required:shirts"
+    result = check_consistency(
+        shipment,
+        [],
+        [
+            UploadedDocumentMetadata(
+                document_id="invoice",
+                document_type="tax_invoice",
+                consignment_id="shirts",
+                metadata={"origin_state": "Karnataka"},
+            )
+        ],
+    )
+    assert any(
+        conflict.conflict_type == "domestic_location_mismatch" for conflict in result.conflicts
+    )
 
 
 def test_origin_conflict_across_documents() -> None:
@@ -54,9 +84,7 @@ def test_quantity_conflict_across_documents() -> None:
 
     assert any(conflict.conflict_type == "quantity_mismatch" for conflict in result.conflicts)
     conflict = next(
-        conflict
-        for conflict in result.conflicts
-        if conflict.conflict_type == "quantity_mismatch"
+        conflict for conflict in result.conflicts if conflict.conflict_type == "quantity_mismatch"
     )
     assert conflict.severity == "HIGH"
     assert "doc-invoice=120" in conflict.details
@@ -73,8 +101,7 @@ def test_transit_status_question_is_highest_value_question() -> None:
 
     assert question is not None
     assert (
-        question.question
-        == "Will the lithium batteries consignment remain sealed onboard in UAE?"
+        question.question == "Will the lithium batteries consignment remain sealed onboard in UAE?"
     )
     assert question.impact_score == 100
     assert "TT-UAE-TRANSIT-001" in question.affects_rules

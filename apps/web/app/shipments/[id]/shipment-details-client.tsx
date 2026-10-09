@@ -1,20 +1,30 @@
 "use client";
 
 import {
-  Background,
-  Controls,
-  ReactFlow,
-  type Edge,
-  type Node,
-} from "@xyflow/react";
+  CircleCheck,
+  FileText,
+  Lock,
+  MapPin,
+  Package,
+  RefreshCw,
+  Route,
+  Unlock,
+  Warehouse,
+  type LucideIcon,
+} from "lucide-react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import type { FormEvent } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import RadialOrbitalTimeline, {
+  type TimelineItem,
+} from "../../../components/ui/radial-orbital-timeline";
 import {
   buildDemoDocumentPackage,
   complianceFetchBlob,
   complianceFetch,
   type ComplianceAssessment,
+  type ComplianceRule,
   type ConsistencyCheck,
   type ImpactAnalysis,
   type InformationGainQuestion,
@@ -33,6 +43,9 @@ import {
 import {
   apiFetch,
   displayStatus,
+  shipmentRoute,
+  locationLabel,
+  type IndianLocation,
   type Shipment,
   type ShipmentEvent,
   type ShipmentGraph,
@@ -41,20 +54,49 @@ import {
 const eventTypes = [
   "CREATED",
   "LOADED",
-  "ARRIVED_AT_TRANSIT_PORT",
+  "ARRIVED_AT_HUB",
+  "DELIVERED",
   "UNLOADED",
   "TEMPORARY_STORAGE",
   "TRANSSHIPMENT",
   "CONTAINER_OPENED",
   "CONTAINER_RESEALED",
-  "ROUTE_CHANGED",
+
 ];
+
+const ShipmentGraphPanel = dynamic(
+  () =>
+    import("../../../components/shipment-graph-panel").then(
+      (module) => module.ShipmentGraphPanel,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-[640px] items-center justify-center rounded border border-slate-200 text-sm text-slate-500">
+        Loading shipment graph...
+      </div>
+    ),
+  },
+);
+
+const eventIcons: Record<string, LucideIcon> = {
+  CREATED: CircleCheck,
+  LOADED: Package,
+  ARRIVED_AT_TRANSIT_PORT: MapPin,
+  UNLOADED: Package,
+  TEMPORARY_STORAGE: Warehouse,
+  TRANSSHIPMENT: RefreshCw,
+  CONTAINER_OPENED: Unlock,
+  CONTAINER_RESEALED: Lock,
+  ROUTE_CHANGED: Route,
+};
 
 export default function ShipmentDetailsClient({ shipmentId }: { shipmentId: string }) {
   const [shipment, setShipment] = useState<Shipment | null>(null);
   const [events, setEvents] = useState<ShipmentEvent[]>([]);
   const [graph, setGraph] = useState<ShipmentGraph>({ nodes: [], edges: [] });
   const [assessments, setAssessments] = useState<ComplianceAssessment[]>([]);
+  const [regulationRules, setRegulationRules] = useState<ComplianceRule[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [complianceError, setComplianceError] = useState<string | null>(null);
   const [decisionError, setDecisionError] = useState<string | null>(null);
@@ -90,6 +132,7 @@ export default function ShipmentDetailsClient({ shipmentId }: { shipmentId: stri
           `/compliance/assessments/${shipmentId}`,
         ),
       );
+      setRegulationRules(await complianceFetch<ComplianceRule[]>("/regulations/rules"));
     } catch (err) {
       setComplianceError(
         err instanceof Error ? err.message : "Could not load compliance assessments",
@@ -164,9 +207,9 @@ export default function ShipmentDetailsClient({ shipmentId }: { shipmentId: stri
         body: JSON.stringify({
           consignment_id: consignmentId === "shipment" ? null : consignmentId,
           event_type: String(formData.get("event_type") || "UNLOADED"),
-          location_country: String(formData.get("location_country") || "UAE"),
+          location_country: shipment?.domestic ? "India" : String(formData.get("location_country") || "India"),
           occurred_at: new Date().toISOString(),
-          metadata: { source: "web-ui" },
+          metadata: { source: "web-ui", ...(shipment?.domestic ? { location: JSON.parse(String(formData.get("location"))) } : {}) },
         }),
       });
       await loadShipment();
@@ -177,13 +220,43 @@ export default function ShipmentDetailsClient({ shipmentId }: { shipmentId: stri
     }
   }
 
-  const flow = useMemo(() => toFlow(graph), [graph]);
+  const orbitalEvents = useMemo<TimelineItem[]>(
+    () =>
+      events.map((shipmentEvent, index) => {
+        const target = shipmentEvent.consignment_id
+          ? shipment?.consignments.find(
+              (consignment) => consignment.id === shipmentEvent.consignment_id,
+            )?.product_name ?? "Consignment"
+          : "Shipment";
+        const relatedIds = [events[index - 1]?.id, events[index + 1]?.id].filter(
+          (id): id is string => Boolean(id),
+        );
+
+        return {
+          id: shipmentEvent.id,
+          title: displayStatus(shipmentEvent.event_type),
+          date: new Date(shipmentEvent.occurred_at).toLocaleString(),
+          content: `${shipmentEvent.metadata.location ? locationLabel(shipmentEvent.metadata.location as IndianLocation) : shipmentEvent.location_country} | ${target}`,
+          category: shipmentEvent.metadata.location ? locationLabel(shipmentEvent.metadata.location as IndianLocation) : shipmentEvent.location_country,
+          icon: eventIcons[shipmentEvent.event_type] ?? CircleCheck,
+          relatedIds,
+          status: index === events.length - 1 ? "in-progress" : "completed",
+          energy: Math.round(35 + ((index + 1) / Math.max(events.length, 1)) * 65),
+        };
+      }),
+    [events, shipment],
+  );
   const latestAssessment = assessments[0] ?? null;
+  useEffect(() => {
+    if (shipment && window.location.hash) {
+      document.getElementById(window.location.hash.slice(1))?.scrollIntoView();
+    }
+  }, [shipment]);
   const defaultEventTarget =
     shipment?.consignments.find((consignment) => consignment.destination_country === "UAE")?.id ??
     "shipment";
 
-  async function evaluateCompliance(includeBatteryCertificate: boolean) {
+  async function evaluateCompliance(includeBatteryCertificate: boolean | null) {
     if (!shipment) {
       return;
     }
@@ -195,10 +268,8 @@ export default function ShipmentDetailsClient({ shipmentId }: { shipmentId: stri
         {
           method: "POST",
           body: JSON.stringify({
-            uploaded_documents: buildDemoDocumentPackage(
-              shipment.id,
-              includeBatteryCertificate,
-            ),
+            uploaded_documents: includeBatteryCertificate === null ? [] :
+              buildDemoDocumentPackage(shipment.id, includeBatteryCertificate, !!shipment.domestic),
           }),
         },
       );
@@ -226,7 +297,7 @@ export default function ShipmentDetailsClient({ shipmentId }: { shipmentId: stri
           method: "POST",
           body: JSON.stringify({
             answer,
-            uploaded_documents: buildDemoDocumentPackage(shipment.id, false),
+            uploaded_documents: [],
             metadata: { source: "shipment-details-ui" },
           }),
         },
@@ -303,7 +374,7 @@ export default function ShipmentDetailsClient({ shipmentId }: { shipmentId: stri
           {
             method: "POST",
             body: JSON.stringify({
-              uploaded_documents: buildDemoDocumentPackage(shipment.id, false),
+              uploaded_documents: [],
             }),
           },
         ),
@@ -338,7 +409,7 @@ export default function ShipmentDetailsClient({ shipmentId }: { shipmentId: stri
           method: "POST",
           body: JSON.stringify({
             regulation_ids: [published.regulation.id],
-            uploaded_documents: buildDemoDocumentPackage(shipment.id, false),
+            uploaded_documents: [],
           }),
         },
       );
@@ -380,7 +451,7 @@ export default function ShipmentDetailsClient({ shipmentId }: { shipmentId: stri
 
   if (!shipment) {
     return (
-      <main className="min-h-screen bg-[#f6f8fb] px-6 py-6">
+      <main className="tt-page px-6 py-8">
         <Link href="/" className="text-sm font-medium text-teal-700">
           Back to shipments
         </Link>
@@ -390,16 +461,16 @@ export default function ShipmentDetailsClient({ shipmentId }: { shipmentId: stri
   }
 
   return (
-    <main className="min-h-screen bg-[#f6f8fb]">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-7xl px-6 py-5">
+    <main className="tt-page">
+      <header className="tt-context-header">
+        <div className="mx-auto max-w-[1500px] px-4 py-6 sm:px-6">
           <Link href="/" className="text-sm font-medium text-teal-700">
             Back to shipments
           </Link>
           <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="text-sm font-semibold text-slate-500">Shipment Details</p>
-              <h1 className="mt-1 text-2xl font-semibold text-slate-950">
+              <p className="tt-kicker">Shipment digital twin</p>
+              <h1 className="mt-2 text-2xl font-semibold text-slate-950">
                 {shipment.shipment_reference}
               </h1>
             </div>
@@ -413,15 +484,16 @@ export default function ShipmentDetailsClient({ shipmentId }: { shipmentId: stri
             ) : null}
             <Link
               href={`/shipments/${shipment.id}/documents`}
-              className="rounded border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              className="flex items-center gap-2 rounded border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
             >
+              <FileText className="size-4" aria-hidden="true" />
               Documents
             </Link>
           </div>
         </div>
       </header>
 
-      <div className="mx-auto grid max-w-7xl gap-6 px-6 py-6 xl:grid-cols-[1fr_420px]">
+      <div className="mx-auto grid max-w-[1500px] gap-6 px-4 py-6 sm:px-6 xl:grid-cols-[1fr_420px]">
         <div className="space-y-6">
           <section className="rounded border border-slate-200 bg-white p-5">
             <h2 className="text-lg font-semibold text-slate-950">Consignment List</h2>
@@ -434,7 +506,7 @@ export default function ShipmentDetailsClient({ shipmentId }: { shipmentId: stri
                         {consignment.product_name}
                       </h3>
                       <p className="mt-1 text-sm text-slate-600">
-                        {consignment.country_of_origin} to {consignment.destination_country}
+                        {consignment.domestic ? locationLabel(consignment.domestic.destination) : `${consignment.country_of_origin} to ${consignment.destination_country}`}
                       </p>
                     </div>
                     <span className="rounded bg-emerald-100 px-2.5 py-1 text-sm font-medium text-emerald-900">
@@ -452,7 +524,7 @@ export default function ShipmentDetailsClient({ shipmentId }: { shipmentId: stri
           <section className="rounded border border-slate-200 bg-white p-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-lg font-semibold text-slate-950">
-                HS-code Recommendations
+                HSN-code Recommendations
               </h2>
               <span className="rounded bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
                 Human review threshold 72%
@@ -477,8 +549,7 @@ export default function ShipmentDetailsClient({ shipmentId }: { shipmentId: stri
                           {consignment.product_name}
                         </h3>
                         <p className="mt-1 text-sm text-slate-600">
-                          {consignment.country_of_origin} to{" "}
-                          {consignment.destination_country}
+                          {consignment.domestic ? locationLabel(consignment.domestic.destination) : `${consignment.country_of_origin} to ${consignment.destination_country}`}
                         </p>
                       </div>
                       <button
@@ -538,7 +609,7 @@ export default function ShipmentDetailsClient({ shipmentId }: { shipmentId: stri
             </div>
           </section>
 
-          <section className="rounded border border-slate-200 bg-white p-5">
+          <section id="risk" className="scroll-mt-24 rounded border border-slate-200 bg-white p-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-lg font-semibold text-slate-950">Risk Dashboard</h2>
               <button
@@ -557,15 +628,15 @@ export default function ShipmentDetailsClient({ shipmentId }: { shipmentId: stri
               <div className="mt-5 space-y-4">
                 <div className="grid gap-3 md:grid-cols-4">
                   <RiskMetric
-                    label="Inspection"
+                    label={shipment.domestic ? "Review likelihood (synthetic)" : "Inspection"}
                     value={`${Math.round(riskAssessment.inspection_probability * 100)}%`}
                   />
                   <RiskMetric
-                    label="Rejection"
+                    label={shipment.domestic ? "Exception likelihood (synthetic)" : "Rejection"}
                     value={`${Math.round(riskAssessment.rejection_probability * 100)}%`}
                   />
                   <RiskMetric
-                    label="Delay"
+                    label={shipment.domestic ? "Handling delay (synthetic)" : "Delay"}
                     value={`${riskAssessment.expected_clearance_delay_hours}h`}
                   />
                   <RiskMetric label="Level" value={riskAssessment.risk_level} />
@@ -593,11 +664,12 @@ export default function ShipmentDetailsClient({ shipmentId }: { shipmentId: stri
             )}
           </section>
 
-          <section className="rounded border border-slate-200 bg-white p-5">
+          <section id="optimizer" className="scroll-mt-24 rounded border border-slate-200 bg-white p-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-lg font-semibold text-slate-950">
                 Route Optimization
               </h2>
+              {shipment.domestic && <Link href={`/shipments/${shipment.id}/route-memory`} className="text-sm font-semibold underline">Route memory and carrier offers</Link>}
               <button
                 type="button"
                 disabled={optimizingRoute}
@@ -641,18 +713,18 @@ export default function ShipmentDetailsClient({ shipmentId }: { shipmentId: stri
                     <p className="mt-3 text-sm text-slate-700">{option.description}</p>
                     <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
                       <RouteFact label="Score" value={String(option.score)} />
-                      <RouteFact label="Duty" value={formatMoney(option.estimated_duty)} />
+                      {!shipment.domestic && <RouteFact label="Duty" value={formatMoney(option.estimated_duty)} />}
                       <RouteFact
-                        label="Risk"
-                        value={`${Math.round(option.risk_score * 100)}%`}
+                        label={shipment.domestic ? "Route risk (unavailable)" : "Risk"}
+                        value={shipment.domestic ? "Not scored" : `${Math.round(option.risk_score * 100)}%`}
                       />
-                      <RouteFact label="Delay" value={`${option.estimated_delay_hours}h`} />
+                      <RouteFact label={shipment.domestic ? "Estimated driving time" : "Delay"} value={`${option.estimated_delay_hours}h`} />
                     </div>
                     <div className="mt-3 flex flex-wrap gap-2">
                       <span className={statusBadgeClasses(option.compliance_status)}>
                         {displayStatus(option.compliance_status)}
                       </span>
-                      {option.fta_eligible ? (
+                      {!shipment.domestic && option.fta_eligible ? (
                         <span className="rounded bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-900">
                           FTA eligible
                         </span>
@@ -670,13 +742,13 @@ export default function ShipmentDetailsClient({ shipmentId }: { shipmentId: stri
               </div>
             ) : (
               <p className="mt-4 text-sm text-slate-600">
-                Compare the current India to UAE to Germany route against compliant
+                Review the planned domestic route and document readiness against
                 alternate movements.
               </p>
             )}
           </section>
 
-          <section className="rounded border border-slate-200 bg-white p-5">
+          <section id="regulations" className="scroll-mt-24 rounded border border-slate-200 bg-white p-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-lg font-semibold text-slate-950">
                 Regulatory Change Impact
@@ -687,9 +759,22 @@ export default function ShipmentDetailsClient({ shipmentId }: { shipmentId: stri
                 onClick={() => void publishDemoRegulationAndAnalyze()}
                 className="rounded bg-slate-950 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
               >
-                {publishingRegulation ? "Analyzing..." : "Publish UAE rule"}
+                {publishingRegulation ? "Analyzing..." : "Publish demo policy"}
               </button>
             </div>
+            <details className="mt-5 border-y border-white/10 py-3">
+              <summary className="cursor-pointer font-semibold text-ink">Regulation versions ({regulationRules.length})</summary>
+              <div className="mt-3 divide-y divide-white/10">
+                {regulationRules.filter(rule => !shipment.domestic || rule.conditions.scope === "india_domestic").map((rule) => (
+                  <article key={`${rule.rule_id}-${rule.version}`} className="py-3 text-sm">
+                    <p className="font-semibold">{rule.title}</p>
+                    <p className="mt-1 text-slate-400">{rule.jurisdiction} / {rule.procedure_type} / v{rule.version}</p>
+                    <p className="mt-1 text-slate-400">Effective {rule.effective_from} to {rule.effective_to ?? "open-ended"}</p>
+                    <p className="mt-1">Required documents: {rule.required_documents.map(displayStatus).join(", ") || "None"}</p>
+                  </article>
+                ))}
+              </div>
+            </details>
             {impactAnalysis ? (
               <div className="mt-5 space-y-3">
                 {impactAnalysis.impacted_shipments.length === 0 ? (
@@ -734,13 +819,13 @@ export default function ShipmentDetailsClient({ shipmentId }: { shipmentId: stri
               </div>
             ) : (
               <p className="mt-4 text-sm text-slate-600">
-                Publish the demo UAE lithium transit safety-certificate rule to find
+                Publish a demo interstate packing-list policy to find
                 affected active and planned shipments.
               </p>
             )}
           </section>
 
-          <section className="rounded border border-slate-200 bg-white p-5">
+          <section id="compliance" className="scroll-mt-24 rounded border border-slate-200 bg-white p-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-lg font-semibold text-slate-950">Compliance Results</h2>
               {latestAssessment ? (
@@ -852,7 +937,7 @@ export default function ShipmentDetailsClient({ shipmentId }: { shipmentId: stri
 
           {latestAssessment ? (
             <section className="grid gap-6 lg:grid-cols-2">
-              <div className="rounded border border-slate-200 bg-white p-5">
+              <div id="missing-documents" className="scroll-mt-24 rounded border border-slate-200 bg-white p-5">
                 <h2 className="text-lg font-semibold text-slate-950">Missing Documents</h2>
                 {latestAssessment.result.missing_documents.length > 0 ? (
                   <ul className="mt-4 space-y-2 text-sm text-slate-700">
@@ -866,7 +951,7 @@ export default function ShipmentDetailsClient({ shipmentId }: { shipmentId: stri
                   <p className="mt-4 text-sm text-slate-600">No missing documents.</p>
                 )}
               </div>
-              <div className="rounded border border-slate-200 bg-white p-5">
+              <div id="violations" className="scroll-mt-24 rounded border border-slate-200 bg-white p-5">
                 <h2 className="text-lg font-semibold text-slate-950">
                   Violations And Corrective Action
                 </h2>
@@ -888,42 +973,65 @@ export default function ShipmentDetailsClient({ shipmentId }: { shipmentId: stri
             </section>
           ) : null}
 
-          <section className="rounded border border-slate-200 bg-white p-5">
-            <h2 className="text-lg font-semibold text-slate-950">Route Timeline</h2>
-            <div className="mt-5 space-y-4">
-              {events.map((event) => (
-                <article
-                  key={event.id}
-                  className="grid gap-3 border-l-2 border-teal-600 pl-4 sm:grid-cols-[180px_1fr]"
-                >
-                  <time className="text-sm text-slate-500">
-                    {new Date(event.occurred_at).toLocaleString()}
-                  </time>
-                  <div>
-                    <p className="font-semibold text-slate-950">
-                      {displayStatus(event.event_type)}
-                    </p>
-                    <p className="mt-1 text-sm text-slate-600">{event.location_country}</p>
-                  </div>
-                </article>
-              ))}
+          <section id="timeline" className="scroll-mt-24 rounded border border-slate-200 bg-white p-5">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="tt-kicker">Live event sequence</p>
+                <h2 className="mt-1 text-lg font-semibold text-slate-950">
+                  Route Timeline
+                </h2>
+              </div>
+              <span className="text-xs text-slate-500">{events.length} events</span>
+            </div>
+            <div className="mt-5">
+              {orbitalEvents.length > 0 ? (
+                <>
+                  <RadialOrbitalTimeline
+                    timelineData={orbitalEvents}
+                    centerLabel={shipment.shipment_reference}
+                    centerDetail={shipmentRoute(shipment)}
+                  />
+                  <ol className="mt-4 grid gap-x-6 gap-y-3 md:grid-cols-2">
+                    {events.map((shipmentEvent) => (
+                      <li
+                        key={shipmentEvent.id}
+                        className="grid grid-cols-[6px_minmax(0,1fr)] gap-3"
+                      >
+                        <span className="mt-1 block min-h-12 rounded-full bg-teal-400/60" />
+                        <div className="pb-2">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <p className="text-sm font-semibold text-slate-950">
+                              {displayStatus(shipmentEvent.event_type)}
+                            </p>
+                            <time className="text-xs text-slate-500">
+                              {new Date(shipmentEvent.occurred_at).toLocaleString()}
+                            </time>
+                          </div>
+                          <p className="mt-1 text-sm text-slate-600">
+                            {shipmentEvent.metadata.location ? locationLabel(shipmentEvent.metadata.location as IndianLocation) : shipmentEvent.location_country}
+                          </p>
+                        </div>
+                      </li>
+                    ))}
+                  </ol>
+                </>
+              ) : (
+                <p className="text-sm text-slate-600">No shipment events recorded.</p>
+              )}
             </div>
           </section>
 
-          <section className="rounded border border-slate-200 bg-white p-5">
+          <section id="graph" className="scroll-mt-24 rounded border border-slate-200 bg-white p-5">
             <h2 className="text-lg font-semibold text-slate-950">Shipment Graph</h2>
-            <div className="mt-4 h-[520px] rounded border border-slate-200">
-              <ReactFlow nodes={flow.nodes} edges={flow.edges} fitView>
-                <Background />
-                <Controls />
-              </ReactFlow>
+            <div className="mt-4">
+              <ShipmentGraphPanel graph={graph} />
             </div>
           </section>
         </div>
 
-        <aside className="rounded border border-slate-200 bg-white p-5 xl:sticky xl:top-6 xl:self-start">
+        <aside className="tt-panel p-5 xl:sticky xl:top-24 xl:self-start">
           <h2 className="text-lg font-semibold text-slate-950">Add Shipment Event</h2>
-          <form onSubmit={addEvent} className="mt-5 space-y-4">
+          <form id="add-event" onSubmit={addEvent} className="scroll-mt-24 mt-5 space-y-4">
             <label className="block">
               <span className="text-sm font-medium text-slate-700">Event type</span>
               <select
@@ -954,12 +1062,8 @@ export default function ShipmentDetailsClient({ shipmentId }: { shipmentId: stri
               </select>
             </label>
             <label className="block">
-              <span className="text-sm font-medium text-slate-700">Location country</span>
-              <input
-                name="location_country"
-                defaultValue="UAE"
-                className="mt-2 w-full rounded border border-slate-300 px-3 py-2 text-slate-950 outline-none focus:border-teal-600"
-              />
+              <span className="text-sm font-medium text-slate-700">Event location</span>
+              {shipment.domestic ? <select name="location" className="mt-2 w-full rounded border border-slate-300 px-3 py-2">{[shipment.domestic.origin, ...shipment.route_legs.flatMap(leg => leg.domestic ? [leg.domestic.destination] : [])].map((place,index) => <option key={index} value={JSON.stringify(place)}>{locationLabel(place)}</option>)}</select> : <input name="location_country" defaultValue="India" className="mt-2 w-full rounded border border-slate-300 px-3 py-2" />}
             </label>
             <button
               type="submit"
@@ -971,16 +1075,24 @@ export default function ShipmentDetailsClient({ shipmentId }: { shipmentId: stri
           </form>
           {error ? <p className="mt-4 rounded bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
 
-          <div className="mt-6 border-t border-slate-200 pt-5">
+          <div id="evaluate" className="scroll-mt-24 mt-6 border-t border-slate-200 pt-5">
             <h2 className="text-lg font-semibold text-slate-950">Compliance Evaluation</h2>
             <div className="mt-4 space-y-3">
+              <button
+                type="button"
+                disabled={evaluating}
+                onClick={() => void evaluateCompliance(null)}
+                className="w-full rounded bg-teal-700 px-4 py-2.5 font-semibold text-white disabled:opacity-50"
+              >
+                {evaluating ? "Evaluating..." : "Evaluate uploaded evidence"}
+              </button>
               <button
                 type="button"
                 disabled={evaluating}
                 onClick={() => void evaluateCompliance(false)}
                 className="w-full rounded bg-slate-950 px-4 py-2.5 font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
               >
-                {evaluating ? "Evaluating..." : "Evaluate Missing Battery Certificate"}
+                {evaluating ? "Evaluating..." : shipment.domestic ? "Demo: Missing E-way Bill" : "Demo: Missing Battery Certificate"}
               </button>
               <button
                 type="button"
@@ -998,7 +1110,7 @@ export default function ShipmentDetailsClient({ shipmentId }: { shipmentId: stri
             ) : null}
           </div>
 
-          <div className="mt-6 border-t border-slate-200 pt-5">
+          <div id="reports" className="scroll-mt-24 mt-6 border-t border-slate-200 pt-5">
             <h2 className="text-lg font-semibold text-slate-950">Report Export</h2>
             <div className="mt-4 grid grid-cols-2 gap-3">
               <button
@@ -1060,41 +1172,6 @@ export default function ShipmentDetailsClient({ shipmentId }: { shipmentId: stri
   );
 }
 
-function toFlow(graph: ShipmentGraph): { nodes: Node[]; edges: Edge[] } {
-  const columns = ["Shipment", "Consignment", "RouteLeg", "ShipmentEvent", "Country"];
-  const counters = new Map<string, number>();
-
-  const nodes = graph.nodes.map((node) => {
-    const column = Math.max(columns.indexOf(node.type), 0);
-    const row = counters.get(node.type) ?? 0;
-    counters.set(node.type, row + 1);
-    return {
-      id: node.id,
-      data: { label: node.label },
-      position: { x: column * 260, y: row * 110 },
-      style: {
-        width: 190,
-        border: "1px solid #cbd5e1",
-        borderRadius: 6,
-        color: "#172033",
-        background: node.type === "ShipmentEvent" ? "#fff7ed" : "#ffffff",
-        fontSize: 12,
-      },
-    };
-  });
-
-  const edges = graph.edges.map((edge) => ({
-    id: edge.id,
-    source: edge.source,
-    target: edge.target,
-    label: edge.label,
-    animated: edge.label.includes("AFFECTS"),
-    style: { stroke: "#0f766e" },
-  }));
-
-  return { nodes, edges };
-}
-
 function ConfidenceMeter({ value }: { value: number }) {
   const percent = Math.round(value * 100);
   return (
@@ -1140,7 +1217,7 @@ function formatMoney(value: number): string {
 }
 
 function statusBadgeClasses(status: string): string {
-  const base = "rounded px-3 py-1.5 text-sm font-medium";
+  const base = "whitespace-nowrap rounded px-3 py-1.5 text-sm font-medium";
   if (status === "COMPLIANT") {
     return `${base} bg-emerald-100 text-emerald-900`;
   }
@@ -1154,7 +1231,7 @@ function statusBadgeClasses(status: string): string {
 }
 
 function routeLegalBadgeClasses(status: string): string {
-  const base = "rounded px-2.5 py-1 text-xs font-medium";
+  const base = "whitespace-nowrap rounded px-2.5 py-1 text-xs font-medium";
   if (status === "VALID") {
     return `${base} bg-emerald-100 text-emerald-900`;
   }
@@ -1162,7 +1239,7 @@ function routeLegalBadgeClasses(status: string): string {
 }
 
 function severityBadgeClasses(severity: string): string {
-  const base = "rounded px-3 py-1.5 text-sm font-medium";
+  const base = "whitespace-nowrap rounded px-3 py-1.5 text-sm font-medium";
   if (severity === "CRITICAL") {
     return `${base} bg-red-100 text-red-900`;
   }

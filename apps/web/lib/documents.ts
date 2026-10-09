@@ -1,7 +1,12 @@
 export const documentApiBaseUrl =
-  process.env.NEXT_PUBLIC_DOCUMENT_SERVICE_URL ?? "http://localhost:8013";
+  process.env.NEXT_PUBLIC_DOCUMENT_SERVICE_URL ?? "/api/services/document";
 
 export type DocumentType =
+  | "tax_invoice" | "eway_bill" | "delivery_challan" | "bill_of_supply" | "proof_of_delivery"
+  | "export_declaration"
+  | "import_declaration"
+  | "temporary_storage_authorization"
+  | "transshipment_permit"
   | "commercial_invoice"
   | "packing_list"
   | "certificate_of_origin"
@@ -40,18 +45,20 @@ export type EvidenceRecord = {
   shipment_event_id: string | null;
   jurisdiction: string;
   procedure_type: string;
-  evidence_type: "DOCUMENT_SUPPORTS_RULE" | "DOCUMENT_MISSING" | "EVENT_TRIGGERED_RULE";
+  evidence_type: "DOCUMENT_SUPPORTS_RULE" | "DOCUMENT_MISSING" | "EVENT_TRIGGERED_RULE" | "RULE_EVALUATED";
   explanation: string;
   created_at: string;
   document: TradeDocument | null;
 };
 
 export const documentTypeOptions: Array<{ value: DocumentType; label: string }> = [
-  { value: "commercial_invoice", label: "Commercial invoice" },
+  { value: "tax_invoice", label: "Tax invoice" },
+  { value: "eway_bill", label: "E-way bill" },
+  { value: "delivery_challan", label: "Delivery challan" },
+  { value: "bill_of_supply", label: "Bill of supply" },
+  { value: "proof_of_delivery", label: "Proof of delivery" },
   { value: "packing_list", label: "Packing list" },
-  { value: "certificate_of_origin", label: "Certificate of origin" },
   { value: "safety_certificate", label: "Safety certificate" },
-  { value: "transit_declaration", label: "Transit declaration" },
 ];
 
 export async function documentFetch<T>(
@@ -80,7 +87,7 @@ export async function documentFetch<T>(
 }
 
 export function verificationBadgeClasses(status: string): string {
-  const base = "rounded px-2.5 py-1 text-xs font-medium";
+  const base = "whitespace-nowrap rounded px-2.5 py-1 text-xs font-medium";
   if (status === "EXTRACTED") {
     return `${base} bg-emerald-100 text-emerald-900`;
   }

@@ -1,8 +1,9 @@
-from datetime import datetime
+import math
+from datetime import date, datetime
 from enum import StrEnum
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class ComplianceStatus(StrEnum):
@@ -44,6 +45,33 @@ class ComplianceRule(BaseModel):
     conditions: dict[str, Any]
     required_documents: list[str]
     outcome_if_failed: RuleOutcome
+
+    @model_validator(mode="after")
+    def validate_effective_dates(self):
+        if self.conditions.get("scope") == "india_domestic":
+            unknown = set(self.conditions) - {
+                "scope",
+                "consignment_value_above",
+                "requires_eway_confirmation",
+            }
+            if unknown:
+                raise ValueError(f"Unsupported domestic rule conditions: {sorted(unknown)}")
+            if self.procedure_type not in {"domestic", "interstate", "intrastate"}:
+                raise ValueError("Domestic rules require a domestic movement procedure")
+            minimum = self.conditions.get("consignment_value_above")
+            if minimum is not None and (
+                type(minimum) not in (int, float) or not math.isfinite(minimum) or minimum < 0
+            ):
+                raise ValueError("Consignment threshold must be a finite nonnegative number")
+            if (
+                "requires_eway_confirmation" in self.conditions
+                and type(self.conditions["requires_eway_confirmation"]) is not bool
+            ):
+                raise ValueError("E-way confirmation condition must be boolean")
+        start = date.fromisoformat(self.effective_from)
+        if self.effective_to and date.fromisoformat(self.effective_to) < start:
+            raise ValueError("effective_to must be on or after effective_from")
+        return self
 
 
 class ApplicableRuleResult(BaseModel):

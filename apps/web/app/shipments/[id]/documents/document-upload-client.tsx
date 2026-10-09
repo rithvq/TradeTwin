@@ -1,10 +1,10 @@
 "use client";
 
+import { ArrowLeft, RefreshCw, ScanText, ShieldCheck, Upload } from "lucide-react";
 import Link from "next/link";
 import type { FormEvent } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  buildDemoDocumentPackage,
   complianceFetch,
   type ComplianceAssessment,
   type UploadedDocumentMetadata,
@@ -75,6 +75,12 @@ export default function DocumentUploadClient({ shipmentId }: { shipmentId: strin
     void loadData();
   }, [loadData]);
 
+  useEffect(() => {
+    if (shipment && window.location.hash) {
+      document.getElementById(window.location.hash.slice(1))?.scrollIntoView();
+    }
+  }, [shipment]);
+
   const defaultConsignmentId = useMemo(() => {
     const lithium = shipment?.consignments.find((consignment) =>
       consignment.product_name.toLowerCase().includes("lithium"),
@@ -85,8 +91,8 @@ export default function DocumentUploadClient({ shipmentId }: { shipmentId: strin
   const defaultEventId = useMemo(() => {
     const uaeArrival = events.find(
       (event) =>
-        event.location_country === "UAE" &&
-        event.event_type === "ARRIVED_AT_TRANSIT_PORT",
+        event.location_country === "India" &&
+        event.event_type === "ARRIVED_AT_HUB",
     );
     return uaeArrival?.id ?? "";
   }, [events]);
@@ -127,6 +133,9 @@ export default function DocumentUploadClient({ shipmentId }: { shipmentId: strin
           document.id === documentId ? extractedDocument : document,
         ),
       );
+      if (extractedDocument.verification_status === "EXTRACTED") {
+        await reevaluateCompliance();
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not extract document");
     } finally {
@@ -151,7 +160,6 @@ export default function DocumentUploadClient({ shipmentId }: { shipmentId: strin
           method: "POST",
           body: JSON.stringify({
             uploaded_documents: [
-              ...buildDemoDocumentPackage(shipment.id, false),
               ...uploadedDocuments,
             ],
           }),
@@ -168,7 +176,7 @@ export default function DocumentUploadClient({ shipmentId }: { shipmentId: strin
 
   if (!shipment) {
     return (
-      <main className="min-h-screen bg-[#f6f8fb] px-6 py-6">
+      <main className="tt-page px-6 py-8">
         <Link href="/" className="text-sm font-medium text-teal-700">
           Back to shipments
         </Link>
@@ -178,14 +186,15 @@ export default function DocumentUploadClient({ shipmentId }: { shipmentId: strin
   }
 
   return (
-    <main className="min-h-screen bg-[#f6f8fb]">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-7xl px-6 py-5">
+    <main className="tt-page">
+      <header className="tt-context-header">
+        <div className="mx-auto max-w-[1500px] px-4 py-6 sm:px-6">
           <div className="flex flex-wrap items-center gap-4">
             <Link
               href={`/shipments/${shipment.id}`}
-              className="text-sm font-medium text-teal-700"
+              className="flex items-center gap-2 text-sm font-medium text-teal-700"
             >
+              <ArrowLeft className="size-4" aria-hidden="true" />
               Back to shipment
             </Link>
             <Link href="/" className="text-sm font-medium text-slate-600">
@@ -194,10 +203,8 @@ export default function DocumentUploadClient({ shipmentId }: { shipmentId: strin
           </div>
           <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="text-sm font-semibold text-slate-500">
-                Document Intelligence
-              </p>
-              <h1 className="mt-1 text-2xl font-semibold text-slate-950">
+              <p className="tt-kicker">Document intelligence</p>
+              <h1 className="mt-2 text-2xl font-semibold text-slate-950">
                 {shipment.shipment_reference}
               </h1>
             </div>
@@ -210,15 +217,16 @@ export default function DocumentUploadClient({ shipmentId }: { shipmentId: strin
         </div>
       </header>
 
-      <div className="mx-auto grid max-w-7xl gap-6 px-6 py-6 xl:grid-cols-[420px_1fr]">
-        <aside className="rounded border border-slate-200 bg-white p-5 xl:sticky xl:top-6 xl:self-start">
-          <h2 className="text-lg font-semibold text-slate-950">Upload Document</h2>
-          <form onSubmit={uploadDocument} className="mt-5 space-y-4">
+      <div className="mx-auto grid max-w-[1500px] gap-6 px-4 py-6 sm:px-6 xl:grid-cols-[420px_1fr]">
+        <aside className="tt-panel p-5 xl:sticky xl:top-24 xl:self-start">
+          <p className="tt-kicker">Evidence intake</p>
+          <h2 className="mt-1 text-lg font-semibold text-slate-950">Upload document</h2>
+          <form id="upload" onSubmit={uploadDocument} className="scroll-mt-24 mt-5 space-y-4">
             <label className="block">
               <span className="text-sm font-medium text-slate-700">Document type</span>
               <select
                 name="document_type"
-                defaultValue="safety_certificate"
+                defaultValue="tax_invoice"
                 className="mt-2 w-full rounded border border-slate-300 px-3 py-2 text-slate-950 outline-none focus:border-teal-600"
               >
                 {documentTypeOptions.map((option) => (
@@ -262,7 +270,7 @@ export default function DocumentUploadClient({ shipmentId }: { shipmentId: strin
               <span className="text-sm font-medium text-slate-700">Jurisdiction</span>
               <input
                 name="jurisdiction"
-                defaultValue="UAE"
+                defaultValue="India"
                 className="mt-2 w-full rounded border border-slate-300 px-3 py-2 text-slate-950 outline-none focus:border-teal-600"
               />
             </label>
@@ -279,8 +287,9 @@ export default function DocumentUploadClient({ shipmentId }: { shipmentId: strin
             <button
               type="submit"
               disabled={uploading}
-              className="w-full rounded bg-teal-700 px-4 py-2.5 font-semibold text-white hover:bg-teal-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+              className="flex w-full items-center justify-center gap-2 rounded bg-teal-700 px-4 py-2.5 font-semibold text-white hover:bg-teal-800 disabled:cursor-not-allowed disabled:bg-slate-400"
             >
+              <Upload className="size-4" aria-hidden="true" />
               {uploading ? "Uploading..." : "Upload document"}
             </button>
           </form>
@@ -293,8 +302,9 @@ export default function DocumentUploadClient({ shipmentId }: { shipmentId: strin
               type="button"
               disabled={evaluating}
               onClick={() => void reevaluateCompliance()}
-              className="mt-4 w-full rounded bg-slate-950 px-4 py-2.5 font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded bg-slate-950 px-4 py-2.5 font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
             >
+              <ShieldCheck className="size-4" aria-hidden="true" />
               {evaluating ? "Reevaluating..." : "Reevaluate with evidence"}
             </button>
             {latestAssessment ? (
@@ -310,7 +320,7 @@ export default function DocumentUploadClient({ shipmentId }: { shipmentId: strin
         </aside>
 
         <div className="space-y-6">
-          <section className="rounded border border-slate-200 bg-white p-5">
+          <section id="extracted" className="tt-panel scroll-mt-24 p-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-lg font-semibold text-slate-950">
                 Uploaded Documents
@@ -318,8 +328,9 @@ export default function DocumentUploadClient({ shipmentId }: { shipmentId: strin
               <button
                 type="button"
                 onClick={() => void loadData()}
-                className="rounded border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                className="flex items-center gap-2 rounded border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
               >
+                <RefreshCw className="size-4" aria-hidden="true" />
                 Refresh
               </button>
             </div>
@@ -351,8 +362,9 @@ export default function DocumentUploadClient({ shipmentId }: { shipmentId: strin
                         type="button"
                         disabled={extractingDocumentId === document.id}
                         onClick={() => void extractDocument(document.id)}
-                        className="mt-3 rounded border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400"
+                        className="mt-3 flex items-center gap-2 rounded border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-400"
                       >
+                        <ScanText className="size-4" aria-hidden="true" />
                         {extractingDocumentId === document.id
                           ? "Extracting..."
                           : "Extract metadata"}
@@ -365,7 +377,7 @@ export default function DocumentUploadClient({ shipmentId }: { shipmentId: strin
             </div>
           </section>
 
-          <section className="rounded border border-slate-200 bg-white p-5">
+          <section id="evidence" className="tt-panel scroll-mt-24 p-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-lg font-semibold text-slate-950">Evidence Trace</h2>
               {latestAssessment ? (
@@ -450,7 +462,7 @@ function toComplianceDocument(document: TradeDocument): UploadedDocumentMetadata
 }
 
 function complianceBadgeClasses(status: string): string {
-  const base = "rounded px-3 py-1.5 text-sm font-medium";
+  const base = "whitespace-nowrap rounded px-3 py-1.5 text-sm font-medium";
   if (status === "COMPLIANT") {
     return `${base} bg-emerald-100 text-emerald-900`;
   }
@@ -464,7 +476,7 @@ function complianceBadgeClasses(status: string): string {
 }
 
 function evidenceBadgeClasses(evidenceType: string): string {
-  const base = "rounded px-2.5 py-1 text-xs font-medium";
+  const base = "whitespace-nowrap rounded px-2.5 py-1 text-xs font-medium";
   if (evidenceType === "DOCUMENT_SUPPORTS_RULE") {
     return `${base} bg-emerald-100 text-emerald-900`;
   }

@@ -2,13 +2,16 @@ from typing import Any
 
 import httpx
 from fastapi import HTTPException, status
+from tradetwin_security import service_headers
 
 from app.config import settings
 
 
 def get_shipment_context(shipment_id: str) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     try:
-        with httpx.Client(base_url=settings.shipment_service_url, timeout=10) as client:
+        with httpx.Client(
+            base_url=settings.shipment_service_url, timeout=10, headers=service_headers()
+        ) as client:
             shipment_response = client.get(f"/shipments/{shipment_id}")
             timeline_response = client.get(f"/shipments/{shipment_id}/timeline")
             shipment_response.raise_for_status()

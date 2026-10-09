@@ -2,6 +2,8 @@ import logging
 from typing import Any
 
 import httpx
+from fastapi import HTTPException
+from tradetwin_security import service_headers
 
 from app.config import settings
 from app.schemas import ComplianceAssessmentResult, UploadedDocumentMetadata
@@ -17,11 +19,12 @@ def get_uploaded_documents(shipment_id: str) -> list[UploadedDocumentMetadata]:
         response = httpx.get(
             f"{settings.document_service_url}/shipments/{shipment_id}/documents",
             timeout=5,
+            headers=service_headers(),
         )
         response.raise_for_status()
     except httpx.HTTPError as exc:
         logger.warning("Could not load documents for shipment %s: %s", shipment_id, exc)
-        return []
+        raise HTTPException(status_code=503, detail="Document service unavailable") from exc
 
     return [to_uploaded_document(document) for document in response.json()]
 
@@ -43,10 +46,12 @@ def create_evidence_records(
             f"{settings.document_service_url}/assessments/{assessment_id}/evidence",
             json={"records": records},
             timeout=5,
+            headers=service_headers(),
         )
         response.raise_for_status()
     except httpx.HTTPError as exc:
         logger.warning("Could not create evidence for assessment %s: %s", assessment_id, exc)
+        raise HTTPException(status_code=503, detail="Evidence could not be persisted") from exc
 
 
 def get_evidence_records(assessment_id: str) -> list[dict[str, Any]]:
@@ -57,11 +62,12 @@ def get_evidence_records(assessment_id: str) -> list[dict[str, Any]]:
         response = httpx.get(
             f"{settings.document_service_url}/assessments/{assessment_id}/evidence",
             timeout=5,
+            headers=service_headers(),
         )
         response.raise_for_status()
     except httpx.HTTPError as exc:
         logger.warning("Could not load evidence for assessment %s: %s", assessment_id, exc)
-        return []
+        raise HTTPException(status_code=503, detail="Evidence service unavailable") from exc
 
     return response.json()
 
@@ -103,6 +109,25 @@ def build_evidence_records(
 
     for consignment_result in result.consignment_results:
         for rule in consignment_result.applicable_rules:
+            records.append(
+                {
+                    "shipment_id": result.shipment_id,
+                    "consignment_id": consignment_result.consignment_id,
+                    "rule_id": rule.rule_id,
+                    "rule_title": rule.title,
+                    "regulation_version": rule.version,
+                    "regulation_source_url": rule.source_url,
+                    "document_id": None,
+                    "shipment_event_id": rule.shipment_event_id,
+                    "jurisdiction": rule.jurisdiction,
+                    "procedure_type": rule.procedure_type,
+                    "evidence_type": "RULE_EVALUATED",
+                    "explanation": (
+                        f"{consignment_result.product_name}: {rule.rule_id} v{rule.version} "
+                        f"returned {rule.status}. {rule.violation or 'Requirements satisfied.'}"
+                    ),
+                }
+            )
             for document_id in rule.supporting_document_ids:
                 document = documents_by_id.get(document_id)
                 if not should_create_document_evidence(document):

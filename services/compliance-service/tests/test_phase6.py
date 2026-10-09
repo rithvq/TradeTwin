@@ -49,7 +49,9 @@ def test_regulation_impact_identifies_lithium_shipment(monkeypatch) -> None:
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:
-        regulation = regulations.create_regulation_version(db)
+        regulation = regulations.create_regulation_version(
+            db, regulations.RegulationCreateRequest(rule=regulations.demo_uae_transit_safety_rule())
+        )
         regulations.publish_regulation_version(db, regulation.id)
 
         monkeypatch.setattr(regulations, "list_shipments", lambda: [sample_shipment()])
@@ -59,14 +61,17 @@ def test_regulation_impact_identifies_lithium_shipment(monkeypatch) -> None:
             lambda shipment_id: (sample_shipment(), sample_events()),
         )
         monkeypatch.setattr(regulations, "get_uploaded_documents", lambda shipment_id: [])
+        evidence_calls = []
+        monkeypatch.setattr(
+            regulations, "create_evidence_records", lambda *args: evidence_calls.append(args)
+        )
 
         result = regulations.analyze_regulation_impact(
             db,
             ImpactAnalysisRequest(
                 regulation_ids=[regulation.id],
                 uploaded_documents=[
-                    document.model_dump()
-                    for document in documents_without_battery_certificate()
+                    document.model_dump() for document in documents_without_battery_certificate()
                 ],
             ),
         )
@@ -84,6 +89,21 @@ def test_regulation_impact_identifies_lithium_shipment(monkeypatch) -> None:
     assert impact.previous_status == ComplianceStatus.CONDITIONALLY_COMPLIANT
     assert impact.new_status == ComplianceStatus.NON_COMPLIANT
     assert impact.affected_consignment_ids == [lithium_id]
+    assert evidence_calls[0][0] == impact.assessment.id
     assert impact.route_recommendation is not None
     assert impact.route_recommendation.route_id == "split-compliant-route"
     assert "Upload the lithium battery safety certificate" in impact.corrective_action
+
+
+def test_empty_shipment_has_no_route_recommendation():
+    shipment = sample_shipment()
+    shipment["consignments"] = []
+    result = optimize_routes(shipment, [], [])
+    assert result.options == []
+    assert result.recommended_route_id is None
+
+
+def test_missing_documents_do_not_produce_a_compliant_route_recommendation():
+    result = optimize_routes(sample_shipment(), sample_events(), [])
+    assert result.recommended_route_id is None
+    assert not any(option.is_recommended for option in result.options)

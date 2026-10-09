@@ -1,7 +1,7 @@
 import type { Consignment } from "./shipments";
 
 export const intelligenceApiBaseUrl =
-  process.env.NEXT_PUBLIC_INTELLIGENCE_SERVICE_URL ?? "http://localhost:8014";
+  process.env.NEXT_PUBLIC_INTELLIGENCE_SERVICE_URL ?? "/api/services/intelligence";
 
 export type HSCodeRecommendation = {
   hs_code: string;

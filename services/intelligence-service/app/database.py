@@ -3,11 +3,12 @@ from collections.abc import Generator
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 from sqlalchemy.pool import StaticPool
+from tradetwin_security import TenantOwned
 
 from app.config import settings
 
 
-class Base(DeclarativeBase):
+class Base(TenantOwned, DeclarativeBase):
     pass
 
 

@@ -1,5 +1,5 @@
 export const complianceApiBaseUrl =
-  process.env.NEXT_PUBLIC_COMPLIANCE_SERVICE_URL ?? "http://localhost:8012";
+  process.env.NEXT_PUBLIC_COMPLIANCE_SERVICE_URL ?? "/api/services/compliance";
 const demoAuthToken = process.env.NEXT_PUBLIC_DEMO_AUTH_TOKEN;
 
 export type ComplianceStatus =
@@ -228,13 +228,15 @@ export async function complianceFetchBlob(
   return response.blob();
 }
 
-function complianceHeaders(existingHeaders?: HeadersInit): Headers {
+export function complianceHeaders(existingHeaders?: HeadersInit): Headers {
   const headers = new Headers(existingHeaders);
   if (!headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
-  if (demoAuthToken && !headers.has("Authorization")) {
-    headers.set("Authorization", `Bearer ${demoAuthToken}`);
+  const token = typeof window === "undefined" ? demoAuthToken :
+    window.sessionStorage.getItem("tradetwin-token") ?? demoAuthToken;
+  if (token && !headers.has("Authorization")) {
+    headers.set("Authorization", `Bearer ${token}`);
   }
   return headers;
 }
@@ -242,7 +244,9 @@ function complianceHeaders(existingHeaders?: HeadersInit): Headers {
 export function buildDemoDocumentPackage(
   shipmentId: string,
   includeBatteryCertificate: boolean,
+  domestic = false,
 ): UploadedDocumentMetadata[] {
+  if (domestic) return (includeBatteryCertificate ? ["tax_invoice", "eway_bill", "packing_list"] : ["tax_invoice"]).map(document_type => ({ document_id: `demo-${shipmentId}-${document_type}`, document_type, filename: `${document_type}.txt`, jurisdiction: "India", metadata: { source: "demo-ui" } }));
   const baseDocuments = [
     "commercial_invoice",
     "packing_list",

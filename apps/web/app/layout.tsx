@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "@xyflow/react/dist/style.css";
+import { AppShell } from "../components/app-shell";
+import { QueryProvider } from "../components/providers/query-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -14,7 +16,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className="tradetwin-app antialiased">
+        <QueryProvider>
+          <AppShell>{children}</AppShell>
+        </QueryProvider>
+      </body>
     </html>
   );
 }

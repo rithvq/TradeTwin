@@ -1,5 +1,12 @@
 name: tradetwin
 
+x-backend-health: &backend-health
+  test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/ready', timeout=5)"]
+  interval: 10s
+  timeout: 8s
+  start_period: 60s
+  retries: 6
+
 services:
   web:
     build:
@@ -9,18 +16,29 @@ services:
       - path: .env
         required: false
     ports:
-      - "${WEB_PORT:-3000}:3000"
+      - "127.0.0.1:${WEB_PORT:-3000}:3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/login').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      start_period: 30s
+      retries: 5
     depends_on:
+      api:
+        condition: service_healthy
       shipment-service:
-        condition: service_started
+        condition: service_healthy
       compliance-service:
-        condition: service_started
+        condition: service_healthy
       document-service:
-        condition: service_started
+        condition: service_healthy
       intelligence-service:
-        condition: service_started
+        condition: service_healthy
 
   api:
+    healthcheck:
+      <<: *backend-health
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5)"]
     build:
       context: ./apps/api
     env_file:
@@ -28,17 +46,22 @@ services:
       - path: .env
         required: false
     ports:
-      - "${API_PORT:-8000}:8000"
+      - "127.0.0.1:${API_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   shipment-service:
+    healthcheck: *backend-health
     build:
-      context: ./services/shipment-service
+      context: .
+      dockerfile: services/shipment-service/Dockerfile
     env_file:
       - path: .env.example
       - path: .env
         required: false
     ports:
-      - "${SHIPMENT_SERVICE_PORT:-8011}:8000"
+      - "127.0.0.1:${SHIPMENT_SERVICE_PORT:-8011}:8000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -46,33 +69,46 @@ services:
         condition: service_started
 
   compliance-service:
+    healthcheck: *backend-health
     build:
-      context: ./services/compliance-service
+      context: .
+      dockerfile: services/compliance-service/Dockerfile
     env_file:
       - path: .env.example
       - path: .env
         required: false
     ports:
-      - "${COMPLIANCE_SERVICE_PORT:-8012}:8000"
+      - "127.0.0.1:${COMPLIANCE_SERVICE_PORT:-8012}:8000"
     depends_on:
       postgres:
         condition: service_healthy
       redis:
-        condition: service_started
+        condition: service_healthy
       shipment-service:
-        condition: service_started
+        condition: service_healthy
       document-service:
-        condition: service_started
+        condition: service_healthy
 
   document-service:
+    healthcheck: *backend-health
     build:
-      context: ./services/document-service
+      context: .
+      dockerfile: services/document-service/Dockerfile
     env_file:
       - path: .env.example
       - path: .env
         required: false
+    environment:
+      DOCUMENT_ENCRYPTION_KEY_FILE: /run/secrets/document-keyring.json
+    volumes:
+      - type: bind
+        source: ./.secrets/document-keyring.json
+        target: /run/secrets/document-keyring.json
+        read_only: true
+        bind:
+          create_host_path: false
     ports:
-      - "${DOCUMENT_SERVICE_PORT:-8013}:8000"
+      - "127.0.0.1:${DOCUMENT_SERVICE_PORT:-8013}:8000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -80,19 +116,21 @@ services:
         condition: service_started
 
   intelligence-service:
+    healthcheck: *backend-health
     build:
-      context: ./services/intelligence-service
+      context: .
+      dockerfile: services/intelligence-service/Dockerfile
     env_file:
       - path: .env.example
       - path: .env
         required: false
     ports:
-      - "${INTELLIGENCE_SERVICE_PORT:-8014}:8000"
+      - "127.0.0.1:${INTELLIGENCE_SERVICE_PORT:-8014}:8000"
     depends_on:
       postgres:
         condition: service_healthy
       shipment-service:
-        condition: service_started
+        condition: service_healthy
 
   postgres:
     image: pgvector/pgvector:pg16
@@ -101,7 +139,7 @@ services:
       - path: .env
         required: false
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./infra/postgres/init:/docker-entrypoint-initdb.d:ro
@@ -116,16 +154,21 @@ services:
     environment:
       NEO4J_AUTH: ${NEO4J_AUTH:-neo4j/123456789}
     ports:
-      - "${NEO4J_HTTP_PORT:-7474}:7474"
-      - "${NEO4J_BOLT_PORT:-7687}:7687"
+      - "127.0.0.1:${NEO4J_HTTP_PORT:-7474}:7474"
+      - "127.0.0.1:${NEO4J_BOLT_PORT:-7687}:7687"
     volumes:
       - neo4j-data:/data
 
   redis:
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     image: redis:7-alpine
     command: ["redis-server", "--appendonly", "yes"]
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
     volumes:
       - redis-data:/data
 
@@ -136,8 +179,8 @@ services:
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-123456789}
     command: ["server", "/data", "--console-address", ":9001"]
     ports:
-      - "${MINIO_API_PORT:-9000}:9000"
-      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+      - "127.0.0.1:${MINIO_API_PORT:-9000}:9000"
+      - "127.0.0.1:${MINIO_CONSOLE_PORT:-9001}:9001"
     volumes:
       - minio-data:/data
 

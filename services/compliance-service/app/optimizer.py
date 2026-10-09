@@ -5,6 +5,7 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from typing import Any
 
+from app.domestic import domestic_routes
 from app.evaluator import STATUS_SEVERITY, evaluate_compliance, load_rules, unique_ordered
 from app.schemas import (
     ComplianceAssessmentResult,
@@ -21,8 +22,20 @@ def optimize_routes(
     events: list[dict[str, Any]],
     uploaded_documents: list[UploadedDocumentMetadata],
     rules: list[ComplianceRule] | None = None,
+    answers: dict[str, str] | None = None,
 ) -> RouteOptimizationRead:
-    active_rules = rules or load_rules()
+    active_rules = load_rules() if rules is None else rules
+    if shipment.get("domestic"):
+        return domestic_routes(
+            shipment, events, uploaded_documents, active_rules, evaluate_compliance, answers
+        )
+    if not shipment.get("consignments"):
+        return RouteOptimizationRead(
+            shipment_id=shipment["id"],
+            generated_at=datetime.now(UTC),
+            recommended_route_id=None,
+            options=[],
+        )
     options = [
         build_route_option(candidate, shipment, events, uploaded_documents, active_rules)
         for candidate in route_candidates(shipment)
@@ -99,8 +112,7 @@ def route_candidates(shipment: dict[str, Any]) -> list[dict[str, Any]]:
             "route_id": "singapore-relay",
             "label": "Singapore relay for Germany-bound cargo",
             "description": (
-                "Sends Germany-bound cargo through Singapore while UAE-bound goods "
-                "continue to UAE."
+                "Sends Germany-bound cargo through Singapore while UAE-bound goods continue to UAE."
             ),
             "per_consignment_paths": singapore_paths,
             "is_current_route": False,
@@ -161,9 +173,7 @@ def build_route_option(
         risk_score=round(risk_score, 3),
         estimated_delay_hours=round(estimated_delay_hours, 1),
         required_documents=unique_ordered(
-            document
-            for rule in assessment.applicable_rules
-            for document in rule.required_documents
+            document for rule in assessment.applicable_rules for document in rule.required_documents
         ),
         missing_documents=assessment.missing_documents,
         invalid_reasons=invalid_reasons,
@@ -228,9 +238,6 @@ def recommend_route(options: list[RouteOptionRead]) -> RouteOptionRead | None:
     if compliant_options:
         return min(compliant_options, key=lambda option: option.score)
 
-    valid_options = [option for option in options if option.legal_status == "VALID"]
-    if valid_options:
-        return min(valid_options, key=lambda option: option.score)
     return None
 
 
@@ -245,9 +252,7 @@ def route_invalid_reasons(
         consignment = consignments[consignment_id]
         destination = consignment["destination_country"]
         if not path or path[-1] != destination:
-            reasons.append(
-                f"{consignment['product_name']} route does not end in {destination}."
-            )
+            reasons.append(f"{consignment['product_name']} route does not end in {destination}.")
 
     if assessment.status == ComplianceStatus.NON_COMPLIANT:
         reasons.append("Deterministic compliance rules mark this route non-compliant.")
@@ -325,9 +330,7 @@ def events_for_path(
 ) -> list[dict[str, Any]]:
     if is_current_route:
         return [
-            event
-            for event in events
-            if event.get("consignment_id") in (None, consignment["id"])
+            event for event in events if event.get("consignment_id") in (None, consignment["id"])
         ]
 
     generated = [

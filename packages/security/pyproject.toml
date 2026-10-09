@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tradetwin-security"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = ["fastapi>=0.116,<1", "sqlalchemy>=2,<3", "httpx>=0.28,<1"]
+
+[tool.setuptools.packages.find]
+where = ["."]

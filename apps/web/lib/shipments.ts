@@ -1,7 +1,8 @@
 export const shipmentApiBaseUrl =
-  process.env.NEXT_PUBLIC_SHIPMENT_SERVICE_URL ?? "http://localhost:8011";
+  process.env.NEXT_PUBLIC_SHIPMENT_SERVICE_URL ?? "/api/services/shipment";
 
 export type Consignment = {
+  domestic?: { destination: IndianLocation; consignment_value: number; eway_bill_required?: boolean | null } | null;
   id: string;
   shipment_id: string;
   product_name: string;
@@ -16,6 +17,7 @@ export type Consignment = {
 };
 
 export type RouteLeg = {
+  domestic?: { origin: IndianLocation; destination: IndianLocation; distance_km: number } | null;
   id: string;
   shipment_id: string;
   sequence_number: number;
@@ -26,6 +28,7 @@ export type RouteLeg = {
 };
 
 export type Shipment = {
+  domestic?: { origin: IndianLocation; destination: IndianLocation; consignor_name: string; consignee_name: string; movement_reason: string; registered_consignor?: boolean | null; ordinary_goods?: boolean | null } | null;
   id: string;
   shipment_reference: string;
   exporter_country: string;
@@ -88,4 +91,12 @@ export function displayStatus(status: string): string {
     .split("_")
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
+}
+
+export type IndianLocation = { state: string; city: string; pincode: string };
+export function locationLabel(location: IndianLocation): string {
+  return `${location.city}, ${location.state}`;
+}
+export function shipmentRoute(shipment: Shipment): string {
+  return shipment.domestic ? `${locationLabel(shipment.domestic.origin)} to ${locationLabel(shipment.domestic.destination)}` : `${shipment.exporter_country} to ${shipment.importer_country}`;
 }

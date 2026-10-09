@@ -14,7 +14,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Validate Docker Compose
-        run: docker compose config --quiet
+        run: |
+          python scripts/init-document-key.py
+          docker compose config --quiet
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -25,16 +27,23 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r apps/api/requirements.txt
+          pip install -e packages/security
           pip install -r services/shipment-service/requirements.txt
           pip install -r services/compliance-service/requirements.txt
           pip install -r services/document-service/requirements.txt
           pip install -r services/intelligence-service/requirements.txt
 
       - name: Lint
-        run: ruff check apps/api services packages
+        run: ruff check apps/api services packages scripts
 
       - name: Test
         run: pytest apps/api services/shipment-service services/compliance-service services/document-service services/intelligence-service
+
+      - name: Service integration walkthrough
+        run: python scripts/smoke-test.py --local
+
+      - name: Profile isolation integration
+        run: python scripts/profile-security-check.py
 
   frontend:
     runs-on: ubuntu-latest
@@ -49,7 +58,7 @@ jobs:
 
       - name: Install frontend dependencies
         working-directory: apps/web
-        run: npm install
+        run: npm ci
 
       - name: Lint frontend
         working-directory: apps/web
@@ -58,3 +67,7 @@ jobs:
       - name: Build frontend
         working-directory: apps/web
         run: npm run build
+
+      - name: Test frontend
+        working-directory: apps/web
+        run: npm test

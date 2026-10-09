@@ -1,0 +1,23 @@
+[
+  {
+    "rule_id": "IN-DOM-INVOICE-001", "title": "Ordinary domestic supply: tax invoice evidence",
+    "jurisdiction": "India", "procedure_type": "domestic", "effective_from": "2026-09-13",
+    "effective_to": null, "source_url": "https://cbic-gst.gov.in/gst-invoice-rules.html", "version": "domestic-1",
+    "conditions": {"scope": "india_domestic"}, "required_documents": ["tax_invoice"],
+    "outcome_if_failed": {"status": "CONDITIONALLY_COMPLIANT", "violation": "Tax invoice evidence is missing.", "recommended_action": "Upload and extract the consignment tax invoice."}
+  },
+  {
+    "rule_id": "IN-DOM-EWAY-001", "title": "Ordinary interstate supply: e-way bill above INR 50,000",
+    "jurisdiction": "India", "procedure_type": "interstate", "effective_from": "2026-09-13",
+    "effective_to": null, "source_url": "https://docs.ewaybillgst.gov.in/html/faq_new.html", "version": "domestic-1",
+    "conditions": {"scope": "india_domestic", "consignment_value_above": 50000}, "required_documents": ["eway_bill"],
+    "outcome_if_failed": {"status": "CONDITIONALLY_COMPLIANT", "violation": "E-way bill evidence is missing.", "recommended_action": "Upload the e-way bill and verify its validity and transport details before dispatch."}
+  },
+  {
+    "rule_id": "IN-DOM-EWAY-STATE-001", "title": "Intrastate e-way bill confirmed applicable by reviewer",
+    "jurisdiction": "India", "procedure_type": "intrastate", "effective_from": "2026-09-13",
+    "effective_to": null, "source_url": "https://docs.ewaybillgst.gov.in/html/faq_new.html", "version": "domestic-1",
+    "conditions": {"scope": "india_domestic", "requires_eway_confirmation": true}, "required_documents": ["eway_bill"],
+    "outcome_if_failed": {"status": "CONDITIONALLY_COMPLIANT", "violation": "Required intrastate e-way bill evidence is missing.", "recommended_action": "Upload the required e-way bill based on the reviewed state notification."}
+  }
+]

@@ -23,6 +23,7 @@ from fastapi.testclient import TestClient
 from tests.test_evaluator import sample_events, sample_shipment
 from app.database import Base, engine
 from app.main import app
+from app import main as compliance_main
 
 
 def test_auth_me_returns_role_from_bearer_token() -> None:
@@ -52,11 +53,11 @@ def test_rbac_blocks_viewer_from_admin_regulation_create() -> None:
 def test_report_export_and_audit_log(monkeypatch) -> None:
     reset_database()
     monkeypatch.setattr(
-        "app.main.get_shipment_context",
+        compliance_main, "get_shipment_context",
         lambda shipment_id: (sample_shipment(), sample_events()),
     )
-    monkeypatch.setattr("app.main.get_uploaded_documents", lambda shipment_id: [])
-    monkeypatch.setattr("app.main.get_evidence_records", lambda assessment_id: [])
+    monkeypatch.setattr(compliance_main, "get_uploaded_documents", lambda shipment_id: [])
+    monkeypatch.setattr(compliance_main, "get_evidence_records", lambda assessment_id: [])
 
     with TestClient(app) as client:
         html_response = client.get(
@@ -89,8 +90,21 @@ def test_demo_scenarios_endpoint_lists_walkthrough() -> None:
 
     assert response.status_code == 200
     scenario = response.json()[0]
-    assert scenario["shipment_reference"] == "TT-DEMO-IND-UAE-DEU"
+    assert scenario["shipment_reference"] == "TT-DEMO-TN-KA-MH"
     assert "Export evidence-grounded report" in scenario["walkthrough_steps"]
+
+
+def test_invalid_regulation_date_returns_validation_error():
+    with TestClient(app) as client:
+        rule = client.get("/regulations/rules", headers={
+            "Authorization": "Bearer viewer-token",
+        }).json()[0]
+        rule["effective_from"] = "not-a-date"
+        response = client.post("/regulations", json={"rule": rule}, headers={
+            "Authorization": "Bearer admin-token",
+        })
+        assert response.status_code == 422
+        assert response.json()["error"] == "VALIDATION_ERROR"
 
 
 def reset_database() -> None:

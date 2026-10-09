@@ -3,10 +3,14 @@ from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
 from sqlalchemy.orm import Session
+from tradetwin_security import ProfileMiddleware, migrate_ownership
 
 from app.config import settings
 from app.database import Base, SessionLocal, engine, get_db
+from app.domestic import STATES, migrate_domestic, validate_domestic
+from app.domestic_demo import seed_domestic_demo as seed_demo
 from app.graph import ShipmentGraph, build_graph_response, load_graph_shipment
 from app.schemas import (
     ConsignmentCreate,
@@ -29,7 +33,8 @@ from app.service import (
     get_shipment,
     get_timeline,
     list_shipments,
-    seed_demo,
+    retry_pending_graph_sync,
+    sync_graph,
 )
 
 SERVICE_NAME = "shipment-service"
@@ -37,6 +42,8 @@ SERVICE_NAME = "shipment-service"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    migrate_ownership(engine, Base.metadata)
+    migrate_domestic(engine)
     Base.metadata.create_all(bind=engine)
     graph = ShipmentGraph()
     app.state.graph = graph
@@ -50,6 +57,14 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 app = FastAPI(title="TradeTwin Shipment Service", version="0.1.0", lifespan=lifespan)
+
+
+@app.get("/locations/states")
+def indian_states():
+    return list(STATES)
+
+
+app.add_middleware(ProfileMiddleware)
 
 app.add_middleware(
     CORSMiddleware,
@@ -65,8 +80,32 @@ def health() -> dict[str, str]:
     return {"status": "ok", "service": SERVICE_NAME}
 
 
+@app.get("/ready")
+def ready():
+    try:
+        with engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
+        graph = app.state.graph
+        if graph._driver is not None:
+            graph._driver.verify_connectivity()
+        with SessionLocal() as db:
+            if not retry_pending_graph_sync(db, graph):
+                raise RuntimeError("Graph projection is awaiting synchronization")
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail="Shipment dependencies unavailable") from exc
+    return {"status": "ok", "service": SERVICE_NAME}
+
+
 def get_graph() -> ShipmentGraph:
     return app.state.graph
+
+
+@app.post("/demo/seed", response_model=ShipmentRead, tags=["demo"])
+def load_demo_endpoint(
+    db: Session = Depends(get_db),
+    graph: ShipmentGraph = Depends(get_graph),
+):
+    return seed_demo(db, graph)
 
 
 @app.post("/shipments", response_model=ShipmentRead, status_code=201)
@@ -75,6 +114,10 @@ def create_shipment_endpoint(
     db: Session = Depends(get_db),
     graph: ShipmentGraph = Depends(get_graph),
 ):
+    try:
+        validate_domestic(payload)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
     return create_shipment(db, payload, graph)
 
 
@@ -133,8 +176,13 @@ def get_timeline_endpoint(shipment_id: str, db: Session = Depends(get_db)):
 
 
 @app.get("/shipments/{shipment_id}/graph", response_model=ShipmentGraphRead)
-def get_graph_endpoint(shipment_id: str, db: Session = Depends(get_db)):
+def get_graph_endpoint(
+    shipment_id: str,
+    db: Session = Depends(get_db),
+    graph: ShipmentGraph = Depends(get_graph),
+):
     shipment = load_graph_shipment(db, shipment_id)
     if shipment is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Shipment not found")
+    sync_graph(db, graph, shipment_id)
     return build_graph_response(shipment)

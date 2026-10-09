@@ -6,8 +6,13 @@ from typing import Any
 import pdfplumber
 from pypdf import PdfReader
 
-
 FIELD_PATTERNS = {
+    "consignor_gstin": [r"consignor\s+gstin\s*[:\-]\s*(?P<value>[A-Z0-9]{15})"],
+    "consignee_gstin": [r"consignee\s+gstin\s*[:\-]\s*(?P<value>[A-Z0-9]{15})"],
+    "origin_state": [r"origin\s+state\s*[:\-]\s*(?P<value>[^\r\n]+)"],
+    "destination_state": [r"destination\s+state\s*[:\-]\s*(?P<value>[^\r\n]+)"],
+    "vehicle_number": [r"vehicle\s+(?:number|no\.?)\s*[:\-]\s*(?P<value>[A-Z0-9 -]+)"],
+    "eway_bill_number": [r"e[ -]?way\s+bill\s+(?:number|no\.?)\s*[:\-]\s*(?P<value>[0-9]{12})"],
     "product_name": [
         r"product(?:\s+name)?\s*[:\-]\s*(?P<value>.+)",
         r"goods\s*[:\-]\s*(?P<value>.+)",
@@ -22,10 +27,13 @@ FIELD_PATTERNS = {
         r"origin\s+country\s*[:\-]\s*(?P<value>.+)",
     ],
     "hs_code": [
+        r"hsn\s*(?:code)?\s*[:\-]\s*(?P<value>[0-9.]+)",
         r"hs\s+code\s*[:\-]\s*(?P<value>[0-9.]+)",
         r"proposed\s+hs\s+code\s*[:\-]\s*(?P<value>[0-9.]+)",
     ],
     "document_number": [
+        r"e[ -]?way\s+bill\s+(?:number|no\.?)\s*[:\-]\s*(?P<value>[0-9]{12})",
+        r"challan\s+(?:number|no\.?)\s*[:\-]\s*(?P<value>[A-Z0-9\-/]+)",
         r"document\s+(?:number|no\.?)\s*[:\-]\s*(?P<value>[A-Z0-9\-\/]+)",
         r"certificate\s+(?:number|no\.?)\s*[:\-]\s*(?P<value>[A-Z0-9\-\/]+)",
         r"invoice\s+(?:number|no\.?)\s*[:\-]\s*(?P<value>[A-Z0-9\-\/]+)",

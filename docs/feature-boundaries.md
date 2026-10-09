@@ -1,5 +1,9 @@
 # Feature Boundaries
 
+Current scope: [domestic Indian road shipments](india-domestic.md). That document
+defines supported document checks, deferred state-specific coverage, synthetic
+predictions and migration behavior. The original phase inventory follows.
+
 ## Implemented Features
 
 - Docker Compose local environment.

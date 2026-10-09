@@ -1,0 +1,24 @@
+[
+  {
+    "rule_id": "TT-UAE-TRANSIT-HANDLING-001",
+    "title": "UAE demo transit handling clarification",
+    "jurisdiction": "UAE",
+    "procedure_type": "transit",
+    "effective_from": "2026-01-01",
+    "effective_to": null,
+    "source_url": "https://example.com/rules/uae/transit-handling",
+    "version": "2026.1",
+    "conditions": {
+      "route_contains_jurisdiction": true,
+      "consignment_destination_is_not_jurisdiction": true,
+      "answer_equals": { "sealed_onboard_uae": "no" },
+      "fail_when_matched": true
+    },
+    "required_documents": [],
+    "outcome_if_failed": {
+      "status": "CONDITIONALLY_COMPLIANT",
+      "violation": "Sealed onboard transit has not been confirmed.",
+      "recommended_action": "Confirm the handling procedure and provide storage or transshipment evidence before clearing UAE transit."
+    }
+  }
+]

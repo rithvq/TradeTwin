@@ -1,12 +1,15 @@
+import uuid
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-import uuid
 
 from fastapi import Body, Depends, FastAPI, HTTPException, Query, Request, Response, status
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
+from sqlalchemy import text
 from sqlalchemy.orm import Session
+from tradetwin_security import ProfileMiddleware, migrate_ownership
 
 from app.audit import write_audit_log
 from app.auth import Principal, get_current_principal, require_role
@@ -30,13 +33,16 @@ from app.regulations import (
     load_rules_with_published,
     publish_regulation_version,
 )
+from app.regulatory_sources import router as regulatory_sources_router
+from app.reports import build_html_report, build_pdf_report
 from app.schemas import (
+    AuditLogRead,
     ComplianceAssessmentRead,
     ComplianceAssessmentResult,
     ComplianceEvaluationRequest,
+    ComplianceRule,
     ConsistencyCheckRead,
     ConsistencyCheckRequest,
-    AuditLogRead,
     DemoScenarioRead,
     ErrorResponse,
     ImpactAnalysisRead,
@@ -53,14 +59,15 @@ from app.schemas import (
     RouteOptimizationRequest,
     UploadedDocumentMetadata,
 )
-from app.reports import build_html_report, build_pdf_report
 from app.shipment_client import get_shipment_context
+from app.state_relations import router as state_relations_router
 
 SERVICE_NAME = "compliance-service"
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    migrate_ownership(engine, Base.metadata)
     Base.metadata.create_all(bind=engine)
     app.state.job_store = ComplianceJobStore()
     yield
@@ -86,6 +93,10 @@ app = FastAPI(
     ],
     lifespan=lifespan,
 )
+
+app.add_middleware(ProfileMiddleware)
+app.include_router(regulatory_sources_router)
+app.include_router(state_relations_router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -123,7 +134,7 @@ def validation_exception_handler(request: Request, exc: RequestValidationError):
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content=ErrorResponse(
             error="VALIDATION_ERROR",
-            detail=exc.errors(),
+            detail=jsonable_encoder(exc.errors(), custom_encoder={ValueError: str}),
             trace_id=getattr(request.state, "trace_id", None),
         ).model_dump(mode="json"),
     )
@@ -144,6 +155,19 @@ def unhandled_exception_handler(request: Request, exc: Exception):
 
 @app.get("/health", tags=["health"])
 def health() -> dict[str, str]:
+    return {"status": "ok", "service": SERVICE_NAME}
+
+
+@app.get("/ready", tags=["health"])
+def ready():
+    try:
+        with engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
+        store = app.state.job_store
+        if store._redis is not None:
+            store._redis.ping()
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail="Compliance dependencies unavailable") from exc
     return {"status": "ok", "service": SERVICE_NAME}
 
 
@@ -208,6 +232,7 @@ def optimize_shipment_route(
         events,
         uploaded_documents,
         rules=load_rules_with_published(db),
+        answers=get_answer_map(db, shipment_id),
     )
     write_audit_log(
         db,
@@ -240,6 +265,14 @@ def create_regulation(
         details={"rule_id": regulation.rule.rule_id, "version": regulation.rule.version},
     )
     return regulation
+
+
+@app.get("/regulations/rules", response_model=list[ComplianceRule], tags=["regulations"])
+def read_regulation_rules(
+    db: Session = Depends(get_db),
+    principal: Principal = Depends(require_role("viewer")),
+):
+    return load_rules_with_published(db)
 
 
 @app.post(
@@ -336,9 +369,7 @@ def export_compliance_report(
     return HTMLResponse(
         build_html_report(shipment, assessment, evidence, route_options),
         headers={
-            "Content-Disposition": (
-                f'attachment; filename="tradetwin-{shipment_id}-report.html"'
-            )
+            "Content-Disposition": (f'attachment; filename="tradetwin-{shipment_id}-report.html"')
         },
     )
 
@@ -361,26 +392,26 @@ def get_audit_logs(
 def get_demo_scenarios():
     return [
         DemoScenarioRead(
-            scenario_id="india-uae-germany-lithium-electronics",
-            title="India to UAE to Germany split compliance treatment",
+            scenario_id="domestic-chennai-bengaluru-pune",
+            title="Chennai to Bengaluru to Pune domestic deliveries",
             summary=(
-                "Lithium batteries continue through UAE to Germany while consumer "
-                "electronics are unloaded for UAE import."
+                "Cotton shirts continue to Pune while a second consignment is delivered "
+                "in Bengaluru. Document requirements differ by consignment value."
             ),
-            shipment_reference="TT-DEMO-IND-UAE-DEU",
-            route=["India", "UAE", "Germany"],
+            shipment_reference="TT-DEMO-TN-KA-MH",
+            route=["Chennai, Tamil Nadu", "Bengaluru, Karnataka", "Pune, Maharashtra"],
             consignments=[
-                "Lithium batteries: India origin, Germany destination",
-                "Consumer electronics: India origin, UAE destination",
+                "Cotton shirts: Chennai to Pune",
+                "Stationery: Chennai to Bengaluru",
             ],
             walkthrough_steps=[
                 "Create shipment",
                 "Add two consignments",
                 "Upload or provide demo documents",
-                "Record UAE unloading event",
+                "Record Bengaluru delivery event",
                 "Run compliance evaluation",
-                "Show independent transit and import results",
-                "Publish UAE lithium transit rule update",
+                "Show independent delivery and document-readiness results",
+                "Publish demo interstate packing-list policy",
                 "Show affected shipment",
                 "Compare alternate route",
                 "Export evidence-grounded report",
@@ -433,6 +464,7 @@ def get_shipment_questions(
         events,
         uploaded_documents,
         answers=get_answer_map(db, shipment_id),
+        rules=load_rules_with_published(db),
     )
     return [question] if question else []
 
@@ -455,7 +487,9 @@ def answer_shipment_question(
     question = next(
         (
             candidate
-            for candidate in question_catalog(shipment, events, uploaded_documents)
+            for candidate in question_catalog(
+                shipment, events, uploaded_documents, load_rules_with_published(db)
+            )
             if candidate.question_id == question_id
         ),
         None,
@@ -466,12 +500,16 @@ def answer_shipment_question(
             detail="Question not found",
         )
 
+    normalized_answer = payload.answer.strip().lower()
+    if normalized_answer not in {option.lower() for option in question.answer_options}:
+        raise HTTPException(status_code=422, detail="Choose one of the question's answer options")
+
     answer = QuestionAnswer(
         shipment_id=shipment_id,
         question_id=question.question_id,
         consignment_id=question.consignment_id,
         attribute_key=question.attribute_key,
-        answer=payload.answer.strip().lower(),
+        answer=normalized_answer,
         answer_metadata=payload.metadata,
     )
     db.add(answer)
@@ -510,6 +548,7 @@ def create_assessment(
             events,
             uploaded_documents,
             rules=load_rules_with_published(db),
+            answers=get_answer_map(db, shipment_id),
         )
         assessment = ComplianceAssessment(
             shipment_id=shipment_id,
@@ -518,9 +557,10 @@ def create_assessment(
             result_payload=result.model_dump(mode="json"),
         )
         db.add(assessment)
+        db.flush()
+        create_evidence_records(assessment.id, result, uploaded_documents)
         db.commit()
         db.refresh(assessment)
-        create_evidence_records(assessment.id, result, uploaded_documents)
         job_store.complete(job_id, assessment.id)
         if principal is not None:
             write_audit_log(

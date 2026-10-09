@@ -41,7 +41,7 @@ class OpenAICompatibleGateway(LLMGateway):
         self.model = settings.llm_model
 
     def classification_hints(self, product_name: str, product_description: str) -> list[str]:
-        if not settings.llm_api_key:
+        if not settings.allow_private_data_llm or not settings.llm_api_key:
             return MockLLMGateway().classification_hints(product_name, product_description)
 
         response = httpx.post(
@@ -72,6 +72,10 @@ class OpenAICompatibleGateway(LLMGateway):
 
 
 def get_gateway() -> LLMGateway:
-    if settings.llm_provider == "openai_compatible":
+    if (
+        settings.allow_private_data_llm
+        and settings.llm_provider == "openai_compatible"
+        and settings.llm_api_key
+    ):
         return OpenAICompatibleGateway()
     return MockLLMGateway()

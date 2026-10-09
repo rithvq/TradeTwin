@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -11,6 +13,12 @@ class Settings(BaseSettings):
     redis_enabled: bool = True
     cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
     auth_required: bool = False
+    regulation_catalog_mode: Literal["demo", "reviewed"] = "demo"
+    regulation_llm_base_url: str = "https://api.openai.com/v1"
+    regulation_llm_model: str = "gpt-4o-mini"
+    regulation_llm_api_key: str | None = None
+    ors_api_key: str | None = None
+    allow_external_routing: bool = False
     tradetwin_viewer_token: str | None = None
     tradetwin_operator_token: str | None = None
     tradetwin_admin_token: str | None = None

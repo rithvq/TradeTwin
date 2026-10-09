@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from enum import StrEnum
 
-from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, Text
+from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import JSON
@@ -34,6 +34,8 @@ class CustomsStatus(StrEnum):
 
 
 class ShipmentEventType(StrEnum):
+    ARRIVED_AT_HUB = "ARRIVED_AT_HUB"
+    DELIVERED = "DELIVERED"
     CREATED = "CREATED"
     LOADED = "LOADED"
     ARRIVED_AT_TRANSIT_PORT = "ARRIVED_AT_TRANSIT_PORT"
@@ -48,11 +50,19 @@ class ShipmentEventType(StrEnum):
 json_payload = JSON().with_variant(JSONB, "postgresql")
 
 
+class GraphSyncTask(Base):
+    __tablename__ = "shipment_graph_sync_tasks"
+    shipment_id: Mapped[str] = mapped_column(String(36), primary_key=True)
+
+
 class Shipment(Base):
     __tablename__ = "shipments"
+    __table_args__ = (
+        UniqueConstraint("owner_id", "shipment_reference", name="uq_shipments_owner_reference"),
+    )
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
-    shipment_reference: Mapped[str] = mapped_column(String(80), unique=True, index=True)
+    shipment_reference: Mapped[str] = mapped_column(String(80), index=True)
     exporter_country: Mapped[str] = mapped_column(String(80))
     importer_country: Mapped[str] = mapped_column(String(80))
     transport_mode: Mapped[str] = mapped_column(String(40))
@@ -60,6 +70,7 @@ class Shipment(Base):
     planned_arrival_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     status: Mapped[str] = mapped_column(String(40), default=ShipmentStatus.CREATED)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    domestic: Mapped[dict | None] = mapped_column(json_payload, nullable=True)
 
     consignments: Mapped[list["Consignment"]] = relationship(
         back_populates="shipment", cascade="all, delete-orphan"
@@ -86,6 +97,7 @@ class Consignment(Base):
     destination_country: Mapped[str] = mapped_column(String(80))
     proposed_hs_code: Mapped[str | None] = mapped_column(String(20), nullable=True)
     customs_status: Mapped[str] = mapped_column(String(40), default=CustomsStatus.PENDING)
+    domestic: Mapped[dict | None] = mapped_column(json_payload, nullable=True)
 
     shipment: Mapped[Shipment] = relationship(back_populates="consignments")
     events: Mapped[list["ShipmentEvent"]] = relationship(back_populates="consignment")
@@ -101,6 +113,7 @@ class ShipmentLeg(Base):
     destination_country: Mapped[str] = mapped_column(String(80))
     transport_mode: Mapped[str] = mapped_column(String(40))
     carrier_name: Mapped[str] = mapped_column(String(120))
+    domestic: Mapped[dict | None] = mapped_column(json_payload, nullable=True)
 
     shipment: Mapped[Shipment] = relationship(back_populates="route_legs")
 

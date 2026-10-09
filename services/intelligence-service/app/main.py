@@ -1,9 +1,12 @@
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
+import httpx
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
 from sqlalchemy.orm import Session
+from tradetwin_security import ProfileMiddleware, migrate_ownership
 
 from app.config import settings
 from app.database import Base, engine, get_db
@@ -23,11 +26,14 @@ SERVICE_NAME = settings.service_name
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    migrate_ownership(engine, Base.metadata)
     Base.metadata.create_all(bind=engine)
     yield
 
 
 app = FastAPI(title="TradeTwin Intelligence Service", version="0.5.0", lifespan=lifespan)
+
+app.add_middleware(ProfileMiddleware)
 
 app.add_middleware(
     CORSMiddleware,
@@ -43,9 +49,22 @@ def health() -> dict[str, str]:
     return {"status": "ok", "service": SERVICE_NAME}
 
 
+@app.get("/ready")
+def ready():
+    try:
+        with engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail="Intelligence database unavailable") from exc
+    return {"status": "ok", "service": SERVICE_NAME}
+
+
 @app.post("/intelligence/hs-classify", response_model=HSClassificationResponse)
 def hs_classify(payload: HSClassificationRequest):
-    return classify_hs_code(payload, get_gateway())
+    try:
+        return classify_hs_code(payload, get_gateway())
+    except (httpx.HTTPError, KeyError, IndexError, TypeError, ValueError) as exc:
+        raise HTTPException(status_code=502, detail="Classification provider unavailable") from exc
 
 
 @app.post("/intelligence/risk-score/{shipment_id}", response_model=RiskAssessmentRead)

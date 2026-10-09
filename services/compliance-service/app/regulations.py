@@ -5,10 +5,12 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
-from app.document_client import get_uploaded_documents, merge_documents
+from app.config import settings
+from app.document_client import create_evidence_records, get_uploaded_documents, merge_documents
 from app.evaluator import evaluate_compliance, load_rules, unique_ordered
 from app.models import ComplianceAssessment, RegulationVersion
 from app.optimizer import optimize_routes
+from app.regulatory_sources import ensure_source_review
 from app.schemas import (
     ComplianceAssessmentRead,
     ComplianceAssessmentResult,
@@ -30,7 +32,7 @@ def create_regulation_version(
     db: Session,
     payload: RegulationCreateRequest | None = None,
 ) -> RegulationRead:
-    rule = payload.rule if payload and payload.rule else demo_uae_transit_safety_rule()
+    rule = payload.rule if payload and payload.rule else demo_domestic_rule()
     existing = (
         db.query(RegulationVersion)
         .filter(
@@ -63,6 +65,7 @@ def publish_regulation_version(db: Session, regulation_id: str) -> RegulationPub
         raise RegulationNotFound(regulation_id)
 
     if regulation.status != "PUBLISHED":
+        ensure_source_review(db, regulation_id)
         regulation.status = "PUBLISHED"
         regulation.published_at = datetime.now(UTC)
         db.commit()
@@ -79,7 +82,7 @@ def analyze_regulation_impact(
     payload: ImpactAnalysisRequest,
 ) -> ImpactAnalysisRead:
     triggering_regulations = selected_triggering_regulations(db, payload.regulation_ids)
-    base_rules = load_rules()
+    base_rules = bundled_rules()
     before_rules = [
         *base_rules,
         *published_rules(db, exclude_ids={regulation.id for regulation in triggering_regulations}),
@@ -101,7 +104,7 @@ def analyze_regulation_impact(
         if triggering_rule is None and previous.status == new.status:
             continue
 
-        assessment = persist_assessment(db, shipment["id"], new)
+        assessment = persist_assessment(db, shipment["id"], new, documents)
         route_options = optimize_routes(shipment_detail, events, documents, after_rules)
         impacted_shipments.append(
             ShipmentImpactRead(
@@ -145,7 +148,11 @@ def published_rules(
 
 
 def load_rules_with_published(db: Session) -> list[ComplianceRule]:
-    return [*load_rules(), *published_rules(db)]
+    return [*bundled_rules(), *published_rules(db)]
+
+
+def bundled_rules() -> list[ComplianceRule]:
+    return load_rules() if settings.regulation_catalog_mode == "demo" else []
 
 
 def selected_triggering_regulations(
@@ -168,10 +175,7 @@ def first_triggering_rule(
     assessment: ComplianceAssessmentResult,
     regulations: list[RegulationVersion],
 ) -> RegulationVersion | None:
-    trigger_keys = {
-        (regulation.rule_id, regulation.version)
-        for regulation in regulations
-    }
+    trigger_keys = {(regulation.rule_id, regulation.version) for regulation in regulations}
     for rule in assessment.applicable_rules:
         if (rule.rule_id, rule.version) in trigger_keys:
             return next(
@@ -199,6 +203,7 @@ def persist_assessment(
     db: Session,
     shipment_id: str,
     result: ComplianceAssessmentResult,
+    documents=None,
 ) -> ComplianceAssessmentRead:
     assessment = ComplianceAssessment(
         shipment_id=shipment_id,
@@ -207,6 +212,8 @@ def persist_assessment(
         result_payload=result.model_dump(mode="json"),
     )
     db.add(assessment)
+    db.flush()
+    create_evidence_records(assessment.id, result, documents or [])
     db.commit()
     db.refresh(assessment)
     return ComplianceAssessmentRead(
@@ -291,9 +298,7 @@ def demo_uae_transit_safety_rule() -> ComplianceRule:
         required_documents=["lithium_battery_safety_certificate"],
         outcome_if_failed=RuleOutcome(
             status="NON_COMPLIANT",
-            violation=(
-                "New UAE lithium transit safety-certificate rule is not satisfied."
-            ),
+            violation=("New UAE lithium transit safety-certificate rule is not satisfied."),
             recommended_action=(
                 "Upload the lithium battery safety certificate or route the "
                 "Germany-bound lithium consignment outside UAE transit."
@@ -306,3 +311,25 @@ class RegulationNotFound(Exception):
     def __init__(self, regulation_id: str) -> None:
         self.regulation_id = regulation_id
         super().__init__(f"Regulation not found: {regulation_id}")
+
+
+def demo_domestic_rule():
+    return ComplianceRule(
+        rule_id="IN-DOM-PACKING-DEMO",
+        title="Demo company policy: packing list for interstate dispatch",
+        jurisdiction="India",
+        procedure_type="interstate",
+        effective_from=datetime.now(UTC).date().isoformat(),
+        version="demo-1",
+        source_url="https://example.com/tradetwin/domestic-company-policy",
+        conditions={"scope": "india_domestic"},
+        required_documents=["packing_list"],
+        outcome_if_failed=RuleOutcome(
+            status="CONDITIONALLY_COMPLIANT",
+            violation="Packing list required by the demo company policy is missing.",
+            recommended_action=(
+                "Upload the consignment packing list. "
+                "This demo policy is not a government regulation."
+            ),
+        ),
+    )

@@ -74,3 +74,34 @@ class AuditLog(Base):
     status: Mapped[str] = mapped_column(String(40), index=True)
     details: Mapped[dict] = mapped_column(json_payload, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
+class RegulatorySourceSnapshot(Base):
+    __tablename__ = "regulatory_source_snapshots"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    url: Mapped[str] = mapped_column(String(1000))
+    content_hash: Mapped[str] = mapped_column(String(64))
+    payload: Mapped[dict] = mapped_column(json_payload)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
+class RegulatorySourceReview(Base):
+    __tablename__ = "regulatory_source_reviews"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    regulation_id: Mapped[str] = mapped_column(String(36), index=True)
+    snapshot_id: Mapped[str] = mapped_column(String(36), index=True)
+    payload: Mapped[dict] = mapped_column(json_payload)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
+class StateRelationRecord(Base):
+    __tablename__ = "state_relation_records"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=new_id)
+    shipment_id: Mapped[str] = mapped_column(String(36), index=True)
+    kind: Mapped[str] = mapped_column(String(32), index=True)
+    reference: Mapped[str] = mapped_column(String(160), index=True)
+    payload: Mapped[dict] = mapped_column(json_payload)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
