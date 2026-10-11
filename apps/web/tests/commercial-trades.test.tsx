@@ -10,6 +10,8 @@ import {
   type Trade,
 } from "@/lib/trades";
 
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+
 describe("commercial API and exact presentation", () => {
   it("forwards scoped concurrency and idempotency headers without converting paise to floats", async () => {
     const request = vi
@@ -103,6 +105,7 @@ it("shows accepted agreement separately, never fabricates future module results 
     },
   };
   const trade: Trade = {
+    execution_mode: "PRODUCTION",
     trade_id: "trade",
     reference: "TT-COM",
     agreement_status: "CONFIRMED",

@@ -369,6 +369,7 @@ class RevisionView(Schema):
 
 class TradeView(Schema):
     trade_id: UUID
+    execution_mode: Literal["PRODUCTION", "SIMULATION"] = "PRODUCTION"
     reference: str
     agreement_status: Literal["DRAFT", "OFFERED", "CONFIRMED", "CANCELLED"]
     accepted_revision: RevisionView | None

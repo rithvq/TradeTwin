@@ -11,7 +11,12 @@ depends_on = None
 
 def upgrade():
     connection = op.get_bind()
-    TradeBase.metadata.create_all(connection)
+    TradeBase.metadata.create_all(
+        connection,
+        tables=[
+            table for table in TradeBase.metadata.sorted_tables if not table.name.startswith("op_")
+        ],
+    )
     if connection.dialect.name == "postgresql":
         op.execute("""
             CREATE FUNCTION trade_reject_history_mutation() RETURNS trigger AS $$

@@ -119,6 +119,17 @@ export function TradeList() {
                 >
                   {trade.reference}
                 </Link>
+                <p className="mt-1 text-xs font-semibold">
+                  {trade.execution_mode}
+                </p>
+                {trade.accepted_revision && (
+                  <Link
+                    href={`/shipments/trades/${trade.trade_id}/operations`}
+                    className="mt-2 inline-block text-sm text-accent underline"
+                  >
+                    Trade operations
+                  </Link>
+                )}
                 <p className="mt-1 text-sm">
                   {role === "SELLER" ? "Buyer" : "Seller"}:{" "}
                   {String(

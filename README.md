@@ -1,5 +1,7 @@
 # TradeTwin
 
+Operational Phase 2: [consignments, transport, receipt, inspection, disputes, payments and simulations](docs/operations-phase2.md).
+
 Commercial agreement Phase 1: [setup, role onboarding, demo, APIs and tests](docs/commercial-agreements.md).
 Open the [trade workspace](http://localhost:3000/trades) after starting Docker.
 

@@ -50,6 +50,10 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 app = FastAPI(title="TradeTwin Document Service", version="0.3.0", lifespan=lifespan)
 
+from app.operational_evidence import router as operational_evidence_router  # noqa: E402
+
+app.include_router(operational_evidence_router)
+
 app.add_middleware(ProfileMiddleware)
 app.add_middleware(UploadBodyLimit, limit=settings.max_upload_bytes + 65536)
 

@@ -331,11 +331,20 @@ def amend_withdraw(
 
 @router.get("/trades/{trade_id}/evidence-events")
 def evidence(
-    trade_id: UUID, request: Request, cursor: UUID | None = None, db: Session = Depends(get_db)
+    trade_id: UUID,
+    request: Request,
+    cursor: UUID | None = None,
+    consignment_id: UUID | None = None,
+    subject_type: str | None = None,
+    db: Session = Depends(get_db),
 ):
     ctx = context(request, db)
     trade_access(db, ctx.user, ctx.org_id, str(trade_id), "evidence.read")
     query = select(Audit).where(Audit.trade_id == str(trade_id))
+    if consignment_id:
+        query = query.where(Audit.consignment_id == str(consignment_id))
+    if subject_type:
+        query = query.where(Audit.subject_type == subject_type)
     if cursor:
         previous = db.get(Audit, str(cursor))
         if not previous or previous.trade_id != str(trade_id):
@@ -361,6 +370,8 @@ def evidence(
                 "revision_id": row.revision_id,
                 "subject_id": row.subject_id,
                 "subject_type": row.subject_type,
+                "consignment_id": row.consignment_id,
+                "execution_mode": row.execution_mode,
                 "terms_hash": row.terms_hash,
                 "summary": row.redacted_summary_json,
             }
@@ -368,3 +379,8 @@ def evidence(
         ],
         "next_cursor": rows[49].id if len(rows) > 50 else None,
     }
+
+
+from app.operations.router import router as operations_router  # noqa: E402
+
+router.include_router(operations_router)

@@ -1990,7 +1990,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Reason"
+                "$ref": "#/components/schemas/app__trades__schemas__Reason"
               }
             }
           }
@@ -2841,7 +2841,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Reason"
+                "$ref": "#/components/schemas/app__trades__schemas__Reason"
               }
             }
           }
@@ -2968,6 +2968,39 @@
                 }
               ],
               "title": "Cursor"
+            }
+          },
+          {
+            "name": "consignment_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Consignment Id"
+            }
+          },
+          {
+            "name": "subject_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Subject Type"
             }
           },
           {
@@ -5252,22 +5285,6 @@
         ],
         "title": "Publish"
       },
-      "Reason": {
-        "properties": {
-          "reason": {
-            "type": "string",
-            "maxLength": 2000,
-            "minLength": 1,
-            "title": "Reason"
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "reason"
-        ],
-        "title": "Reason"
-      },
       "RegistrationCreate": {
         "properties": {
           "gstin": {
@@ -6040,6 +6057,15 @@
             "format": "uuid",
             "title": "Trade Id"
           },
+          "execution_mode": {
+            "type": "string",
+            "enum": [
+              "PRODUCTION",
+              "SIMULATION"
+            ],
+            "title": "Execution Mode",
+            "default": "PRODUCTION"
+          },
           "reference": {
             "type": "string",
             "title": "Reference"
@@ -6225,812 +6251,21 @@
         ],
         "title": "ValidationError"
       },
-      "OrganizationFields": {
-        "additionalProperties": false,
+      "app__trades__schemas__Reason": {
         "properties": {
-          "legal_name": {
-            "maxLength": 200,
-            "minLength": 1,
-            "title": "Legal Name",
-            "type": "string"
-          },
-          "trade_name": {
-            "anyOf": [
-              {
-                "maxLength": 200,
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "default": null,
-            "title": "Trade Name"
-          },
-          "entity_type": {
-            "enum": [
-              "PROPRIETORSHIP",
-              "PARTNERSHIP",
-              "LLP",
-              "COMPANY",
-              "TRUST",
-              "SOCIETY",
-              "OTHER"
-            ],
-            "title": "Entity Type",
-            "type": "string"
-          },
-          "authorised_contact_name": {
-            "maxLength": 100,
-            "minLength": 1,
-            "title": "Authorised Contact Name",
-            "type": "string"
-          },
-          "email": {
-            "maxLength": 254,
-            "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
-            "title": "Email",
-            "type": "string"
-          },
-          "mobile_e164": {
-            "pattern": "^\\+[1-9]\\d{7,14}$",
-            "title": "Mobile E164",
-            "type": "string"
-          },
-          "registered_address": {
-            "$ref": "#/components/schemas/Address"
-          },
-          "registration_position": {
-            "enum": [
-              "REGISTERED",
-              "UNREGISTERED",
-              "EXEMPTION_CLAIMED",
-              "NOT_PROVIDED"
-            ],
-            "title": "Registration Position",
-            "type": "string"
-          },
-          "registration_explanation": {
-            "anyOf": [
-              {
-                "maxLength": 1000,
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "default": null,
-            "title": "Registration Explanation"
-          }
-        },
-        "required": [
-          "legal_name",
-          "entity_type",
-          "authorised_contact_name",
-          "email",
-          "mobile_e164",
-          "registered_address",
-          "registration_position"
-        ],
-        "title": "OrganizationFields",
-        "type": "object"
-      },
-      "CommercialTerms": {
-        "additionalProperties": false,
-        "properties": {
-          "freight_payer": {
-            "enum": [
-              "SELLER",
-              "BUYER",
-              "SHARED"
-            ],
-            "title": "Freight Payer",
-            "type": "string"
-          },
-          "seller_freight_share_percent": {
-            "anyOf": [
-              {
-                "anyOf": [
-                  {
-                    "type": "number"
-                  },
-                  {
-                    "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
-                    "type": "string"
-                  }
-                ],
-                "ge": 0,
-                "le": 100
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "default": null,
-            "title": "Seller Freight Share Percent"
-          },
-          "freight_included_in_goods_price": {
-            "title": "Freight Included In Goods Price",
-            "type": "boolean"
-          },
-          "freight_estimate_minor": {
-            "anyOf": [
-              {
-                "pattern": "^\\d{1,18}$",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "default": null,
-            "title": "Freight Estimate Minor"
-          },
-          "loading_responsibility": {
-            "enum": [
-              "SELLER",
-              "BUYER",
-              "CARRIER"
-            ],
-            "title": "Loading Responsibility",
-            "type": "string"
-          },
-          "unloading_responsibility": {
-            "enum": [
-              "SELLER",
-              "BUYER",
-              "CARRIER"
-            ],
-            "title": "Unloading Responsibility",
-            "type": "string"
-          },
-          "insurance_required": {
-            "title": "Insurance Required",
-            "type": "boolean"
-          },
-          "insurance_responsibility": {
-            "enum": [
-              "SELLER",
-              "BUYER",
-              "CARRIER",
-              "NONE"
-            ],
-            "title": "Insurance Responsibility",
-            "type": "string"
-          },
-          "payment_mode": {
-            "enum": [
-              "ADVANCE",
-              "ON_DELIVERY",
-              "CREDIT",
-              "MILESTONE"
-            ],
-            "title": "Payment Mode",
-            "type": "string"
-          },
-          "advance_minor": {
-            "anyOf": [
-              {
-                "pattern": "^\\d{1,18}$",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "default": null,
-            "title": "Advance Minor"
-          },
-          "credit_days": {
-            "anyOf": [
-              {
-                "minimum": 0,
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "default": null,
-            "title": "Credit Days"
-          },
-          "milestone_schedule": {
-            "items": {
-              "$ref": "#/components/schemas/PaymentMilestone"
-            },
-            "title": "Milestone Schedule",
-            "type": "array"
-          },
-          "acceptance_window_hours": {
-            "exclusiveMinimum": 0,
-            "title": "Acceptance Window Hours",
-            "type": "integer"
-          },
-          "quality_acceptance_criteria": {
+          "reason": {
+            "type": "string",
             "maxLength": 2000,
             "minLength": 1,
-            "title": "Quality Acceptance Criteria",
-            "type": "string"
-          },
-          "return_policy": {
-            "maxLength": 2000,
-            "minLength": 1,
-            "title": "Return Policy",
-            "type": "string"
-          },
-          "cancellation_terms": {
-            "maxLength": 2000,
-            "minLength": 1,
-            "title": "Cancellation Terms",
-            "type": "string"
-          },
-          "partial_delivery_allowed": {
-            "title": "Partial Delivery Allowed",
-            "type": "boolean"
-          },
-          "supplier_substitution_allowed": {
-            "title": "Supplier Substitution Allowed",
-            "type": "boolean"
-          },
-          "pickup_location_substitution_allowed": {
-            "title": "Pickup Location Substitution Allowed",
-            "type": "boolean"
-          },
-          "commercial_valid_until": {
-            "format": "date-time",
-            "title": "Commercial Valid Until",
-            "type": "string"
+            "title": "Reason"
           }
         },
-        "required": [
-          "freight_payer",
-          "freight_included_in_goods_price",
-          "loading_responsibility",
-          "unloading_responsibility",
-          "insurance_required",
-          "insurance_responsibility",
-          "payment_mode",
-          "acceptance_window_hours",
-          "quality_acceptance_criteria",
-          "return_policy",
-          "cancellation_terms",
-          "partial_delivery_allowed",
-          "supplier_substitution_allowed",
-          "pickup_location_substitution_allowed",
-          "commercial_valid_until"
-        ],
-        "title": "CommercialTerms",
-        "type": "object"
-      },
-      "DeliveryRequirements": {
         "additionalProperties": false,
-        "properties": {
-          "mode": {
-            "const": "ROAD",
-            "title": "Mode",
-            "type": "string"
-          },
-          "pickup_earliest_at": {
-            "format": "date-time",
-            "title": "Pickup Earliest At",
-            "type": "string"
-          },
-          "pickup_latest_at": {
-            "format": "date-time",
-            "title": "Pickup Latest At",
-            "type": "string"
-          },
-          "delivery_deadline_at": {
-            "format": "date-time",
-            "title": "Delivery Deadline At",
-            "type": "string"
-          },
-          "receiving_window_start_local": {
-            "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$",
-            "title": "Receiving Window Start Local",
-            "type": "string"
-          },
-          "receiving_window_end_local": {
-            "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$",
-            "title": "Receiving Window End Local",
-            "type": "string"
-          },
-          "receiving_timezone": {
-            "title": "Receiving Timezone",
-            "type": "string"
-          },
-          "receiving_window_crosses_midnight": {
-            "title": "Receiving Window Crosses Midnight",
-            "type": "boolean"
-          },
-          "consolidation_allowed": {
-            "title": "Consolidation Allowed",
-            "type": "boolean"
-          },
-          "return_truck_allowed": {
-            "title": "Return Truck Allowed",
-            "type": "boolean"
-          },
-          "maximum_transshipments": {
-            "minimum": 0,
-            "title": "Maximum Transshipments",
-            "type": "integer"
-          },
-          "delivery_notes": {
-            "anyOf": [
-              {
-                "maxLength": 2000,
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "default": null,
-            "title": "Delivery Notes"
-          }
-        },
+        "type": "object",
         "required": [
-          "mode",
-          "pickup_earliest_at",
-          "pickup_latest_at",
-          "delivery_deadline_at",
-          "receiving_window_start_local",
-          "receiving_window_end_local",
-          "receiving_timezone",
-          "receiving_window_crosses_midnight",
-          "consolidation_allowed",
-          "return_truck_allowed",
-          "maximum_transshipments"
+          "reason"
         ],
-        "title": "DeliveryRequirements",
-        "type": "object"
-      },
-      "GoodsLine": {
-        "additionalProperties": false,
-        "properties": {
-          "line_ref": {
-            "anyOf": [
-              {
-                "format": "uuid",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "default": null,
-            "title": "Line Ref"
-          },
-          "description": {
-            "maxLength": 500,
-            "minLength": 1,
-            "title": "Description",
-            "type": "string"
-          },
-          "specification": {
-            "maxLength": 2000,
-            "minLength": 1,
-            "title": "Specification",
-            "type": "string"
-          },
-          "hsn_code": {
-            "anyOf": [
-              {
-                "pattern": "^\\d{2,8}$",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "default": null,
-            "title": "Hsn Code"
-          },
-          "hsn_confirmation": {
-            "enum": [
-              "NOT_PROVIDED",
-              "SUGGESTED",
-              "USER_CONFIRMED"
-            ],
-            "title": "Hsn Confirmation",
-            "type": "string"
-          },
-          "quantity": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
-                "type": "string"
-              }
-            ],
-            "gt": 0,
-            "title": "Quantity"
-          },
-          "uqc": {
-            "title": "Uqc",
-            "type": "string"
-          },
-          "unit_price_minor": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
-                "type": "string"
-              }
-            ],
-            "ge": 0,
-            "title": "Unit Price Minor"
-          },
-          "discount_minor": {
-            "default": "0",
-            "pattern": "^\\d{1,18}$",
-            "title": "Discount Minor",
-            "type": "string"
-          },
-          "declared_tax_rate_percent": {
-            "anyOf": [
-              {
-                "anyOf": [
-                  {
-                    "type": "number"
-                  },
-                  {
-                    "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
-                    "type": "string"
-                  }
-                ],
-                "decimal_places": 4,
-                "ge": 0,
-                "le": 100
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "default": null,
-            "title": "Declared Tax Rate Percent"
-          },
-          "estimated_gross_weight_kg": {
-            "anyOf": [
-              {
-                "anyOf": [
-                  {
-                    "type": "number"
-                  },
-                  {
-                    "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
-                    "type": "string"
-                  }
-                ],
-                "gt": 0
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "default": null,
-            "title": "Estimated Gross Weight Kg"
-          },
-          "package_count_estimate": {
-            "anyOf": [
-              {
-                "minimum": 0,
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "default": null,
-            "title": "Package Count Estimate"
-          },
-          "hazardous_declared": {
-            "title": "Hazardous Declared",
-            "type": "boolean"
-          },
-          "temperature_controlled": {
-            "title": "Temperature Controlled",
-            "type": "boolean"
-          },
-          "temperature_min_c": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "default": null,
-            "title": "Temperature Min C"
-          },
-          "temperature_max_c": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "default": null,
-            "title": "Temperature Max C"
-          },
-          "fragile": {
-            "title": "Fragile",
-            "type": "boolean"
-          },
-          "stackable": {
-            "title": "Stackable",
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "description",
-          "specification",
-          "hsn_confirmation",
-          "quantity",
-          "uqc",
-          "unit_price_minor",
-          "hazardous_declared",
-          "temperature_controlled",
-          "fragile",
-          "stackable"
-        ],
-        "title": "GoodsLine",
-        "type": "object"
-      },
-      "PartyInput": {
-        "additionalProperties": false,
-        "properties": {
-          "organization_id": {
-            "anyOf": [
-              {
-                "format": "uuid",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "default": null,
-            "title": "Organization Id"
-          },
-          "registration_id": {
-            "anyOf": [
-              {
-                "format": "uuid",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "default": null,
-            "title": "Registration Id"
-          },
-          "billing_address": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/Address"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "default": null
-          }
-        },
-        "title": "PartyInput",
-        "type": "object"
-      },
-      "PaymentMilestone": {
-        "additionalProperties": false,
-        "properties": {
-          "label": {
-            "maxLength": 100,
-            "minLength": 1,
-            "title": "Label",
-            "type": "string"
-          },
-          "percent_of_quoted_goods": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
-                "type": "string"
-              }
-            ],
-            "gt": 0,
-            "title": "Percent Of Quoted Goods"
-          },
-          "trigger": {
-            "enum": [
-              "ORDER_CONFIRMATION",
-              "DISPATCH",
-              "DELIVERY",
-              "ACCEPTANCE",
-              "FIXED_DATE"
-            ],
-            "title": "Trigger",
-            "type": "string"
-          },
-          "due_on": {
-            "anyOf": [
-              {
-                "format": "date",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "default": null,
-            "title": "Due On"
-          }
-        },
-        "required": [
-          "label",
-          "percent_of_quoted_goods",
-          "trigger"
-        ],
-        "title": "PaymentMilestone",
-        "type": "object"
-      },
-      "TradeFacts": {
-        "additionalProperties": false,
-        "properties": {
-          "scope": {
-            "const": "DOMESTIC_INTERSTATE",
-            "title": "Scope",
-            "type": "string"
-          },
-          "movement_purpose": {
-            "const": "SALE",
-            "title": "Movement Purpose",
-            "type": "string"
-          },
-          "seller_organization_id": {
-            "format": "uuid",
-            "title": "Seller Organization Id",
-            "type": "string"
-          },
-          "buyer_organization_id": {
-            "format": "uuid",
-            "title": "Buyer Organization Id",
-            "type": "string"
-          },
-          "seller_registration_id": {
-            "anyOf": [
-              {
-                "format": "uuid",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "default": null,
-            "title": "Seller Registration Id"
-          },
-          "buyer_registration_id": {
-            "anyOf": [
-              {
-                "format": "uuid",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "default": null,
-            "title": "Buyer Registration Id"
-          },
-          "bill_from": {
-            "$ref": "#/components/schemas/PartyInput"
-          },
-          "bill_to": {
-            "$ref": "#/components/schemas/PartyInput"
-          },
-          "dispatch_from": {
-            "$ref": "#/components/schemas/Address"
-          },
-          "ship_to": {
-            "$ref": "#/components/schemas/Address"
-          },
-          "transaction_layout": {
-            "enum": [
-              "REGULAR",
-              "BILL_TO_SHIP_TO",
-              "BILL_FROM_DISPATCH_FROM",
-              "COMBINATION"
-            ],
-            "title": "Transaction Layout",
-            "type": "string"
-          },
-          "purchase_order_reference": {
-            "anyOf": [
-              {
-                "maxLength": 100,
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "default": null,
-            "title": "Purchase Order Reference"
-          },
-          "currency": {
-            "const": "INR",
-            "title": "Currency",
-            "type": "string"
-          },
-          "pricing_basis": {
-            "enum": [
-              "NET_TAX_EXTRA",
-              "GROSS_TAX_INCLUDED"
-            ],
-            "title": "Pricing Basis",
-            "type": "string"
-          },
-          "tax_terms": {
-            "maxLength": 1000,
-            "minLength": 1,
-            "title": "Tax Terms",
-            "type": "string"
-          },
-          "items": {
-            "items": {
-              "$ref": "#/components/schemas/GoodsLine"
-            },
-            "maxItems": 100,
-            "minItems": 1,
-            "title": "Items",
-            "type": "array"
-          },
-          "commercial_terms": {
-            "$ref": "#/components/schemas/CommercialTerms"
-          },
-          "delivery_requirements": {
-            "$ref": "#/components/schemas/DeliveryRequirements"
-          }
-        },
-        "required": [
-          "scope",
-          "movement_purpose",
-          "seller_organization_id",
-          "buyer_organization_id",
-          "bill_from",
-          "bill_to",
-          "dispatch_from",
-          "ship_to",
-          "transaction_layout",
-          "currency",
-          "pricing_basis",
-          "tax_terms",
-          "items",
-          "commercial_terms",
-          "delivery_requirements"
-        ],
-        "title": "TradeFacts",
-        "type": "object"
+        "title": "Reason"
       },
       "ErrorDetail": {
         "additionalProperties": false,

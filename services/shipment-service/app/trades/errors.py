@@ -63,7 +63,9 @@ def install_handlers(app):
         if request.url.path.startswith("/api/v1/"):
             return error_response(
                 request,
-                "VALIDATION_FAILED",
+                "VALIDATION_ERROR"
+                if "Trade operations - Phase 2" in getattr(request.scope.get("route"), "tags", [])
+                else "VALIDATION_FAILED",
                 "Check the marked fields.",
                 422,
                 pydantic_fields(exc.errors()),

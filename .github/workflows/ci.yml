@@ -56,7 +56,7 @@ jobs:
       - name: PostgreSQL commercial acceptance and concurrency
         env:
           TRADE_TEST_DATABASE_URL: postgresql+psycopg://trade_test:${{ github.run_id }}-test-only@127.0.0.1:5432/trade_test
-        run: pytest services/shipment-service/tests/test_commercial_agreements.py
+        run: pytest services/shipment-service/tests/test_commercial_agreements.py services/shipment-service/tests/test_operations.py
 
       - name: Service integration walkthrough
         run: python scripts/smoke-test.py --local
@@ -114,3 +114,8 @@ jobs:
         env:
           PLAYWRIGHT_CHANNEL: chromium
         run: python scripts/commercial-browser-check.py
+
+      - name: Operational browser acceptance
+        env:
+          PLAYWRIGHT_CHANNEL: chromium
+        run: python scripts/operations-browser-check.py

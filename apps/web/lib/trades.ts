@@ -37,6 +37,7 @@ export type Revision = {
 };
 export type Trade = {
   trade_id: string;
+  execution_mode: "PRODUCTION" | "SIMULATION";
   reference: string;
   agreement_status: string;
   etag: string;

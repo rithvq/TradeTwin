@@ -52,7 +52,7 @@ def install_openapi(app):
                         ),
                     }
                 )
-                if method in {"post", "patch"}:
+                if method in {"post", "patch", "put"}:
                     operation["parameters"].append(
                         {
                             "name": "Idempotency-Key",
@@ -65,16 +65,35 @@ def install_openapi(app):
                         method == "patch"
                         or path.endswith(("/offers", "/amendments"))
                         or (path.startswith("/api/v1/offers/") and path.endswith("/withdrawals"))
+                        or path.endswith(
+                            (
+                                "/preparations",
+                                "/cancellations",
+                                "/corrections",
+                                "/assignments",
+                                "/delivery-closures",
+                                "/reopenings",
+                                "/payment-schedules",
+                            )
+                        )
+                        or method == "put"
                     ):
                         operation["parameters"].append(
                             {
                                 "name": "If-Match",
                                 "in": "header",
-                                "required": True,
+                                "required": method != "put",
                                 "schema": {"type": "string"},
-                                "description": "Current record ETag, including quotes.",
+                                "description": (
+                                    "Current record ETag, including quotes. "
+                                    "For carrier-profile PUT, required only when updating "
+                                    "an existing profile."
+                                ),
                             }
                         )
+        from app.operations.contracts import install
+
+        install(document)
         app.openapi_schema = document
         return document
 

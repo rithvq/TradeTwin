@@ -24,6 +24,7 @@ vi.mock("@/components/trades/trade-context", () => ({
   }),
 }));
 const view: Trade = {
+  execution_mode: "PRODUCTION",
   trade_id: "trade",
   reference: "TT-DRAFT",
   agreement_status: "DRAFT",

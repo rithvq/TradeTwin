@@ -74,11 +74,7 @@ def require(db, user, organization_id, permission, trade_id=None, side=None):
             grant
             for grant in grants(db, member, trade_id)
             if grant.permission_code == permission
-            and (
-                not side
-                or grant.capability == f"{side}_OPERATOR"
-                or grant.capability == f"{side}_APPROVER"
-            )
+            and (not side or grant.capability.startswith(f"{side}_"))
         ),
         None,
     )

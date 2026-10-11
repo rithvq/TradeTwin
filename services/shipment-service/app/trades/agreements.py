@@ -43,7 +43,7 @@ def draft_owner(db, ctx, trade, amendment=None):
         raise TradeError("OFFER_ACTIVE", "Withdraw the offered terms before editing.", 409)
 
 
-def create_trade(db, ctx, payload):
+def create_trade(db, ctx, payload, *, execution_mode="PRODUCTION"):
     role = payload.initiated_by_role
     require(db, ctx.user, ctx.org_id, "trade.create", side=role)
     facts = payload.facts.model_dump(mode="json", exclude_unset=True)
@@ -58,6 +58,7 @@ def create_trade(db, ctx, payload):
         initiated_by_role=role,
         created_by=ctx.user.id,
         row_version=1,
+        execution_mode=execution_mode,
     )
     db.add(trade)
     db.flush()
@@ -257,9 +258,16 @@ def decide(db, ctx, offer_id, payload, decision):
         else:
             trade.agreement_status = "DRAFT"
     elif all(item["decision"] == "ACCEPT" for item in approvals(db, offer)):
+        if amendment:
+            from app.operations.allocation import accept_amendment
+
+            accept_amendment(db, ctx, trade, revision)
         offer.status, trade.agreement_status = "ACCEPTED", "CONFIRMED"
         trade.accepted_revision_id = revision.id
         trade.active_offer_id = None
+        from app.operations.schedules import refresh_triggers
+
+        refresh_triggers(db, ctx, trade)
         if amendment:
             amendment.status, trade.pending_amendment_id = "ACCEPTED", None
     touch(trade)

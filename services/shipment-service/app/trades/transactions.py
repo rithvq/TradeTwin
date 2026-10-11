@@ -73,7 +73,16 @@ def preflight(db, ctx, request, payload):
     require(db, ctx.user, ctx.org_id, permission, trade_id, side)
 
 
-def mutate(request: Request, db, operation, payload, organization_required=True, status=200):
+def mutate(
+    request: Request,
+    db,
+    operation,
+    payload,
+    organization_required=True,
+    status=200,
+    authorize=None,
+    conflict_code="IDEMPOTENCY_KEY_REUSED",
+):
     try:
         ctx = context(request, db, organization_required)
         key = request.headers.get("Idempotency-Key", "")
@@ -81,12 +90,14 @@ def mutate(request: Request, db, operation, payload, organization_required=True,
             raise TradeError(
                 "IDEMPOTENCY_KEY_REQUIRED", "Send an Idempotency-Key of 1 to 128 characters.", 400
             )
-        # Serializes organisation mutations/retries; agreement functions also lock the shared trade.
+        # Always acquire the shared trade before organization/resource locks.
+        check = authorize or (lambda session, actor: preflight(session, actor, request, payload))
+        check(db, ctx)
         if organization_required:
             db.scalar(select(Organization).where(Organization.id == ctx.org_id).with_for_update())
         else:
             db.scalar(select(User).where(User.id == ctx.user.id).with_for_update())
-        preflight(db, ctx, request, payload)
+        check(db, ctx)
         scope = f"org:{ctx.org_id}" if organization_required else f"user:{ctx.user.id}"
         operation_name = f"{request.method}:{request.url.path}"
         fingerprint = digest({"actor": ctx.user.id, "payload": payload.model_dump(mode="json")})
@@ -100,7 +111,7 @@ def mutate(request: Request, db, operation, payload, organization_required=True,
         if saved:
             if saved.request_hash != fingerprint:
                 raise TradeError(
-                    "IDEMPOTENCY_KEY_REUSED",
+                    conflict_code,
                     "This key was used with a different payload or actor.",
                     409,
                 )

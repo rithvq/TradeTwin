@@ -1,5 +1,9 @@
 # Shipment Service
 
+Commercial operational Phase 2 is implemented in `app/operations`, using the
+existing OAuth, organisation permissions, commercial revisions and audit ledger.
+See [states, invariants, simulation accounts and commands](../../docs/operations-phase2.md).
+
 Owner of Phase 1 shipment lifecycle state, consignments, route legs, timeline events, and the shipment graph projection.
 
 ## Endpoints

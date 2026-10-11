@@ -51,7 +51,9 @@ import { cn } from "@/lib/utils";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const shipmentMatch = pathname.match(/^\/shipments\/([^/]+)/);
+  const shipmentMatch = pathname.match(
+    /^\/shipments\/([0-9a-f]{8}-[0-9a-f-]{27})(?:\/|$)/i,
+  );
   const shipmentId = shipmentMatch?.[1];
   const isDocuments = pathname.endsWith("/documents");
   if (pathname === "/login") return <>{children}</>;

@@ -27,7 +27,7 @@ from .schemas import Address, OrganizationFields
 from .terms import digest, input_facts, price, validate_publication
 
 
-def audit(db, ctx, action, subject, trade=None, revision=None, summary=None):
+def audit(db, ctx, action, subject, trade=None, revision=None, summary=None, consignment=None):
     def redact(value):
         if isinstance(value, dict):
             return {key: redact(item) for key, item in value.items()}
@@ -56,6 +56,8 @@ def audit(db, ctx, action, subject, trade=None, revision=None, summary=None):
             terms_hash=revision.terms_hash if revision else None,
             request_id=ctx.request_id,
             redacted_summary_json=redact(summary or {}),
+            consignment_id=consignment.id if consignment else None,
+            execution_mode=trade.execution_mode if trade else "PRODUCTION",
         )
     )
 
@@ -489,6 +491,7 @@ def trade_view(db, ctx, trade):
     return {
         "trade_id": trade.id,
         "reference": trade.reference,
+        "execution_mode": trade.execution_mode,
         "agreement_status": trade.agreement_status,
         "accepted_revision": accepted,
         "current_candidate_revision": current,

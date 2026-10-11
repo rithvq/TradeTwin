@@ -149,6 +149,15 @@ class Trade(Mutable, TradeBase):
     accepted_revision_id: Mapped[str | None] = mapped_column(Uuid(as_uuid=False), nullable=True)
     active_offer_id: Mapped[str | None] = mapped_column(Uuid(as_uuid=False), nullable=True)
     pending_amendment_id: Mapped[str | None] = mapped_column(Uuid(as_uuid=False), nullable=True)
+    execution_mode: Mapped[str] = mapped_column(
+        String(20), default="PRODUCTION", server_default="PRODUCTION"
+    )
+    active_payment_schedule_id: Mapped[str | None] = mapped_column(
+        Uuid(as_uuid=False), nullable=True
+    )
+    payment_schedule_review_required: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=text("false")
+    )
 
 
 class Participant(Record, TradeBase):
@@ -336,6 +345,12 @@ class Audit(Record, TradeBase):
     terms_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
     request_id: Mapped[str] = mapped_column(Uuid(as_uuid=False))
     redacted_summary_json: Mapped[dict] = mapped_column(JSON_TYPE)
+    consignment_id: Mapped[str | None] = mapped_column(
+        Uuid(as_uuid=False), nullable=True, index=True
+    )
+    execution_mode: Mapped[str] = mapped_column(
+        String(20), default="PRODUCTION", server_default="PRODUCTION"
+    )
 
 
 class Idempotency(Record, TradeBase):

@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, Building2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { tradeRequest, type Me, type ReferenceData } from "@/lib/trades";
@@ -28,10 +29,12 @@ export function useTradeContext() {
 }
 
 export function TradeArea({ children }: { children: ReactNode }) {
+  const router = useRouter();
   const [me, setMe] = useState<Me | null>(null);
   const [refs, setRefs] = useState<ReferenceData | null>(null);
   const [org, selectOrg] = useState("");
   const [role, selectRole] = useState<"SELLER" | "BUYER">("SELLER");
+  const [viewRole, selectViewRole] = useState("SELLER");
   const [error, setError] = useState("");
   async function reload() {
     try {
@@ -68,8 +71,37 @@ export function TradeArea({ children }: { children: ReactNode }) {
   function setRole(value: "SELLER" | "BUYER") {
     localStorage.setItem("tt-commercial-role", value);
     selectRole(value);
+    selectViewRole(value);
   }
   const member = me?.memberships.find((item) => item.organization_id === org);
+  const views = [
+    ...(member?.capabilities.some((c) => c.startsWith("SELLER_"))
+      ? [{ id: "SELLER", label: "Seller" }]
+      : []),
+    ...(member?.capabilities.some((c) => c.startsWith("BUYER_"))
+      ? [{ id: "BUYER", label: "Buyer" }]
+      : []),
+    ...(member?.capabilities.includes("CARRIER_DISPATCHER")
+      ? [{ id: "CARRIER_DISPATCHER", label: "Carrier dispatcher" }]
+      : []),
+    ...(member?.capabilities.includes("DRIVER")
+      ? [{ id: "DRIVER", label: "Driver" }]
+      : []),
+    ...(member?.capabilities.includes("BUYER_FINANCE")
+      ? [{ id: "BUYER_FINANCE", label: "Buyer finance" }]
+      : []),
+    ...(member?.capabilities.includes("SELLER_FINANCE")
+      ? [{ id: "SELLER_FINANCE", label: "Seller finance" }]
+      : []),
+  ];
+  useEffect(() => {
+    const supported = views.some((v) => v.id === viewRole);
+    if (!supported && views[0]) {
+      selectViewRole(views[0].id);
+      if (views[0].id.startsWith("BUYER")) selectRole("BUYER");
+      if (views[0].id.startsWith("SELLER")) selectRole("SELLER");
+    }
+  }, [org, member, viewRole]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <main className="tt-page">
       <header className="tt-context-header">
@@ -93,18 +125,29 @@ export function TradeArea({ children }: { children: ReactNode }) {
               <Button variant="outline" asChild>
                 <Link href="/trades">Trades</Link>
               </Button>
+              {member?.capabilities.some(
+                (c) => c === "DRIVER" || c === "CARRIER_DISPATCHER",
+              ) && (
+                <Button variant="outline" asChild>
+                  <Link href="/shipments/tasks">Transport tasks</Link>
+                </Button>
+              )}
               <Button variant="outline" asChild>
                 <Link href="/trades/organization">
                   <Building2 className="size-4" />
                   Business profile
                 </Link>
               </Button>
-              <Button asChild>
-                <Link href="/trades/new">
-                  <Plus className="size-4" />
-                  Create trade
-                </Link>
-              </Button>
+              {member?.permissions.some(
+                (p) => p.permission_code === "trade.create",
+              ) && (
+                <Button asChild>
+                  <Link href="/trades/new">
+                    <Plus className="size-4" />
+                    Create trade
+                  </Link>
+                </Button>
+              )}
             </div>
           </div>
           {me ? (
@@ -129,16 +172,28 @@ export function TradeArea({ children }: { children: ReactNode }) {
               </label>
               <fieldset className="min-w-0">
                 <legend className="text-sm font-medium">Interface role</legend>
-                <div className="mt-1 flex rounded border border-line">
-                  {(["SELLER", "BUYER"] as const).map((item) => (
+                <div className="mt-1 flex flex-wrap rounded border border-line">
+                  {views.map((item) => (
                     <button
                       type="button"
-                      key={item}
-                      aria-pressed={role === item}
-                      onClick={() => setRole(item)}
-                      className={`min-h-10 px-4 text-sm ${role === item ? "bg-accent text-white" : "bg-surface"}`}
+                      key={item.id}
+                      aria-pressed={viewRole === item.id}
+                      onClick={() => {
+                        selectViewRole(item.id);
+                        if (item.id.startsWith("BUYER")) {
+                          localStorage.setItem("tt-commercial-role", "BUYER");
+                          selectRole("BUYER");
+                        }
+                        if (item.id.startsWith("SELLER")) {
+                          localStorage.setItem("tt-commercial-role", "SELLER");
+                          selectRole("SELLER");
+                        }
+                        if (["DRIVER", "CARRIER_DISPATCHER"].includes(item.id))
+                          router.push("/shipments/tasks");
+                      }}
+                      className={`min-h-10 px-4 text-sm ${viewRole === item.id ? "bg-accent text-white" : "bg-surface"}`}
                     >
-                      {item === "SELLER" ? "Seller" : "Buyer"}
+                      {item.label}
                     </button>
                   ))}
                 </div>

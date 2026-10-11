@@ -108,3 +108,62 @@ ROLE_PERMISSIONS = {
     "SELLER_APPROVER": {"organization.read", "trade.read", "order.confirm.seller", "evidence.read"},
     "BUYER_APPROVER": {"organization.read", "trade.read", "order.confirm.buyer", "evidence.read"},
 }
+
+_READ = {"organization.read", "trade.read", "consignment.read", "evidence.read"}
+_DISPUTE = {"dispute.open", "dispute.comment", "dispute.resolve", "attachment.upload"}
+ROLE_PERMISSIONS.update(
+    {
+        "SELLER_OPERATIONS": _READ
+        | _DISPUTE
+        | {"consignment.plan", "consignment.cancel", "transport.assign"},
+        "BUYER_RECEIVER": _READ
+        | _DISPUTE
+        | {"receipt.record", "receipt.correct", "receipt.close", "receipt.reopen"},
+        "BUYER_OPERATIONS": _READ
+        | _DISPUTE
+        | {
+            "receipt.record",
+            "receipt.correct",
+            "receipt.close",
+            "receipt.reopen",
+            "transport.assign",
+        },
+        "BUYER_INSPECTOR": _READ | _DISPUTE | {"goods.accept", "goods.acceptance.reverse"},
+        "CARRIER_DISPATCHER": {
+            "organization.read",
+            "consignment.read",
+            "evidence.read",
+            "carrier_profile.manage",
+            "vehicle.manage",
+            "assignment.respond",
+            "attachment.upload",
+        },
+        "DRIVER": {
+            "organization.read",
+            "consignment.read",
+            "shipment.event.record",
+            "attachment.upload",
+            "evidence.read",
+        },
+        "BUYER_FINANCE": _READ
+        | _DISPUTE
+        | {
+            "payment_schedule.propose",
+            "payment_schedule.approve",
+            "payment.report",
+            "payment.void.propose",
+            "payment.void.approve",
+        },
+        "SELLER_FINANCE": _READ
+        | _DISPUTE
+        | {
+            "payment_schedule.propose",
+            "payment_schedule.approve",
+            "payment.acknowledge",
+            "payment.allocate",
+            "payment.allocation.reverse",
+            "payment.void.propose",
+            "payment.void.approve",
+        },
+    }
+)

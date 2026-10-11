@@ -1,0 +1,2144 @@
+{
+  "info": {
+    "name": "TradeTwin Operational Phase 2",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Seed a fresh SIMULATION namespace. Set actor session tokens/organization IDs and owned vehicle/driver IDs. No mock auth headers. Idempotency keys are fresh for new intent; preserve a key manually for retries. All additional tax/freight, dispatch and bank verification remain NOT_ASSESSED."
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8011"
+    },
+    {
+      "key": "trade_id",
+      "value": ""
+    },
+    {
+      "key": "accepted_revision_id",
+      "value": ""
+    },
+    {
+      "key": "line_ref",
+      "value": ""
+    },
+    {
+      "key": "pickup_start",
+      "value": ""
+    },
+    {
+      "key": "pickup_end",
+      "value": ""
+    },
+    {
+      "key": "delivery_at",
+      "value": ""
+    },
+    {
+      "key": "trade_etag",
+      "value": ""
+    },
+    {
+      "key": "schedule_id",
+      "value": ""
+    },
+    {
+      "key": "schedule_hash",
+      "value": ""
+    },
+    {
+      "key": "obligation_ref",
+      "value": ""
+    },
+    {
+      "key": "payment_id",
+      "value": ""
+    },
+    {
+      "key": "seller_operations_token",
+      "value": ""
+    },
+    {
+      "key": "buyer_receiver_token",
+      "value": ""
+    },
+    {
+      "key": "buyer_inspector_token",
+      "value": ""
+    },
+    {
+      "key": "buyer_finance_token",
+      "value": ""
+    },
+    {
+      "key": "seller_finance_token",
+      "value": ""
+    },
+    {
+      "key": "carrier_dispatcher_token",
+      "value": ""
+    },
+    {
+      "key": "driver_one_token",
+      "value": ""
+    },
+    {
+      "key": "driver_two_token",
+      "value": ""
+    },
+    {
+      "key": "unrelated_token",
+      "value": ""
+    },
+    {
+      "key": "unrelated_organization_id",
+      "value": ""
+    },
+    {
+      "key": "buyer_organization_id",
+      "value": ""
+    },
+    {
+      "key": "carrier_organization_id",
+      "value": ""
+    },
+    {
+      "key": "seller_organization_id",
+      "value": ""
+    },
+    {
+      "key": "cn_id_0",
+      "value": ""
+    },
+    {
+      "key": "cn_etag_0",
+      "value": ""
+    },
+    {
+      "key": "item_id_0",
+      "value": ""
+    },
+    {
+      "key": "assignment_id_0",
+      "value": ""
+    },
+    {
+      "key": "vehicle_id_0",
+      "value": ""
+    },
+    {
+      "key": "driver_id_0",
+      "value": ""
+    },
+    {
+      "key": "cn_id_1",
+      "value": ""
+    },
+    {
+      "key": "cn_etag_1",
+      "value": ""
+    },
+    {
+      "key": "item_id_1",
+      "value": ""
+    },
+    {
+      "key": "assignment_id_1",
+      "value": ""
+    },
+    {
+      "key": "vehicle_id_1",
+      "value": ""
+    },
+    {
+      "key": "driver_id_1",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Load confirmed SIMULATION agreement",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/trades/{{trade_id}}",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{seller_organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{seller_operations_token}}"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;",
+              "v.set('accepted_revision_id', r.accepted_revision.id); v.set('line_ref', r.accepted_revision.facts.items[0].line_ref);",
+              "const d=r.accepted_revision.facts.delivery_requirements; v.set('pickup_start',d.pickup_earliest_at);",
+              "v.set('pickup_end',d.pickup_latest_at); v.set('delivery_at',d.delivery_deadline_at); v.set('trade_etag',r.etag);",
+              "pm.test('SIMULATION only', () => pm.expect(r.execution_mode).to.eql('SIMULATION'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reserve 40 NOS",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/trades/{{trade_id}}/consignments",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{seller_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{seller_operations_token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"source_accepted_revision_id\": \"{{accepted_revision_id}}\",\n  \"coordinating_organization_id\": \"{{seller_organization_id}}\",\n  \"planned_pickup_start\": \"{{pickup_start}}\",\n  \"planned_pickup_end\": \"{{pickup_end}}\",\n  \"expected_delivery_at\": \"{{delivery_at}}\",\n  \"pickup_contact_name\": \"Demo seller\",\n  \"pickup_contact_phone_e164\": \"+919876543210\",\n  \"delivery_contact_name\": \"Demo buyer\",\n  \"delivery_contact_phone_e164\": \"+919876543210\",\n  \"declared_gross_weight_kg\": \"400\",\n  \"package_type\": \"CARTON\",\n  \"package_count\": 4,\n  \"items\": [\n    {\n      \"line_ref\": \"{{line_ref}}\",\n      \"allocated_quantity\": \"40\",\n      \"uqc\": \"NOS\"\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;",
+              "v.set('cn_id_0',r.id); v.set('cn_etag_0',r.etag); v.set('item_id_0',r.items[0].id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Prepare 40 NOS",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/consignments/{{cn_id_0}}/preparations",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{seller_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{cn_etag_0}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{seller_operations_token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;",
+              "v.set('cn_id_0',r.id); v.set('cn_etag_0',r.etag); v.set('item_id_0',r.items[0].id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Propose carrier for 40 NOS",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/consignments/{{cn_id_0}}/assignments",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{seller_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{cn_etag_0}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{seller_operations_token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"carrier_organization_id\": \"{{carrier_organization_id}}\",\n  \"booking_start_at\": \"{{pickup_start}}\",\n  \"booking_end_at\": \"{{delivery_at}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;",
+              "v.set('assignment_id_0',r.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Carrier explicitly accepts 40 NOS",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/assignments/{{assignment_id_0}}/decisions",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{carrier_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{carrier_dispatcher_token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"decision\": \"ACCEPT\",\n  \"vehicle_id\": \"{{vehicle_id_0}}\",\n  \"driver_user_id\": \"{{driver_id_0}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Driver 1: PICKUP_CONFIRMED",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/consignments/{{cn_id_0}}/events",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{carrier_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{driver_one_token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"client_event_id\": \"{{$guid}}\",\n  \"assignment_id\": \"{{assignment_id_0}}\",\n  \"event_type\": \"PICKUP_CONFIRMED\",\n  \"occurred_at\": \"{{occurred_at}}\",\n  \"payload\": {\n    \"items\": [\n      {\n        \"consignment_item_id\": \"{{item_id_0}}\",\n        \"loaded_quantity\": \"40\",\n        \"uqc\": \"NOS\"\n      }\n    ],\n    \"actual_gross_weight_kg\": \"400\",\n    \"actual_package_count\": 4\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Driver 1: DEPARTED",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/consignments/{{cn_id_0}}/events",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{carrier_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{driver_one_token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"client_event_id\": \"{{$guid}}\",\n  \"assignment_id\": \"{{assignment_id_0}}\",\n  \"event_type\": \"DEPARTED\",\n  \"occurred_at\": \"{{occurred_at}}\",\n  \"payload\": {}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Driver 1: ARRIVED",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/consignments/{{cn_id_0}}/events",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{carrier_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{driver_one_token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"client_event_id\": \"{{$guid}}\",\n  \"assignment_id\": \"{{assignment_id_0}}\",\n  \"event_type\": \"ARRIVED\",\n  \"occurred_at\": \"{{occurred_at}}\",\n  \"payload\": {}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Receive 20 NOS (0/0)",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/consignments/{{cn_id_0}}/receipts",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{buyer_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{buyer_receiver_token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"client_receipt_id\": \"{{$guid}}\",\n  \"received_at\": \"{{occurred_at}}\",\n  \"lines\": [\n    {\n      \"consignment_item_id\": \"{{item_id_0}}\",\n      \"delivered_quantity\": \"20\",\n      \"uqc\": \"NOS\",\n      \"observed_condition\": \"GOOD\"\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;",
+              "v.set('receipt_id',r.id); v.set('receipt_line_id',r.lines[0].id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Inspect independently (0/0)",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/receipts/{{receipt_id}}/acceptances",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{buyer_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{buyer_inspector_token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"decisions\": [\n    {\n      \"receipt_line_id\": \"{{receipt_line_id}}\",\n      \"accepted_quantity\": \"20\",\n      \"rejected_quantity\": \"0\"\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Receive 20 NOS (0/1)",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/consignments/{{cn_id_0}}/receipts",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{buyer_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{buyer_receiver_token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"client_receipt_id\": \"{{$guid}}\",\n  \"received_at\": \"{{occurred_at}}\",\n  \"lines\": [\n    {\n      \"consignment_item_id\": \"{{item_id_0}}\",\n      \"delivered_quantity\": \"20\",\n      \"uqc\": \"NOS\",\n      \"observed_condition\": \"GOOD\"\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;",
+              "v.set('receipt_id',r.id); v.set('receipt_line_id',r.lines[0].id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Inspect independently (0/1)",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/receipts/{{receipt_id}}/acceptances",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{buyer_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{buyer_inspector_token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"decisions\": [\n    {\n      \"receipt_line_id\": \"{{receipt_line_id}}\",\n      \"accepted_quantity\": \"20\",\n      \"rejected_quantity\": \"0\"\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Refresh consignment 0 ETag",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/consignments/{{cn_id_0}}",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{buyer_organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{buyer_receiver_token}}"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;",
+              "v.set('cn_id_0',r.id); v.set('cn_etag_0',r.etag); v.set('item_id_0',r.items[0].id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Close physical recording 0",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/consignments/{{cn_id_0}}/delivery-closures",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{buyer_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{cn_etag_0}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{buyer_receiver_token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reserve 60 NOS",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/trades/{{trade_id}}/consignments",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{seller_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{seller_operations_token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"source_accepted_revision_id\": \"{{accepted_revision_id}}\",\n  \"coordinating_organization_id\": \"{{seller_organization_id}}\",\n  \"planned_pickup_start\": \"{{pickup_start}}\",\n  \"planned_pickup_end\": \"{{pickup_end}}\",\n  \"expected_delivery_at\": \"{{delivery_at}}\",\n  \"pickup_contact_name\": \"Demo seller\",\n  \"pickup_contact_phone_e164\": \"+919876543210\",\n  \"delivery_contact_name\": \"Demo buyer\",\n  \"delivery_contact_phone_e164\": \"+919876543210\",\n  \"declared_gross_weight_kg\": \"400\",\n  \"package_type\": \"CARTON\",\n  \"package_count\": 4,\n  \"items\": [\n    {\n      \"line_ref\": \"{{line_ref}}\",\n      \"allocated_quantity\": \"60\",\n      \"uqc\": \"NOS\"\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;",
+              "v.set('cn_id_1',r.id); v.set('cn_etag_1',r.etag); v.set('item_id_1',r.items[0].id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Prepare 60 NOS",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/consignments/{{cn_id_1}}/preparations",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{seller_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{cn_etag_1}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{seller_operations_token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;",
+              "v.set('cn_id_1',r.id); v.set('cn_etag_1',r.etag); v.set('item_id_1',r.items[0].id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Propose carrier for 60 NOS",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/consignments/{{cn_id_1}}/assignments",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{seller_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{cn_etag_1}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{seller_operations_token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"carrier_organization_id\": \"{{carrier_organization_id}}\",\n  \"booking_start_at\": \"{{pickup_start}}\",\n  \"booking_end_at\": \"{{delivery_at}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;",
+              "v.set('assignment_id_1',r.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Carrier explicitly accepts 60 NOS",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/assignments/{{assignment_id_1}}/decisions",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{carrier_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{carrier_dispatcher_token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"decision\": \"ACCEPT\",\n  \"vehicle_id\": \"{{vehicle_id_1}}\",\n  \"driver_user_id\": \"{{driver_id_1}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Driver 2: PICKUP_CONFIRMED",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/consignments/{{cn_id_1}}/events",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{carrier_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{driver_two_token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"client_event_id\": \"{{$guid}}\",\n  \"assignment_id\": \"{{assignment_id_1}}\",\n  \"event_type\": \"PICKUP_CONFIRMED\",\n  \"occurred_at\": \"{{occurred_at}}\",\n  \"payload\": {\n    \"items\": [\n      {\n        \"consignment_item_id\": \"{{item_id_1}}\",\n        \"loaded_quantity\": \"60\",\n        \"uqc\": \"NOS\"\n      }\n    ],\n    \"actual_gross_weight_kg\": \"400\",\n    \"actual_package_count\": 4\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Driver 2: DEPARTED",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/consignments/{{cn_id_1}}/events",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{carrier_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{driver_two_token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"client_event_id\": \"{{$guid}}\",\n  \"assignment_id\": \"{{assignment_id_1}}\",\n  \"event_type\": \"DEPARTED\",\n  \"occurred_at\": \"{{occurred_at}}\",\n  \"payload\": {}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Driver 2: ARRIVED",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/consignments/{{cn_id_1}}/events",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{carrier_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{driver_two_token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"client_event_id\": \"{{$guid}}\",\n  \"assignment_id\": \"{{assignment_id_1}}\",\n  \"event_type\": \"ARRIVED\",\n  \"occurred_at\": \"{{occurred_at}}\",\n  \"payload\": {}\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Receive 60 NOS (1/0)",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/consignments/{{cn_id_1}}/receipts",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{buyer_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{buyer_receiver_token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"client_receipt_id\": \"{{$guid}}\",\n  \"received_at\": \"{{occurred_at}}\",\n  \"lines\": [\n    {\n      \"consignment_item_id\": \"{{item_id_1}}\",\n      \"delivered_quantity\": \"60\",\n      \"uqc\": \"NOS\",\n      \"observed_condition\": \"GOOD\"\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;",
+              "v.set('receipt_id',r.id); v.set('receipt_line_id',r.lines[0].id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Inspect independently (1/0)",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/receipts/{{receipt_id}}/acceptances",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{buyer_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{buyer_inspector_token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"decisions\": [\n    {\n      \"receipt_line_id\": \"{{receipt_line_id}}\",\n      \"accepted_quantity\": \"60\",\n      \"rejected_quantity\": \"0\"\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Refresh consignment 1 ETag",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/consignments/{{cn_id_1}}",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{buyer_organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{buyer_receiver_token}}"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;",
+              "v.set('cn_id_1',r.id); v.set('cn_etag_1',r.etag); v.set('item_id_1',r.items[0].id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Close physical recording 1",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/consignments/{{cn_id_1}}/delivery-closures",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{buyer_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{cn_etag_1}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{buyer_receiver_token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Critical failure: one extra NOS",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/trades/{{trade_id}}/consignments",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{seller_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{seller_operations_token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"source_accepted_revision_id\": \"{{accepted_revision_id}}\",\n  \"coordinating_organization_id\": \"{{seller_organization_id}}\",\n  \"planned_pickup_start\": \"{{pickup_start}}\",\n  \"planned_pickup_end\": \"{{pickup_end}}\",\n  \"expected_delivery_at\": \"{{delivery_at}}\",\n  \"pickup_contact_name\": \"Demo seller\",\n  \"pickup_contact_phone_e164\": \"+919876543210\",\n  \"delivery_contact_name\": \"Demo buyer\",\n  \"delivery_contact_phone_e164\": \"+919876543210\",\n  \"declared_gross_weight_kg\": \"400\",\n  \"package_type\": \"CARTON\",\n  \"package_count\": 4,\n  \"items\": [\n    {\n      \"line_ref\": \"{{line_ref}}\",\n      \"allocated_quantity\": \"1\",\n      \"uqc\": \"NOS\"\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 409', () => pm.response.to.have.status(409));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Refresh agreement for schedule",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/trades/{{trade_id}}",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{buyer_organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{buyer_finance_token}}"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;",
+              "v.set('trade_etag',r.etag);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Propose goods-only schedule",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/trades/{{trade_id}}/payment-schedules",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{buyer_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{trade_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{buyer_finance_token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"accepted_revision_id\": \"{{accepted_revision_id}}\",\n  \"lines\": [\n    {\n      \"label\": \"Goods on full delivery\",\n      \"face_amount_minor\": \"1000000\",\n      \"trigger\": \"FULL_DELIVERY\"\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;",
+              "v.set('schedule_id',r.id); v.set('schedule_hash',r.content_hash); v.set('obligation_ref',r.lines[0].obligation_ref);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "buyer_finance: approve same hash",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/payment-schedules/{{schedule_id}}/approvals",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{buyer_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{buyer_finance_token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"decision\": \"ACCEPT\",\n  \"content_hash\": \"{{schedule_hash}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "seller_finance: approve same hash",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/payment-schedules/{{schedule_id}}/approvals",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{seller_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{seller_finance_token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"decision\": \"ACCEPT\",\n  \"content_hash\": \"{{schedule_hash}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Report is not a bank acknowledgment",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/trades/{{trade_id}}/payments",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{buyer_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{buyer_finance_token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"amount_minor\": \"1000000\",\n  \"paid_on\": \"{{paid_on}}\",\n  \"method\": \"BANK_TRANSFER\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;",
+              "v.set('payment_id',r.id); pm.test('Manual only',()=>pm.expect(r.status).to.eql('MANUAL_REPORTED'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Critical failure: allocate unacknowledged",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/payments/{{payment_id}}/allocations",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{seller_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{seller_finance_token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"allocations\": [\n    {\n      \"obligation_ref\": \"{{obligation_ref}}\",\n      \"amount_minor\": \"1000000\"\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 409', () => pm.response.to.have.status(409));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Seller acknowledges report",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/payments/{{payment_id}}/acknowledgements",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{seller_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{seller_finance_token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Allocate acknowledged paise",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/payments/{{payment_id}}/allocations",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{seller_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{seller_finance_token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"allocations\": [\n    {\n      \"obligation_ref\": \"{{obligation_ref}}\",\n      \"amount_minor\": \"1000000\"\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Critical failure: buyer cannot acknowledge",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/payments/{{payment_id}}/acknowledgements",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{buyer_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{buyer_finance_token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 403', () => pm.response.to.have.status(403));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Critical failure: unrelated trade read",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/trades/{{trade_id}}/operations",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{unrelated_organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{unrelated_token}}"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Inspect final settlement",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/trades/{{trade_id}}/settlement",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{seller_organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{seller_finance_token}}"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Inspect final operations",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/trades/{{trade_id}}/operations",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{seller_organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{seller_finance_token}}"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Inspect final evidence-events",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/trades/{{trade_id}}/evidence-events",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{seller_organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{seller_finance_token}}"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Versioned planning snapshot",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/consignments/{{cn_id_0}}/planning-context",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{seller_organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{seller_operations_token}}"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const r = pm.response.json(); const v = pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.collectionVariables.set('occurred_at', new Date().toISOString());",
+          "pm.collectionVariables.set('paid_on', new Date().toISOString().slice(0,10));"
+        ]
+      }
+    }
+  ]
+}

@@ -136,6 +136,17 @@ export function TradeWorkspace({ tradeId }: { tradeId: string }) {
           <div className="flex flex-wrap justify-between gap-3">
             <div>
               <h2 className="text-xl font-semibold">{trade.reference}</h2>
+              <p className="mt-2 text-xs font-semibold">
+                {trade.execution_mode}
+              </p>
+              {trade.accepted_revision && (
+                <Link
+                  href={`/shipments/trades/${tradeId}/operations`}
+                  className="mt-2 inline-block text-sm font-semibold text-accent underline"
+                >
+                  Open trade operations
+                </Link>
+              )}
               <p className="mt-2">
                 <strong>
                   Commercial agreement status: {trade.agreement_status}
