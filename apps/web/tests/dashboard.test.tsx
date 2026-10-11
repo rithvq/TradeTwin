@@ -53,23 +53,33 @@ describe("TradeTwin orbital dashboard", () => {
     expect(tradeTwinModules).toHaveLength(8);
     for (const dashboardModule of tradeTwinModules) {
       expect(
-        screen.getByRole("button", { name: `Open ${dashboardModule.title} details` }),
+        screen.getByRole("button", {
+          name: `Open ${dashboardModule.title} details`,
+        }),
       ).toBeInTheDocument();
     }
     expect(
-      screen.queryByRole("button", { name: "Return to TradeTwin dashboard overview" }),
+      screen.queryByRole("button", {
+        name: "Return to TradeTwin dashboard overview",
+      }),
     ).not.toBeInTheDocument();
-    expect(screen.queryByText("Select a module to inspect actions")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Select a module to inspect actions"),
+    ).not.toBeInTheDocument();
   });
 
   it("opens a module panel and navigates to the correct destination", async () => {
     const user = userEvent.setup();
     renderDashboard();
 
-    await user.click(screen.getByRole("button", { name: "Open Shipment Twin details" }));
+    await user.click(
+      screen.getByRole("button", { name: "Open Shipment Twin details" }),
+    );
     const panel = screen.getByLabelText("Shipment Twin details");
     expect(panel).toBeInTheDocument();
-    await user.click(within(panel).getByRole("button", { name: /open module/i }));
+    await user.click(
+      within(panel).getByRole("button", { name: /open module/i }),
+    );
     expect(push).toHaveBeenCalledWith("/dashboard/shipments");
   });
 
@@ -77,35 +87,43 @@ describe("TradeTwin orbital dashboard", () => {
     const user = userEvent.setup();
     renderDashboard();
 
-    await user.click(screen.getByRole("button", { name: "Open Shipment Twin details" }));
+    await user.click(
+      screen.getByRole("button", { name: "Open Shipment Twin details" }),
+    );
 
-    expect(screen.getByRole("button", { name: "Open Documents details" })).toHaveAttribute(
-      "data-related",
-      "true",
-    );
-    expect(screen.getByRole("button", { name: "Open Compliance details" })).toHaveAttribute(
-      "data-related",
-      "true",
-    );
-    expect(screen.getByRole("button", { name: "Open Risk Intelligence details" })).toHaveClass(
-      "opacity-70",
-    );
+    expect(
+      screen.getByRole("button", { name: "Open Documents details" }),
+    ).toHaveAttribute("data-related", "true");
+    expect(
+      screen.getByRole("button", { name: "Open Compliance details" }),
+    ).toHaveAttribute("data-related", "true");
+    expect(
+      screen.getByRole("button", { name: "Open Risk Intelligence details" }),
+    ).toHaveClass("opacity-70");
   });
 
   it("closes the selected panel when Escape is pressed", async () => {
     const user = userEvent.setup();
     renderDashboard();
 
-    await user.click(screen.getByRole("button", { name: "Open Compliance details" }));
+    await user.click(
+      screen.getByRole("button", { name: "Open Compliance details" }),
+    );
     expect(screen.getByLabelText("Compliance details")).toBeInTheDocument();
     fireEvent.keyDown(document, { key: "Escape" });
-    expect(screen.queryByLabelText("Compliance details")).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText("Compliance details"),
+    ).not.toBeInTheDocument();
   });
 
   it("moves keyboard focus between adjacent nodes", () => {
     renderDashboard();
-    const shipmentNode = screen.getByRole("button", { name: "Open Shipment Twin details" });
-    const documentsNode = screen.getByRole("button", { name: "Open Documents details" });
+    const shipmentNode = screen.getByRole("button", {
+      name: "Open Shipment Twin details",
+    });
+    const documentsNode = screen.getByRole("button", {
+      name: "Open Documents details",
+    });
 
     shipmentNode.focus();
     fireEvent.keyDown(shipmentNode, { key: "ArrowRight" });
@@ -122,7 +140,10 @@ describe("TradeTwin orbital dashboard", () => {
 
     expect(screen.getAllByTestId("main-orbit")).toHaveLength(1);
     expect(screen.getAllByTestId("orbit-center")).toHaveLength(1);
-    expect(screen.getByTestId("orbit-center")).toHaveAttribute("aria-hidden", "true");
+    expect(screen.getByTestId("orbit-center")).toHaveAttribute(
+      "aria-hidden",
+      "true",
+    );
     expect(nodePositions).toHaveLength(tradeTwinModules.length);
     expect(uprightAnchors).toHaveLength(tradeTwinModules.length);
     for (const nodePosition of nodePositions) {
@@ -142,7 +163,9 @@ describe("TradeTwin orbital dashboard", () => {
       "tt-dashboard-shell",
       "w-full",
     );
-    expect(screen.getByTestId("dashboard-shell")).not.toHaveClass("max-w-[1500px]");
+    expect(screen.getByTestId("dashboard-shell")).not.toHaveClass(
+      "max-w-[1500px]",
+    );
     expect(screen.getByTestId("dashboard-workspace")).toHaveClass(
       "tt-dashboard-workspace",
       "md:grid",
@@ -162,7 +185,10 @@ describe("TradeTwin orbital dashboard", () => {
     }));
 
     renderDashboard();
-    expect(screen.getByTestId("orbit-track")).toHaveAttribute("data-auto-rotate", "false");
+    expect(screen.getByTestId("orbit-track")).toHaveAttribute(
+      "data-auto-rotate",
+      "false",
+    );
   });
 
   it("renders a complete mobile module grid", () => {
@@ -174,9 +200,13 @@ describe("TradeTwin orbital dashboard", () => {
 
     expect(screen.getByTestId("mobile-module-grid")).toBeInTheDocument();
     for (const dashboardModule of tradeTwinModules) {
-      expect(screen.getByRole("heading", { name: dashboardModule.title })).toBeInTheDocument();
+      expect(
+        screen.getByRole("heading", { name: dashboardModule.title }),
+      ).toBeInTheDocument();
     }
-    expect(screen.getAllByRole("link", { name: /open module/i })).toHaveLength(8);
+    expect(screen.getAllByRole("link", { name: /open module/i })).toHaveLength(
+      8,
+    );
   });
 });
 
@@ -189,7 +219,9 @@ describe("dashboard data adapter", () => {
     expect(result.dataSource).toBe("mock");
     expect(result.activeShipments).toBe(12);
     expect(result.mockFields).toContain("graphRelationships");
-    expect(result.serviceHealth.every((service) => service.status === "unavailable")).toBe(true);
+    expect(
+      result.serviceHealth.every((service) => service.status === "unavailable"),
+    ).toBe(true);
   });
 });
 

@@ -5,6 +5,7 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
+from app.assessment_repository import to_assessment_read
 from app.config import settings
 from app.document_client import create_evidence_records, get_uploaded_documents, merge_documents
 from app.evaluator import evaluate_compliance, load_rules, unique_ordered
@@ -216,14 +217,7 @@ def persist_assessment(
     create_evidence_records(assessment.id, result, documents or [])
     db.commit()
     db.refresh(assessment)
-    return ComplianceAssessmentRead(
-        id=assessment.id,
-        shipment_id=assessment.shipment_id,
-        job_id=assessment.job_id,
-        status=assessment.status,
-        created_at=assessment.created_at,
-        result=ComplianceAssessmentResult.model_validate(assessment.result_payload),
-    )
+    return to_assessment_read(assessment)
 
 
 def corrective_action(

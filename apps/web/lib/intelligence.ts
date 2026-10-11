@@ -1,7 +1,9 @@
 import type { Consignment } from "./shipments";
+import { serviceJson, serviceRequest } from "./api/http";
 
 export const intelligenceApiBaseUrl =
-  process.env.NEXT_PUBLIC_INTELLIGENCE_SERVICE_URL ?? "/api/services/intelligence";
+  process.env.NEXT_PUBLIC_INTELLIGENCE_SERVICE_URL ??
+  "/api/services/intelligence";
 
 export type HSCodeRecommendation = {
   hs_code: string;
@@ -43,37 +45,22 @@ export async function intelligenceFetch<T>(
   path: string,
   options?: RequestInit,
 ): Promise<T> {
-  const response = await fetch(`${intelligenceApiBaseUrl}${path}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  });
-
-  if (!response.ok) {
-    const detail = await response.text();
-    throw new Error(detail || `Request failed with ${response.status}`);
-  }
-
-  return response.json() as Promise<T>;
+  return serviceJson<T>(intelligenceApiBaseUrl, path, options);
 }
 
 export async function getLatestRiskAssessment(
   shipmentId: string,
 ): Promise<RiskAssessment | null> {
-  const response = await fetch(
-    `${intelligenceApiBaseUrl}/shipments/${shipmentId}/risk-assessment`,
+  const response = await serviceRequest(
+    intelligenceApiBaseUrl,
+    `/shipments/${shipmentId}/risk-assessment`,
+    undefined,
+    [404],
   );
 
   if (response.status === 404) {
     return null;
   }
-  if (!response.ok) {
-    const detail = await response.text();
-    throw new Error(detail || `Request failed with ${response.status}`);
-  }
-
   return response.json() as Promise<RiskAssessment>;
 }
 

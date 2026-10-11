@@ -4,14 +4,39 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+function Get-TradeTwinPort([string]$Name, [int]$Default) {
+    $value = [Environment]::GetEnvironmentVariable($Name)
+    $envFile = Join-Path $PSScriptRoot '../.env'
+    if (-not $value -and (Test-Path -LiteralPath $envFile)) {
+        foreach ($line in Get-Content -LiteralPath $envFile) {
+            if ($line -match "^\s*$Name\s*=\s*(.+?)\s*$") {
+                $value = $Matches[1].Trim('"', "'")
+            }
+        }
+    }
+    if (-not $value) { return $Default }
+    $port = 0
+    if (-not [int]::TryParse($value, [ref]$port) -or $port -lt 1 -or $port -gt 65535) {
+        throw "Invalid port configuration for $Name"
+    }
+    return $port
+}
+
+$webPort = Get-TradeTwinPort 'WEB_PORT' 3000
+$apiPort = Get-TradeTwinPort 'API_PORT' 8000
+$shipmentPort = Get-TradeTwinPort 'SHIPMENT_SERVICE_PORT' 8011
+$compliancePort = Get-TradeTwinPort 'COMPLIANCE_SERVICE_PORT' 8012
+$documentPort = Get-TradeTwinPort 'DOCUMENT_SERVICE_PORT' 8013
+$intelligencePort = Get-TradeTwinPort 'INTELLIGENCE_SERVICE_PORT' 8014
+
 $checks = @(
-    @{ Name = "Web"; Url = "http://localhost:3000"; Contains = "TradeTwin" },
-    @{ Name = "API health"; Url = "http://localhost:8000/health"; Contains = '"status":"ok"' },
-    @{ Name = "Shipment readiness"; Url = "http://localhost:8011/ready"; Contains = '"service":"shipment-service"' },
-    @{ Name = "Compliance readiness"; Url = "http://localhost:8012/ready"; Contains = '"service":"compliance-service"' },
-    @{ Name = "Document readiness"; Url = "http://localhost:8013/ready"; Contains = '"service":"document-service"' },
-    @{ Name = "Intelligence readiness"; Url = "http://localhost:8014/ready"; Contains = '"service":"intelligence-service"' },
-    @{ Name = "Shipment list"; Url = "http://localhost:8011/shipments"; Contains = "[" }
+    @{ Name = "Web login"; Url = "http://localhost:$webPort/login"; Contains = "TradeTwin" },
+    @{ Name = "API health"; Url = "http://localhost:$apiPort/health"; Contains = '"status":"ok"' },
+    @{ Name = "Shipment readiness"; Url = "http://localhost:$shipmentPort/ready"; Contains = '"service":"shipment-service"' },
+    @{ Name = "Compliance readiness"; Url = "http://localhost:$compliancePort/ready"; Contains = '"service":"compliance-service"' },
+    @{ Name = "Document readiness"; Url = "http://localhost:$documentPort/ready"; Contains = '"service":"document-service"' },
+    @{ Name = "Intelligence readiness"; Url = "http://localhost:$intelligencePort/ready"; Contains = '"service":"intelligence-service"' },
+    @{ Name = "Sign-in service"; Url = "http://localhost:$webPort/api/auth/providers"; Contains = '"provider"' }
 )
 
 $failed = @()

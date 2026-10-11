@@ -23,7 +23,8 @@ from fastapi.testclient import TestClient
 from tests.test_evaluator import sample_events, sample_shipment
 from app.database import Base, engine
 from app.main import app
-from app import main as compliance_main
+from app import assessments as assessment_service
+from app.routers import reports as report_routes
 
 
 def test_auth_me_returns_role_from_bearer_token() -> None:
@@ -52,12 +53,14 @@ def test_rbac_blocks_viewer_from_admin_regulation_create() -> None:
 
 def test_report_export_and_audit_log(monkeypatch) -> None:
     reset_database()
-    monkeypatch.setattr(
-        compliance_main, "get_shipment_context",
-        lambda shipment_id: (sample_shipment(), sample_events()),
-    )
-    monkeypatch.setattr(compliance_main, "get_uploaded_documents", lambda shipment_id: [])
-    monkeypatch.setattr(compliance_main, "get_evidence_records", lambda assessment_id: [])
+    for module in (assessment_service, report_routes):
+        monkeypatch.setattr(
+            module,
+            "get_shipment_context",
+            lambda shipment_id: (sample_shipment(), sample_events()),
+        )
+        monkeypatch.setattr(module, "get_uploaded_documents", lambda shipment_id: [])
+    monkeypatch.setattr(report_routes, "get_evidence_records", lambda assessment_id: [])
 
     with TestClient(app) as client:
         html_response = client.get(
@@ -96,13 +99,20 @@ def test_demo_scenarios_endpoint_lists_walkthrough() -> None:
 
 def test_invalid_regulation_date_returns_validation_error():
     with TestClient(app) as client:
-        rule = client.get("/regulations/rules", headers={
-            "Authorization": "Bearer viewer-token",
-        }).json()[0]
+        rule = client.get(
+            "/regulations/rules",
+            headers={
+                "Authorization": "Bearer viewer-token",
+            },
+        ).json()[0]
         rule["effective_from"] = "not-a-date"
-        response = client.post("/regulations", json={"rule": rule}, headers={
-            "Authorization": "Bearer admin-token",
-        })
+        response = client.post(
+            "/regulations",
+            json={"rule": rule},
+            headers={
+                "Authorization": "Bearer admin-token",
+            },
+        )
         assert response.status_code == 422
         assert response.json()["error"] == "VALIDATION_ERROR"
 

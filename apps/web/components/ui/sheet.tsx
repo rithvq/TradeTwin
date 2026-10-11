@@ -17,7 +17,10 @@ const SheetOverlay = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Overlay
     ref={ref}
-    className={cn("fixed inset-0 z-[80] bg-black/65 backdrop-blur-sm", className)}
+    className={cn(
+      "fixed inset-0 z-[80] bg-black/65 backdrop-blur-sm",
+      className,
+    )}
     {...props}
   />
 ));
@@ -47,7 +50,10 @@ const SheetContent = React.forwardRef<
 ));
 SheetContent.displayName = DialogPrimitive.Content.displayName;
 
-function SheetHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+function SheetHeader({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
   return <div className={cn("space-y-2 pr-8", className)} {...props} />;
 }
 

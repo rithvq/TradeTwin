@@ -313,7 +313,7 @@ def refresh_routing(
         raise HTTPException(409, "Shipment changed; obtain a revised quote")
     if any(p.get("longitude") is None or p.get("latitude") is None for p in offer["places"]):
         raise HTTPException(422, "Provide verified coordinates for every stop")
-    url = "https://api.openrouteservice.org/v2/directions/driving-hgv/json"
+    url = settings.ors_directions_url
     try:
         with httpx.Client(timeout=30, follow_redirects=False) as client:
             response = client.post(

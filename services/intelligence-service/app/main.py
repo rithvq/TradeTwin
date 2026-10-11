@@ -12,6 +12,7 @@ from app.config import settings
 from app.database import Base, engine, get_db
 from app.hs_classifier import classify_hs_code
 from app.llm_gateway import get_gateway
+from app.migrations import migrate_risk_warning
 from app.models import RiskAssessment
 from app.risk_model import score_shipment
 from app.schemas import (
@@ -28,6 +29,7 @@ SERVICE_NAME = settings.service_name
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     migrate_ownership(engine, Base.metadata)
     Base.metadata.create_all(bind=engine)
+    migrate_risk_warning(engine)
     yield
 
 

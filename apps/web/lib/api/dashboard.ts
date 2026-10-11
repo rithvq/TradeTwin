@@ -24,8 +24,12 @@ const demoSummary = {
 
 export async function fetchDashboardSummary(): Promise<DashboardSummaryData> {
   const [nativeSummary, nativeHealth] = await Promise.all([
-    tryFetchJson<DashboardApiSummary>(`${platformApiBaseUrl}/api/v1/dashboard/summary`),
-    tryFetchJson<ServiceHealth[]>(`${platformApiBaseUrl}/api/v1/services/health`),
+    tryFetchJson<DashboardApiSummary>(
+      `${platformApiBaseUrl}/api/v1/dashboard/summary`,
+    ),
+    tryFetchJson<ServiceHealth[]>(
+      `${platformApiBaseUrl}/api/v1/services/health`,
+    ),
   ]);
 
   if (nativeSummary) {
@@ -51,9 +55,11 @@ async function buildCompatibilitySummary(): Promise<DashboardSummaryData> {
   ]);
 
   const complianceAlerts = assessmentData.filter((assessment) =>
-    ["CONDITIONALLY_COMPLIANT", "NON_COMPLIANT", "INSUFFICIENT_INFORMATION"].includes(
-      assessment.status,
-    ),
+    [
+      "CONDITIONALLY_COMPLIANT",
+      "NON_COMPLIANT",
+      "INSUFFICIENT_INFORMATION",
+    ].includes(assessment.status),
   ).length;
   const highRiskShipments = riskData.filter(
     (assessment) => assessment.risk_level === "HIGH",
@@ -81,7 +87,9 @@ async function buildCompatibilitySummary(): Promise<DashboardSummaryData> {
     serviceHealth,
     dataSource: liveShipmentData ? "mixed" : "mock",
     mockFields: [
-      ...(liveShipmentData ? [] : ["activeShipments", "highRiskShipments", "complianceAlerts"]),
+      ...(liveShipmentData
+        ? []
+        : ["activeShipments", "highRiskShipments", "complianceAlerts"]),
       "pendingReviews",
       "regulationChanges",
       "missingDocuments",
@@ -104,16 +112,22 @@ async function fetchLatestAssessments(
       return assessments?.at(0) ?? null;
     }),
   );
-  return results.filter((result): result is ComplianceAssessment => result !== null);
+  return results.filter(
+    (result): result is ComplianceAssessment => result !== null,
+  );
 }
 
-async function fetchLatestRisks(shipments: Shipment[]): Promise<RiskAssessment[]> {
+async function fetchLatestRisks(
+  shipments: Shipment[],
+): Promise<RiskAssessment[]> {
   const results = await Promise.all(
-    shipments.slice(0, 30).map((shipment) =>
-      tryFetchJson<RiskAssessment>(
-        `${intelligenceApiBaseUrl}/shipments/${shipment.id}/risk-assessment`,
+    shipments
+      .slice(0, 30)
+      .map((shipment) =>
+        tryFetchJson<RiskAssessment>(
+          `${intelligenceApiBaseUrl}/shipments/${shipment.id}/risk-assessment`,
+        ),
       ),
-    ),
   );
   return results.filter((result): result is RiskAssessment => result !== null);
 }
@@ -172,14 +186,42 @@ function normalizeNativeSummary(
 
   return {
     platformStatus: summary.platform_status ?? "operational",
-    activeShipments: numberValue(summary.active_shipments, 12, "activeShipments"),
-    highRiskShipments: numberValue(summary.high_risk_shipments, 2, "highRiskShipments"),
+    activeShipments: numberValue(
+      summary.active_shipments,
+      12,
+      "activeShipments",
+    ),
+    highRiskShipments: numberValue(
+      summary.high_risk_shipments,
+      2,
+      "highRiskShipments",
+    ),
     pendingReviews: numberValue(summary.pending_reviews, 6, "pendingReviews"),
-    complianceAlerts: numberValue(summary.compliance_alerts, 3, "complianceAlerts"),
-    regulationChanges: numberValue(summary.regulation_changes, 1, "regulationChanges"),
-    missingDocuments: numberValue(summary.missing_documents, 4, "missingDocuments"),
-    graphRelationships: numberValue(summary.graph_relationships, 148, "graphRelationships"),
-    routeAlternatives: numberValue(summary.route_alternatives, 5, "routeAlternatives"),
+    complianceAlerts: numberValue(
+      summary.compliance_alerts,
+      3,
+      "complianceAlerts",
+    ),
+    regulationChanges: numberValue(
+      summary.regulation_changes,
+      1,
+      "regulationChanges",
+    ),
+    missingDocuments: numberValue(
+      summary.missing_documents,
+      4,
+      "missingDocuments",
+    ),
+    graphRelationships: numberValue(
+      summary.graph_relationships,
+      148,
+      "graphRelationships",
+    ),
+    routeAlternatives: numberValue(
+      summary.route_alternatives,
+      5,
+      "routeAlternatives",
+    ),
     serviceHealth,
     dataSource: fallbackFields.length > 0 ? "mixed" : "live",
     mockFields: fallbackFields,

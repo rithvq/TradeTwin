@@ -1,10 +1,7 @@
 import type { ElementType } from "react";
 
 export type TradeTwinModuleStatus =
-  | "operational"
-  | "attention"
-  | "unavailable"
-  | "prototype";
+  "operational" | "attention" | "unavailable" | "prototype";
 
 export type DashboardDataSource = "live" | "mixed" | "mock";
 

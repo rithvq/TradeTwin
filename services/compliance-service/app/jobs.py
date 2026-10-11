@@ -20,6 +20,14 @@ class ComplianceJobStore:
                 decode_responses=True,
             )
 
+    def check_ready(self) -> None:
+        if self._redis is not None:
+            self._redis.ping()
+
+    def close(self) -> None:
+        if self._redis is not None:
+            self._redis.close()
+
     def start(self, shipment_id: str) -> str:
         job_id = str(uuid.uuid4())
         self._write(

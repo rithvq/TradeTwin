@@ -34,7 +34,10 @@ jobs:
           pip install -r services/intelligence-service/requirements.txt
 
       - name: Lint
-        run: ruff check apps/api services packages scripts
+        run: |
+          ruff check apps/api services packages scripts conftest.py
+          ruff format --check apps/api services packages scripts conftest.py
+          python scripts/check-architecture.py
 
       - name: Test
         run: pytest apps/api services/shipment-service services/compliance-service services/document-service services/intelligence-service
@@ -62,7 +65,15 @@ jobs:
 
       - name: Lint frontend
         working-directory: apps/web
-        run: npm run lint
+        run: |
+          npm run lint
+          npm run typecheck
+          npm run format:check
+          npm run check:architecture
+
+      - name: Audit production dependencies
+        working-directory: apps/web
+        run: npm audit --omit=dev --audit-level=high
 
       - name: Build frontend
         working-directory: apps/web

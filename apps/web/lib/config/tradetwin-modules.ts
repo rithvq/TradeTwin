@@ -25,8 +25,14 @@ export const tradeTwinModules: TradeTwinModule[] = [
     metric: { label: "Active", value: 0 },
     quickActions: [
       { label: "Create shipment", route: "/dashboard/shipments/new" },
-      { label: "View active shipments", route: "/dashboard/shipments?status=active" },
-      { label: "Record shipment event", route: "/dashboard/shipments?action=record-event" },
+      {
+        label: "View active shipments",
+        route: "/dashboard/shipments?status=active",
+      },
+      {
+        label: "Record shipment event",
+        route: "/dashboard/shipments?action=record-event",
+      },
     ],
     accent: "blue",
   },
@@ -43,8 +49,14 @@ export const tradeTwinModules: TradeTwinModule[] = [
     metric: { label: "Missing", value: 0 },
     quickActions: [
       { label: "Upload document", route: "/dashboard/documents?action=upload" },
-      { label: "Review extracted data", route: "/dashboard/documents?view=extracted" },
-      { label: "View missing documents", route: "/dashboard/evidence?view=missing" },
+      {
+        label: "Review extracted data",
+        route: "/dashboard/documents?view=extracted",
+      },
+      {
+        label: "View missing documents",
+        route: "/dashboard/evidence?view=missing",
+      },
     ],
     accent: "cyan",
   },
@@ -60,9 +72,18 @@ export const tradeTwinModules: TradeTwinModule[] = [
     status: "operational",
     metric: { label: "Require action", value: 0 },
     quickActions: [
-      { label: "Run assessment", route: "/dashboard/compliance?action=evaluate" },
-      { label: "Review violations", route: "/dashboard/compliance?view=violations" },
-      { label: "View required actions", route: "/dashboard/compliance?view=actions" },
+      {
+        label: "Run assessment",
+        route: "/dashboard/compliance?action=evaluate",
+      },
+      {
+        label: "Review violations",
+        route: "/dashboard/compliance?view=violations",
+      },
+      {
+        label: "View required actions",
+        route: "/dashboard/compliance?view=actions",
+      },
     ],
     accent: "cyan",
   },
@@ -79,7 +100,10 @@ export const tradeTwinModules: TradeTwinModule[] = [
     metric: { label: "Relationships", value: 0 },
     quickActions: [
       { label: "Open shipment graph", route: "/dashboard/graph?action=open" },
-      { label: "Explore relationships", route: "/dashboard/graph?view=relationships" },
+      {
+        label: "Explore relationships",
+        route: "/dashboard/graph?view=relationships",
+      },
       { label: "View event impact", route: "/dashboard/graph?view=events" },
     ],
     accent: "blue",
@@ -98,7 +122,10 @@ export const tradeTwinModules: TradeTwinModule[] = [
     quickActions: [
       { label: "Calculate risk", route: "/dashboard/risk?action=calculate" },
       { label: "View risk factors", route: "/dashboard/risk?view=factors" },
-      { label: "Review model information", route: "/dashboard/risk?view=model" },
+      {
+        label: "Review model information",
+        route: "/dashboard/risk?view=model",
+      },
     ],
     accent: "violet",
   },
@@ -115,8 +142,14 @@ export const tradeTwinModules: TradeTwinModule[] = [
     metric: { label: "Alternatives", value: 0 },
     quickActions: [
       { label: "Compare routes", route: "/dashboard/optimizer?action=compare" },
-      { label: "Optimize shipment", route: "/dashboard/optimizer?action=optimize" },
-      { label: "View rejected alternatives", route: "/dashboard/optimizer?view=rejected" },
+      {
+        label: "Optimize shipment",
+        route: "/dashboard/optimizer?action=optimize",
+      },
+      {
+        label: "View rejected alternatives",
+        route: "/dashboard/optimizer?view=rejected",
+      },
     ],
     accent: "amber",
   },
@@ -132,9 +165,18 @@ export const tradeTwinModules: TradeTwinModule[] = [
     status: "operational",
     metric: { label: "Recent change", value: 0 },
     quickActions: [
-      { label: "Browse regulations", route: "/dashboard/regulations?view=rules" },
-      { label: "Publish rule version", route: "/dashboard/regulations?action=publish" },
-      { label: "Run impact analysis", route: "/dashboard/regulations?action=impact" },
+      {
+        label: "Browse regulations",
+        route: "/dashboard/regulations?view=rules",
+      },
+      {
+        label: "Publish rule version",
+        route: "/dashboard/regulations?action=publish",
+      },
+      {
+        label: "Run impact analysis",
+        route: "/dashboard/regulations?action=impact",
+      },
     ],
     accent: "amber",
   },
@@ -151,7 +193,10 @@ export const tradeTwinModules: TradeTwinModule[] = [
     metric: { label: "Pending reviews", value: 0 },
     quickActions: [
       { label: "View evidence", route: "/dashboard/evidence?view=ledger" },
-      { label: "Review decision trail", route: "/dashboard/evidence?view=decisions" },
+      {
+        label: "Review decision trail",
+        route: "/dashboard/evidence?view=decisions",
+      },
       { label: "Generate compliance report", route: "/dashboard/reports" },
     ],
     accent: "violet",
@@ -161,7 +206,10 @@ export const tradeTwinModules: TradeTwinModule[] = [
 export function modulesWithDashboardData(
   summary: DashboardSummaryData,
 ): TradeTwinModule[] {
-  const metrics: Record<string, { label: string; value: number; isMock: boolean }> = {
+  const metrics: Record<
+    string,
+    { label: string; value: number; isMock: boolean }
+  > = {
     shipments: {
       label: "Active",
       value: summary.activeShipments,
@@ -212,7 +260,9 @@ export function modulesWithDashboardData(
 
   return tradeTwinModules.map((module) => {
     const requiredServices = moduleServices[module.id] ?? [];
-    const isUnavailable = requiredServices.some((service) => unhealthyServices.has(service));
+    const isUnavailable = requiredServices.some((service) =>
+      unhealthyServices.has(service),
+    );
 
     return {
       ...module,

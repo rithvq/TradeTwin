@@ -13,6 +13,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 import httpx
+from local_processes import stop_process
 from playwright.sync_api import expect, sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -31,6 +32,8 @@ def browser_check():
     with sync_playwright() as p:
         browser = p.chromium.launch(channel="chrome", headless=True)
         page = browser.new_page(viewport={"width": 1440, "height": 1000})
+        failures = []
+        page.on("pageerror", lambda error: failures.append(str(error)))
         page.goto(ORIGIN + "/dashboard/shipments/new")
         expect(page.get_by_role("heading", name="Create domestic shipment")).to_be_visible()
         page.get_by_label("Shipment reference", exact=True).fill("TT-BROWSER-DOMESTIC")
@@ -65,6 +68,24 @@ def browser_check():
         expect(page).to_have_url(re.compile(r"/shipments/[a-z0-9-]+$"), timeout=15000)
         expect(page.get_by_text("TT-DEMO-TN-KA-MH", exact=True).first).to_be_visible()
         demo_url = page.url
+        page.get_by_role("button", name="Evaluate Complete Demo Documents", exact=True).click()
+        expect(
+            page.locator("#compliance").get_by_text("Compliant", exact=True).first
+        ).to_be_visible()
+        page.get_by_role("button", name="Recommend", exact=True).first.click()
+        expect(page.get_by_text(re.compile(r"Provider: mock -")).first).to_be_visible()
+        page.get_by_role("button", name="Generate risk score", exact=True).click()
+        expect(
+            page.locator("#risk").get_by_text("domestic-synthetic-v1", exact=False)
+        ).to_be_visible()
+        page.get_by_role("button", name="Compare routes", exact=True).click()
+        expect(
+            page.locator("#optimizer").get_by_text("Estimated driving time", exact=True).first
+        ).to_be_visible()
+        with page.expect_download() as report:
+            page.get_by_role("button", name="PDF", exact=True).click()
+        assert report.value.suggested_filename.endswith(".pdf")
+        assert Path(report.value.path()).read_bytes().startswith(b"%PDF")
         page.set_viewport_size({"width": 1440, "height": 1000})
         page.locator("#graph").scroll_into_view_if_needed()
         page.wait_for_function("""() => {
@@ -117,8 +138,12 @@ def browser_check():
             assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
             page.evaluate("window.scrollTo({top: 0, behavior: 'instant'})")
             page.screenshot(path=str(output / f"route-memory-{width}.png"), full_page=True)
+        assert not failures, failures
         browser.close()
-    print("PASS: domestic browser creation, mobile form, demo navigation and graph")
+    print(
+        "PASS: domestic browser creation, demo, classification, compliance, risk, "
+        "routes, PDF download, graph and mobile forms"
+    )
 
 
 if __name__ == "__main__":
@@ -155,11 +180,7 @@ if __name__ == "__main__":
             stderr=log,
         )
 
-        def stop():
-            child.terminate()
-            child.wait(timeout=15)
-
-        stack.callback(stop)
+        stack.callback(stop_process, child)
         for _ in range(60):
             try:
                 if httpx.get(ORIGIN + "/login", timeout=1).status_code == 200:

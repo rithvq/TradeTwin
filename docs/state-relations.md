@@ -16,7 +16,7 @@ on a shipment. It does not book transport or amend a shipment automatically.
   These are manually recorded offers, not independently verified live carrier API prices.
 - Optional openrouteservice HGV connector: fresh map-derived distance/driving estimates,
   payload hashes, provider warnings and 24-hour snapshot expiry. Sends only coordinates and
-  vehicle restrictions to a fixed HTTPS endpoint, with explicit operator consent.
+  vehicle restrictions to the official HTTPS endpoint by default, with explicit operator consent.
 
 ## Memory and comparison
 
@@ -65,9 +65,15 @@ Optional `.env` configuration:
 
 ```env
 ORS_API_KEY=your_provider_key
+ORS_DIRECTIONS_URL=https://api.heigit.org/openrouteservice/v2/directions/driving-hgv/json
 ALLOW_EXTERNAL_ROUTING=true
 REGULATION_CATALOG_MODE=reviewed
 ```
+
+The default routing URL follows the provider's
+[endpoint migration](https://ask.openrouteservice.org/t/deprecating-api-openrouteservice-org-in-favour-of-api-heigit-org/7912).
+Only deployment administrators should override `ORS_DIRECTIONS_URL`; use a trusted
+HTTPS provider endpoint because the routing credential is sent to that URL.
 
 Verified stop coordinates and quoted vehicle dimensions are required for routing. An India
 coordinate bounding box is input validation, not point-in-country geocoding. The connector

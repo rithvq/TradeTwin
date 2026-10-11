@@ -1,7 +1,7 @@
 import uuid
 from datetime import UTC, datetime
 
-from sqlalchemy import DateTime, Float, String
+from sqlalchemy import DateTime, Float, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.types import JSON
@@ -30,7 +30,7 @@ class RiskAssessment(Base):
     rejection_probability: Mapped[float] = mapped_column(Float)
     expected_clearance_delay_hours: Mapped[float] = mapped_column(Float)
     risk_level: Mapped[str] = mapped_column(String(40), index=True)
-    warning: Mapped[str] = mapped_column(String(160))
+    warning: Mapped[str] = mapped_column(Text)
     features: Mapped[dict] = mapped_column(json_payload)
     risk_factors: Mapped[list] = mapped_column(json_payload)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)

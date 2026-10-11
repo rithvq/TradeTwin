@@ -50,7 +50,9 @@ describe("TradeTwin demo launcher", () => {
     await user.click(screen.getByRole("button", { name: "TradeTwin Demo" }));
 
     await waitFor(() => {
-      expect(apiFetchMock).toHaveBeenCalledWith("/demo/seed", { method: "POST" });
+      expect(apiFetchMock).toHaveBeenCalledWith("/demo/seed", {
+        method: "POST",
+      });
       expect(pushMock).toHaveBeenCalledWith("/shipments/demo-shipment-id");
     });
   });

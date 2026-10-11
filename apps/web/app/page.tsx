@@ -12,12 +12,20 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { DomesticShipmentForm as ShipmentForm } from "../components/domestic-shipment-form";
-import { apiFetch, deleteShipment, displayStatus, shipmentRoute, type Shipment } from "../lib/shipments";
+import {
+  apiFetch,
+  deleteShipment,
+  displayStatus,
+  shipmentRoute,
+  type Shipment,
+} from "../lib/shipments";
 
 export default function ShipmentHome() {
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [deletingShipmentId, setDeletingShipmentId] = useState<string | null>(null);
+  const [deletingShipmentId, setDeletingShipmentId] = useState<string | null>(
+    null,
+  );
   const [error, setError] = useState<string | null>(null);
 
   const loadShipments = useCallback(async () => {
@@ -49,9 +57,13 @@ export default function ShipmentHome() {
     setError(null);
     try {
       await deleteShipment(shipment.id);
-      setShipments((current) => current.filter((item) => item.id !== shipment.id));
+      setShipments((current) =>
+        current.filter((item) => item.id !== shipment.id),
+      );
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not delete shipment");
+      setError(
+        err instanceof Error ? err.message : "Could not delete shipment",
+      );
     } finally {
       setDeletingShipmentId(null);
     }
@@ -100,75 +112,97 @@ export default function ShipmentHome() {
             <ShipmentForm />
           </div>
 
-          <section id="shipment-list" className="tt-panel self-start p-5 sm:p-6">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="tt-kicker">Registry</p>
-              <h2 className="mt-1 text-xl font-semibold text-ink">Shipments</h2>
-            </div>
-            <button
-              type="button"
-              onClick={() => void loadShipments()}
-              className="flex items-center gap-2 rounded border border-line bg-soft px-3 py-2 text-sm font-medium text-secondary hover:bg-soft hover:text-ink"
-            >
-              <RefreshCw className={`size-4 ${loading ? "animate-spin" : ""}`} aria-hidden="true" />
-              Refresh
-            </button>
-          </div>
-
-          {error ? <p className="mt-4 rounded bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
-          {loading ? <p className="mt-5 text-sm text-muted">Loading shipments...</p> : null}
-
-          {!loading && shipments.length === 0 ? (
-            <div className="mt-5 rounded border border-dashed border-line px-4 py-10 text-center">
-              <Boxes className="mx-auto size-6 text-muted" aria-hidden="true" />
-              <p className="mt-3 text-sm text-secondary">No shipments recorded.</p>
-            </div>
-          ) : null}
-
-          <div className="mt-5 divide-y divide-line">
-            {shipments.map((shipment) => (
-              <div key={shipment.id} className="py-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <Link
-                    href={`/shipments/${shipment.id}`}
-                    className="group min-w-0 flex-1 rounded px-2 py-1"
-                  >
-                    <p className="flex items-center gap-2 font-semibold text-ink">
-                      <span className="truncate">{shipment.shipment_reference}</span>
-                      <ArrowUpRight
-                        className="size-4 shrink-0 text-muted transition-colors group-hover:text-ink"
-                        aria-hidden="true"
-                      />
-                    </p>
-                    <p className="mt-1 text-sm text-secondary">
-                      {shipmentRoute(shipment)} via{" "}
-                      {shipment.transport_mode}
-                    </p>
-                  </Link>
-                  <span className={shipmentStatusClasses(shipment.status)}>
-                    {displayStatus(shipment.status)}
-                  </span>
-                </div>
-
-                <div className="mt-3 flex items-center justify-between gap-3 px-2">
-                  <p className="text-sm text-muted">
-                    {shipment.consignments.length} consignments
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => void handleDeleteShipment(shipment)}
-                    disabled={deletingShipmentId === shipment.id}
-                    className="flex items-center gap-2 rounded border border-red-400/20 px-3 py-1.5 text-sm font-medium text-red-800 hover:bg-red-400/10 disabled:cursor-not-allowed disabled:border-line disabled:text-muted"
-                  >
-                    <Trash2 className="size-4" aria-hidden="true" />
-                    {deletingShipmentId === shipment.id ? "Deleting..." : "Delete"}
-                  </button>
-                </div>
+          <section
+            id="shipment-list"
+            className="tt-panel self-start p-5 sm:p-6"
+          >
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="tt-kicker">Registry</p>
+                <h2 className="mt-1 text-xl font-semibold text-ink">
+                  Shipments
+                </h2>
               </div>
-            ))}
-          </div>
-        </section>
+              <button
+                type="button"
+                onClick={() => void loadShipments()}
+                className="flex items-center gap-2 rounded border border-line bg-soft px-3 py-2 text-sm font-medium text-secondary hover:bg-soft hover:text-ink"
+              >
+                <RefreshCw
+                  className={`size-4 ${loading ? "animate-spin" : ""}`}
+                  aria-hidden="true"
+                />
+                Refresh
+              </button>
+            </div>
+
+            {error ? (
+              <p className="mt-4 rounded bg-red-50 p-3 text-sm text-red-700">
+                {error}
+              </p>
+            ) : null}
+            {loading ? (
+              <p className="mt-5 text-sm text-muted">Loading shipments...</p>
+            ) : null}
+
+            {!loading && shipments.length === 0 ? (
+              <div className="mt-5 rounded border border-dashed border-line px-4 py-10 text-center">
+                <Boxes
+                  className="mx-auto size-6 text-muted"
+                  aria-hidden="true"
+                />
+                <p className="mt-3 text-sm text-secondary">
+                  No shipments recorded.
+                </p>
+              </div>
+            ) : null}
+
+            <div className="mt-5 divide-y divide-line">
+              {shipments.map((shipment) => (
+                <div key={shipment.id} className="py-4">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <Link
+                      href={`/shipments/${shipment.id}`}
+                      className="group min-w-0 flex-1 rounded px-2 py-1"
+                    >
+                      <p className="flex items-center gap-2 font-semibold text-ink">
+                        <span className="truncate">
+                          {shipment.shipment_reference}
+                        </span>
+                        <ArrowUpRight
+                          className="size-4 shrink-0 text-muted transition-colors group-hover:text-ink"
+                          aria-hidden="true"
+                        />
+                      </p>
+                      <p className="mt-1 text-sm text-secondary">
+                        {shipmentRoute(shipment)} via {shipment.transport_mode}
+                      </p>
+                    </Link>
+                    <span className={shipmentStatusClasses(shipment.status)}>
+                      {displayStatus(shipment.status)}
+                    </span>
+                  </div>
+
+                  <div className="mt-3 flex items-center justify-between gap-3 px-2">
+                    <p className="text-sm text-muted">
+                      {shipment.consignments.length} consignments
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => void handleDeleteShipment(shipment)}
+                      disabled={deletingShipmentId === shipment.id}
+                      className="flex items-center gap-2 rounded border border-red-400/20 px-3 py-1.5 text-sm font-medium text-red-800 hover:bg-red-400/10 disabled:cursor-not-allowed disabled:border-line disabled:text-muted"
+                    >
+                      <Trash2 className="size-4" aria-hidden="true" />
+                      {deletingShipmentId === shipment.id
+                        ? "Deleting..."
+                        : "Delete"}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
         </div>
       </div>
     </main>

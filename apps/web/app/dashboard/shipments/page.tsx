@@ -4,7 +4,9 @@ import { ModuleWorkspace } from "@/components/dashboard/module-workspace";
 import { tradeTwinModules } from "@/lib/config/tradetwin-modules";
 
 export default function DashboardShipmentsPage() {
-  const dashboardModule = tradeTwinModules.find((item) => item.id === "shipments")!;
+  const dashboardModule = tradeTwinModules.find(
+    (item) => item.id === "shipments",
+  )!;
   return (
     <ModuleWorkspace
       module={dashboardModule}

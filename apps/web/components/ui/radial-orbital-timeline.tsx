@@ -49,13 +49,17 @@ export default function RadialOrbitalTimeline({
     }
 
     const timer = window.setInterval(() => {
-      setRotationAngle((current) => Number(((current + 0.16) % 360).toFixed(2)));
+      setRotationAngle((current) =>
+        Number(((current + 0.16) % 360).toFixed(2)),
+      );
     }, 50);
     return () => window.clearInterval(timer);
   }, [autoRotate, timelineData.length]);
 
   const activeItem = useMemo(
-    () => timelineData.find((item) => item.id === activeNodeId) ?? timelineData.at(-1),
+    () =>
+      timelineData.find((item) => item.id === activeNodeId) ??
+      timelineData.at(-1),
     [activeNodeId, timelineData],
   );
 
@@ -72,7 +76,9 @@ export default function RadialOrbitalTimeline({
             type="button"
             onClick={() => setAutoRotate((current) => !current)}
             className="absolute right-4 top-4 z-40 flex size-10 items-center justify-center rounded border border-line bg-surface text-secondary hover:border-line hover:text-ink"
-            aria-label={autoRotate ? "Pause orbital rotation" : "Resume orbital rotation"}
+            aria-label={
+              autoRotate ? "Pause orbital rotation" : "Resume orbital rotation"
+            }
             title={autoRotate ? "Pause rotation" : "Resume rotation"}
           >
             {autoRotate ? (
@@ -97,12 +103,14 @@ export default function RadialOrbitalTimeline({
 
             {timelineData.map((item, index) => {
               const angle =
-                ((index / timelineData.length) * 360 + rotationAngle - 90) % 360;
+                ((index / timelineData.length) * 360 + rotationAngle - 90) %
+                360;
               const radians = (angle * Math.PI) / 180;
               const x = 50 + Math.cos(radians) * 33;
               const y = 50 + Math.sin(radians) * 33;
               const isActive = item.id === activeItem?.id;
-              const isRelated = activeItem?.relatedIds.includes(item.id) ?? false;
+              const isRelated =
+                activeItem?.relatedIds.includes(item.id) ?? false;
               const Icon = item.icon;
 
               return (
@@ -156,13 +164,17 @@ export default function RadialOrbitalTimeline({
                   </Badge>
                   <span className="text-xs text-muted">{activeItem.date}</span>
                 </div>
-                <CardTitle className="mt-3 text-lg">{activeItem.title}</CardTitle>
+                <CardTitle className="mt-3 text-lg">
+                  {activeItem.title}
+                </CardTitle>
                 <p className="text-xs font-medium uppercase text-ink">
                   {activeItem.category}
                 </p>
               </CardHeader>
               <CardContent className="p-0">
-                <p className="text-sm leading-6 text-secondary">{activeItem.content}</p>
+                <p className="text-sm leading-6 text-secondary">
+                  {activeItem.content}
+                </p>
 
                 <div className="mt-5 border-t border-line pt-4">
                   <div className="mb-2 flex items-center justify-between text-xs text-secondary">
@@ -175,7 +187,9 @@ export default function RadialOrbitalTimeline({
                   <div className="h-1.5 overflow-hidden rounded-full bg-soft">
                     <div
                       className="h-full rounded-full bg-accent transition-[width] duration-700"
-                      style={{ width: `${Math.max(4, Math.min(100, activeItem.energy))}%` }}
+                      style={{
+                        width: `${Math.max(4, Math.min(100, activeItem.energy))}%`,
+                      }}
                     />
                   </div>
                 </div>
@@ -188,7 +202,9 @@ export default function RadialOrbitalTimeline({
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {activeItem.relatedIds.map((relatedId) => {
-                        const relatedItem = timelineData.find((item) => item.id === relatedId);
+                        const relatedItem = timelineData.find(
+                          (item) => item.id === relatedId,
+                        );
                         return relatedItem ? (
                           <Button
                             key={relatedId}
@@ -208,7 +224,9 @@ export default function RadialOrbitalTimeline({
               </CardContent>
             </Card>
           ) : (
-            <p className="text-sm text-secondary">No shipment events recorded.</p>
+            <p className="text-sm text-secondary">
+              No shipment events recorded.
+            </p>
           )}
         </aside>
       </div>

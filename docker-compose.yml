@@ -40,7 +40,8 @@ services:
       <<: *backend-health
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5)"]
     build:
-      context: ./apps/api
+      context: .
+      dockerfile: apps/api/Dockerfile
     env_file:
       - path: .env.example
       - path: .env
@@ -131,6 +132,15 @@ services:
         condition: service_healthy
       shipment-service:
         condition: service_healthy
+
+  web-test:
+    profiles: ["tools"]
+    build:
+      context: ./apps/web
+      target: test
+    command: ["npm", "test"]
+    healthcheck:
+      disable: true
 
   postgres:
     image: pgvector/pgvector:pg16

@@ -14,6 +14,8 @@ for module_name in list(sys.modules):
 
 from app.risk_model import WARNING, score_shipment
 from app import llm_gateway
+from app.models import RiskAssessment
+from app import migrations
 
 
 def test_domestic_prediction_uses_domestic_features_and_explicit_synthetic_version():
@@ -28,6 +30,52 @@ def test_domestic_prediction_uses_domestic_features_and_explicit_synthetic_versi
     assert result["features"]["distance_km"] == 350
     assert "unvalidated" in result["warning"]
     assert 0 <= result["inspection_probability"] <= 1
+
+
+def test_risk_warning_storage_preserves_the_full_domestic_disclaimer():
+    from sqlalchemy import Text
+    from sqlalchemy.dialects.postgresql import dialect
+    from sqlalchemy.schema import CreateTable
+
+    assert isinstance(RiskAssessment.__table__.c.warning.type, Text)
+    assert "warning TEXT NOT NULL" in str(
+        CreateTable(RiskAssessment.__table__).compile(dialect=dialect())
+    )
+
+
+def test_existing_postgresql_warning_migration_is_idempotent(monkeypatch):
+    from unittest.mock import MagicMock
+
+    from sqlalchemy import String, Text
+
+    engine = MagicMock()
+    engine.dialect.name = "postgresql"
+    inspector = MagicMock()
+    inspector.has_table.return_value = True
+    inspector.get_columns.side_effect = [
+        [{"name": "warning", "type": String(160)}],
+        [{"name": "warning", "type": Text()}],
+    ]
+    monkeypatch.setattr(migrations, "inspect", lambda _: inspector)
+    migrations.migrate_risk_warning(engine)
+    migrations.migrate_risk_warning(engine)
+    connection = engine.begin.return_value.__enter__.return_value
+    connection.execute.assert_called_once()
+    assert str(connection.execute.call_args.args[0]) == (
+        "ALTER TABLE risk_assessments ALTER COLUMN warning TYPE TEXT"
+    )
+
+
+def test_warning_migration_does_not_alter_sqlite(monkeypatch):
+    from unittest.mock import MagicMock
+
+    engine = MagicMock()
+    engine.dialect.name = "sqlite"
+    inspector = MagicMock()
+    monkeypatch.setattr(migrations, "inspect", inspector)
+    migrations.migrate_risk_warning(engine)
+    inspector.assert_not_called()
+    engine.begin.assert_not_called()
 
 
 def test_synthetic_risk_model_returns_warning_probabilities_and_factors() -> None:

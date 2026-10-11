@@ -10,10 +10,14 @@ async function proxy(request: NextRequest, context: Context) {
     shipment: process.env.SHIPMENT_SERVICE_URL ?? "http://127.0.0.1:8011",
     compliance: process.env.COMPLIANCE_SERVICE_URL ?? "http://127.0.0.1:8012",
     document: process.env.DOCUMENT_SERVICE_URL ?? "http://127.0.0.1:8013",
-    intelligence: process.env.INTELLIGENCE_SERVICE_URL ?? "http://127.0.0.1:8014",
+    intelligence:
+      process.env.INTELLIGENCE_SERVICE_URL ?? "http://127.0.0.1:8014",
     platform: process.env.API_SERVICE_URL ?? "http://127.0.0.1:8000",
   };
-  if (!Object.hasOwn(upstreams, service) || path.some((part) => part === "..")) {
+  if (
+    !Object.hasOwn(upstreams, service) ||
+    path.some((part) => part === "..")
+  ) {
     return Response.json({ detail: "Service not found" }, { status: 404 });
   }
   const headers = new Headers();
@@ -23,10 +27,17 @@ async function proxy(request: NextRequest, context: Context) {
   }
   if (process.env.PROFILE_AUTH_ENABLED !== "false") {
     const token = request.cookies.get("tt_session")?.value;
-    if (!token) return Response.json({ detail: "Sign in required" }, { status: 401 });
-    if (!["GET", "HEAD"].includes(request.method) &&
-        request.headers.get("origin") !== (process.env.APP_PUBLIC_URL ?? "http://localhost:3000")) {
-      return Response.json({ detail: "Invalid request origin" }, { status: 403 });
+    if (!token)
+      return Response.json({ detail: "Sign in required" }, { status: 401 });
+    if (
+      !["GET", "HEAD"].includes(request.method) &&
+      request.headers.get("origin") !==
+        (process.env.APP_PUBLIC_URL ?? "http://localhost:3000")
+    ) {
+      return Response.json(
+        { detail: "Invalid request origin" },
+        { status: 403 },
+      );
     }
     headers.set("authorization", `Bearer ${token}`);
   }
@@ -36,7 +47,9 @@ async function proxy(request: NextRequest, context: Context) {
       {
         method: request.method,
         headers,
-        body: ["GET", "HEAD"].includes(request.method) ? undefined : await request.arrayBuffer(),
+        body: ["GET", "HEAD"].includes(request.method)
+          ? undefined
+          : await request.arrayBuffer(),
         cache: "no-store",
         signal: AbortSignal.timeout(60000),
       },
@@ -47,9 +60,15 @@ async function proxy(request: NextRequest, context: Context) {
       const value = response.headers.get(name);
       if (value) resultHeaders.set(name, value);
     }
-    return new Response(response.body, { status: response.status, headers: resultHeaders });
+    return new Response(response.body, {
+      status: response.status,
+      headers: resultHeaders,
+    });
   } catch {
-    return Response.json({ detail: `${service} service is unavailable` }, { status: 503 });
+    return Response.json(
+      { detail: `${service} service is unavailable` },
+      { status: 503 },
+    );
   }
 }
 

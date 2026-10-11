@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     regulation_llm_model: str = "gpt-4o-mini"
     regulation_llm_api_key: str | None = None
     ors_api_key: str | None = None
+    ors_directions_url: str = (
+        "https://api.heigit.org/openrouteservice/v2/directions/driving-hgv/json"
+    )
     allow_external_routing: bool = False
     tradetwin_viewer_token: str | None = None
     tradetwin_operator_token: str | None = None

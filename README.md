@@ -1,5 +1,11 @@
 # TradeTwin
 
+## Codebase Maintenance
+
+See [module boundaries and repeatable verification](docs/codebase-maintenance.md)
+for the current source layout, cleanup findings, regression coverage and remaining
+dependency limitations. Business workflows and public API contracts are preserved.
+
 ## Route Memory
 
 The Optimizer now opens profile-scoped route memory, reviewed carrier offers and dated
@@ -96,8 +102,9 @@ make test
 make health
 ```
 
-`make test` runs each backend service test suite inside its Docker image.
-`make health` checks the local web app, backend health endpoints, and seeded shipment API.
+`make test` rebuilds and runs all backend suites and the dedicated frontend test image.
+`make health` checks the login page, backend readiness and authentication service,
+using configured local ports without bypassing profile authentication.
 
 ## Repository Structure
 

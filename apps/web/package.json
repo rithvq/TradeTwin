@@ -7,6 +7,11 @@
     "build": "next build",
     "start": "next start --hostname 0.0.0.0",
     "lint": "eslint .",
+    "pretypecheck": "next typegen",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write \"{app,components,hooks,lib,tests,types}/**/*.{ts,tsx}\"",
+    "format:check": "prettier --check \"{app,components,hooks,lib,tests,types}/**/*.{ts,tsx}\"",
+    "check:architecture": "node ../../scripts/check-web-architecture.mjs",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -18,9 +23,9 @@
     "@xyflow/react": "12.8.4",
     "class-variance-authority": "0.7.1",
     "lucide-react": "1.42.0",
-    "next": "15.4.6",
-    "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "next": "15.5.27",
+    "react": "19.1.9",
+    "react-dom": "19.1.9"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "4.1.12",
@@ -31,10 +36,17 @@
     "@types/react": "19.1.10",
     "@types/react-dom": "19.1.7",
     "eslint": "9.34.0",
-    "eslint-config-next": "15.4.6",
+    "eslint-config-next": "15.5.27",
+    "prettier": "3.9.10",
     "jsdom": "26.1.0",
     "tailwindcss": "4.1.12",
     "typescript": "5.9.2",
-    "vitest": "3.2.4"
+    "vitest": "4.1.11"
+  },
+  "overrides": {
+    "postcss": "8.5.28",
+    "sharp": "0.35.5",
+    "source-map-js": "1.2.2",
+    "tinypool": "2.1.2"
   }
 }

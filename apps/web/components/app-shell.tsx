@@ -39,7 +39,11 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { apiFetch, type Shipment } from "@/lib/shipments";
 
 import { cn } from "@/lib/utils";
@@ -64,19 +68,31 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Network className="size-5" aria-hidden="true" />
             </span>
             <span className="hidden sm:block">
-              <span className="block text-sm font-semibold text-ink">TradeTwin</span>
-              <span className="block text-xs text-muted">Compliance operations</span>
+              <span className="block text-sm font-semibold text-ink">
+                TradeTwin
+              </span>
+              <span className="block text-xs text-muted">
+                Compliance operations
+              </span>
             </span>
           </Link>
 
-          <nav className="order-last flex w-full items-center gap-1 sm:order-none sm:ml-3 sm:w-auto xl:ml-0" aria-label="Primary navigation">
+          <nav
+            className="order-last flex w-full items-center gap-1 sm:order-none sm:ml-3 sm:w-auto xl:ml-0"
+            aria-label="Primary navigation"
+          >
             <ShellLink
               href="/dashboard"
               active={pathname.startsWith("/dashboard")}
               icon={LayoutDashboard}
               label="Dashboard"
             />
-            <ShellLink href="/" active={pathname === "/"} icon={Boxes} label="Shipments" />
+            <ShellLink
+              href="/"
+              active={pathname === "/"}
+              icon={Boxes}
+              label="Shipments"
+            />
             {shipmentId ? (
               <ShellLink
                 href={`/shipments/${shipmentId}`}
@@ -127,7 +143,9 @@ function TradeTwinDemoLauncher() {
     setError(null);
     setIsLaunching(true);
     try {
-      const shipment = await apiFetch<Shipment>("/demo/seed", { method: "POST" });
+      const shipment = await apiFetch<Shipment>("/demo/seed", {
+        method: "POST",
+      });
       router.push(`/shipments/${shipment.id}`);
     } catch (launchError) {
       setError(
@@ -154,11 +172,16 @@ function TradeTwinDemoLauncher() {
             className="shrink-0 border-l border-line text-xs text-secondary xl:w-auto xl:px-3"
           >
             {isLaunching ? (
-              <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
+              <LoaderCircle
+                className="size-4 animate-spin"
+                aria-hidden="true"
+              />
             ) : (
               <Building2 className="size-4 text-muted" aria-hidden="true" />
             )}
-            <span className="hidden xl:inline">{isLaunching ? "Preparing demo" : "TradeTwin Demo"}</span>
+            <span className="hidden xl:inline">
+              {isLaunching ? "Preparing demo" : "TradeTwin Demo"}
+            </span>
           </Button>
         </TooltipTrigger>
         <TooltipContent>Run the seeded demo scenario</TooltipContent>
@@ -170,7 +193,9 @@ function TradeTwinDemoLauncher() {
           className="fixed right-4 top-20 z-[100] flex w-[min(92vw,420px)] items-start gap-3 rounded border border-red-400/25 bg-red-50 p-4 shadow-2xl"
         >
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-red-800">Demo unavailable</p>
+            <p className="text-sm font-semibold text-red-800">
+              Demo unavailable
+            </p>
             <p className="mt-1 text-sm leading-5 text-red-800/80">{error}</p>
           </div>
           <Button
@@ -258,9 +283,13 @@ function ShipmentSearch() {
             <p className="py-6 text-sm text-muted">Loading shipments...</p>
           ) : null}
           {shipmentsQuery.isError ? (
-            <p className="py-6 text-sm text-red-800">Shipment search is unavailable.</p>
+            <p className="py-6 text-sm text-red-800">
+              Shipment search is unavailable.
+            </p>
           ) : null}
-          {!shipmentsQuery.isLoading && !shipmentsQuery.isError && results.length === 0 ? (
+          {!shipmentsQuery.isLoading &&
+          !shipmentsQuery.isError &&
+          results.length === 0 ? (
             <p className="py-6 text-sm text-muted">No matching shipments.</p>
           ) : null}
           {results.map((shipment) => (
@@ -274,7 +303,9 @@ function ShipmentSearch() {
                     {shipment.shipment_reference}
                   </span>
                   <span className="mt-1 block text-xs text-muted">
-                    {shipment.domestic ? `${shipment.domestic.origin.city} to ${shipment.domestic.destination.city}` : `${shipment.exporter_country} to ${shipment.importer_country}`}
+                    {shipment.domestic
+                      ? `${shipment.domestic.origin.city} to ${shipment.domestic.destination.city}`
+                      : `${shipment.exporter_country} to ${shipment.importer_country}`}
                   </span>
                 </span>
                 <span className="text-xs text-muted">{shipment.status}</span>
@@ -289,9 +320,18 @@ function ShipmentSearch() {
 
 function NotificationsSheet() {
   const links = [
-    { href: "/dashboard/compliance?view=violations", label: "Compliance alerts" },
-    { href: "/dashboard/regulations?view=changes", label: "Regulation changes" },
-    { href: "/dashboard/evidence?view=reviews", label: "Pending evidence reviews" },
+    {
+      href: "/dashboard/compliance?view=violations",
+      label: "Compliance alerts",
+    },
+    {
+      href: "/dashboard/regulations?view=changes",
+      label: "Regulation changes",
+    },
+    {
+      href: "/dashboard/evidence?view=reviews",
+      label: "Pending evidence reviews",
+    },
   ];
 
   return (
@@ -299,7 +339,12 @@ function NotificationsSheet() {
       <Tooltip>
         <TooltipTrigger asChild>
           <SheetTrigger asChild>
-            <Button type="button" variant="ghost" size="icon" aria-label="Open notifications">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label="Open notifications"
+            >
               <Bell className="size-4" aria-hidden="true" />
             </Button>
           </SheetTrigger>
@@ -309,9 +354,14 @@ function NotificationsSheet() {
       <SheetContent>
         <SheetHeader>
           <SheetTitle>Operational queues</SheetTitle>
-          <SheetDescription>Open the live workspace for items that may need review.</SheetDescription>
+          <SheetDescription>
+            Open the live workspace for items that may need review.
+          </SheetDescription>
         </SheetHeader>
-        <nav className="mt-6 divide-y divide-line" aria-label="Operational queues">
+        <nav
+          className="mt-6 divide-y divide-line"
+          aria-label="Operational queues"
+        >
           {links.map((link) => (
             <SheetClose asChild key={link.href}>
               <Link
@@ -337,7 +387,12 @@ function UserDialog() {
     queryFn: async () => {
       const response = await fetch("/api/auth/session", { cache: "no-store" });
       if (!response.ok) throw new Error("Session expired");
-      return response.json() as Promise<{ id: string; name: string; email: string; role: string }>;
+      return response.json() as Promise<{
+        id: string;
+        name: string;
+        email: string;
+        role: string;
+      }>;
     },
     retry: false,
   });
@@ -359,7 +414,12 @@ function UserDialog() {
       <Tooltip>
         <TooltipTrigger asChild>
           <DialogTrigger asChild>
-            <Button type="button" variant="ghost" size="icon" aria-label="Open user menu">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label="Open user menu"
+            >
               <CircleUserRound className="size-5" aria-hidden="true" />
             </Button>
           </DialogTrigger>
@@ -370,16 +430,23 @@ function UserDialog() {
         <DialogHeader>
           <DialogTitle>{principal.data?.name ?? "Your account"}</DialogTitle>
           <DialogDescription>
-            {principal.isError ? "Your session has expired. Sign in to continue." :
-              principal.data?.email || "Loading your profile..."}
+            {principal.isError
+              ? "Your session has expired. Sign in to continue."
+              : principal.data?.email || "Loading your profile..."}
           </DialogDescription>
         </DialogHeader>
-        {error ? <p role="alert" className="text-sm text-red-800">{error}</p> : null}
+        {error ? (
+          <p role="alert" className="text-sm text-red-800">
+            {error}
+          </p>
+        ) : null}
         <div className="border-y border-line py-4 text-sm text-secondary">
           Personal workspace
         </div>
         {principal.isError ? (
-          <Button asChild><Link href="/login">Sign in</Link></Button>
+          <Button asChild>
+            <Link href="/login">Sign in</Link>
+          </Button>
         ) : (
           <Button variant="outline" onClick={signOut} disabled={signingOut}>
             {signingOut ? "Signing out..." : "Sign out"}

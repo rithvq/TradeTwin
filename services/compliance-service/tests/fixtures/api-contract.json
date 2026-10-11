@@ -1,0 +1,1173 @@
+[
+  {
+    "path": "/regulatory-sources",
+    "method": "get",
+    "operation_id": "catalog_regulatory_sources_get",
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content": {
+          "application/json": {
+            "schema": {}
+          }
+        }
+      }
+    },
+    "parameters": null,
+    "request_body": null,
+    "tags": [
+      "regulations"
+    ]
+  },
+  {
+    "path": "/regulatory-sources/fetch",
+    "method": "post",
+    "operation_id": "fetch_source_regulatory_sources_fetch_post",
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content": {
+          "application/json": {
+            "schema": {}
+          }
+        }
+      },
+      "422": {
+        "description": "Validation Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/HTTPValidationError"
+            }
+          }
+        }
+      }
+    },
+    "parameters": null,
+    "request_body": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "$ref": "#/components/schemas/SourceRequest"
+          }
+        }
+      },
+      "required": true
+    },
+    "tags": [
+      "regulations"
+    ]
+  },
+  {
+    "path": "/regulatory-sources/{snapshot_id}/suggest",
+    "method": "post",
+    "operation_id": "suggest_regulatory_sources__snapshot_id__suggest_post",
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content": {
+          "application/json": {
+            "schema": {}
+          }
+        }
+      },
+      "422": {
+        "description": "Validation Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/HTTPValidationError"
+            }
+          }
+        }
+      }
+    },
+    "parameters": [
+      {
+        "name": "snapshot_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "title": "Snapshot Id"
+        }
+      }
+    ],
+    "request_body": null,
+    "tags": [
+      "regulations"
+    ]
+  },
+  {
+    "path": "/regulatory-sources/{snapshot_id}/draft",
+    "method": "post",
+    "operation_id": "draft_rule_regulatory_sources__snapshot_id__draft_post",
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content": {
+          "application/json": {
+            "schema": {}
+          }
+        }
+      },
+      "422": {
+        "description": "Validation Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/HTTPValidationError"
+            }
+          }
+        }
+      }
+    },
+    "parameters": [
+      {
+        "name": "snapshot_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "title": "Snapshot Id"
+        }
+      }
+    ],
+    "request_body": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "$ref": "#/components/schemas/DraftRequest"
+          }
+        }
+      }
+    },
+    "tags": [
+      "regulations"
+    ]
+  },
+  {
+    "path": "/regulatory-sources/reviews/{review_id}/approve",
+    "method": "post",
+    "operation_id": "approve_regulatory_sources_reviews__review_id__approve_post",
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content": {
+          "application/json": {
+            "schema": {}
+          }
+        }
+      },
+      "422": {
+        "description": "Validation Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/HTTPValidationError"
+            }
+          }
+        }
+      }
+    },
+    "parameters": [
+      {
+        "name": "review_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "title": "Review Id"
+        }
+      }
+    ],
+    "request_body": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "$ref": "#/components/schemas/ReviewRequest"
+          }
+        }
+      }
+    },
+    "tags": [
+      "regulations"
+    ]
+  },
+  {
+    "path": "/state-relations/{shipment_id}",
+    "method": "get",
+    "operation_id": "memory_state_relations__shipment_id__get",
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content": {
+          "application/json": {
+            "schema": {}
+          }
+        }
+      },
+      "422": {
+        "description": "Validation Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/HTTPValidationError"
+            }
+          }
+        }
+      }
+    },
+    "parameters": [
+      {
+        "name": "shipment_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "title": "Shipment Id"
+        }
+      }
+    ],
+    "request_body": null,
+    "tags": [
+      "state-relations"
+    ]
+  },
+  {
+    "path": "/state-relations/{shipment_id}/decisions/{decision_id}",
+    "method": "get",
+    "operation_id": "decision_evidence_state_relations__shipment_id__decisions__decision_id__get",
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content": {
+          "application/json": {
+            "schema": {}
+          }
+        }
+      },
+      "422": {
+        "description": "Validation Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/HTTPValidationError"
+            }
+          }
+        }
+      }
+    },
+    "parameters": [
+      {
+        "name": "shipment_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "title": "Shipment Id"
+        }
+      },
+      {
+        "name": "decision_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "title": "Decision Id"
+        }
+      }
+    ],
+    "request_body": null,
+    "tags": [
+      "state-relations"
+    ]
+  },
+  {
+    "path": "/state-relations/{shipment_id}/observe",
+    "method": "post",
+    "operation_id": "observe_state_relations__shipment_id__observe_post",
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content": {
+          "application/json": {
+            "schema": {}
+          }
+        }
+      },
+      "422": {
+        "description": "Validation Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/HTTPValidationError"
+            }
+          }
+        }
+      }
+    },
+    "parameters": [
+      {
+        "name": "shipment_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "title": "Shipment Id"
+        }
+      }
+    ],
+    "request_body": null,
+    "tags": [
+      "state-relations"
+    ]
+  },
+  {
+    "path": "/state-relations/{shipment_id}/offers",
+    "method": "post",
+    "operation_id": "add_offer_state_relations__shipment_id__offers_post",
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content": {
+          "application/json": {
+            "schema": {}
+          }
+        }
+      },
+      "422": {
+        "description": "Validation Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/HTTPValidationError"
+            }
+          }
+        }
+      }
+    },
+    "parameters": [
+      {
+        "name": "shipment_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "title": "Shipment Id"
+        }
+      }
+    ],
+    "request_body": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "$ref": "#/components/schemas/Offer"
+          }
+        }
+      }
+    },
+    "tags": [
+      "state-relations"
+    ]
+  },
+  {
+    "path": "/state-relations/{shipment_id}/offers/{offer_id}/refresh-routing",
+    "method": "post",
+    "operation_id": "refresh_routing_state_relations__shipment_id__offers__offer_id__refresh_routing_post",
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content": {
+          "application/json": {
+            "schema": {}
+          }
+        }
+      },
+      "422": {
+        "description": "Validation Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/HTTPValidationError"
+            }
+          }
+        }
+      }
+    },
+    "parameters": [
+      {
+        "name": "shipment_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "title": "Shipment Id"
+        }
+      },
+      {
+        "name": "offer_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "title": "Offer Id"
+        }
+      }
+    ],
+    "request_body": null,
+    "tags": [
+      "state-relations"
+    ]
+  },
+  {
+    "path": "/state-relations/{shipment_id}/evaluate",
+    "method": "post",
+    "operation_id": "evaluate_state_relations__shipment_id__evaluate_post",
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content": {
+          "application/json": {
+            "schema": {}
+          }
+        }
+      },
+      "422": {
+        "description": "Validation Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/HTTPValidationError"
+            }
+          }
+        }
+      }
+    },
+    "parameters": [
+      {
+        "name": "shipment_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "title": "Shipment Id"
+        }
+      }
+    ],
+    "request_body": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "$ref": "#/components/schemas/CompareRequest"
+          }
+        }
+      }
+    },
+    "tags": [
+      "state-relations"
+    ]
+  },
+  {
+    "path": "/health",
+    "method": "get",
+    "operation_id": "health_health_get",
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object",
+              "title": "Response Health Health Get"
+            }
+          }
+        }
+      }
+    },
+    "parameters": null,
+    "request_body": null,
+    "tags": [
+      "health"
+    ]
+  },
+  {
+    "path": "/ready",
+    "method": "get",
+    "operation_id": "ready_ready_get",
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content": {
+          "application/json": {
+            "schema": {}
+          }
+        }
+      }
+    },
+    "parameters": null,
+    "request_body": null,
+    "tags": [
+      "health"
+    ]
+  },
+  {
+    "path": "/auth/me",
+    "method": "get",
+    "operation_id": "read_current_principal_auth_me_get",
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/PrincipalRead"
+            }
+          }
+        }
+      }
+    },
+    "parameters": null,
+    "request_body": null,
+    "tags": [
+      "auth"
+    ]
+  },
+  {
+    "path": "/compliance/evaluate/{shipment_id}",
+    "method": "post",
+    "operation_id": "evaluate_shipment_compliance_evaluate__shipment_id__post",
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ComplianceAssessmentRead"
+            }
+          }
+        }
+      },
+      "422": {
+        "description": "Validation Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/HTTPValidationError"
+            }
+          }
+        }
+      }
+    },
+    "parameters": [
+      {
+        "name": "shipment_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "title": "Shipment Id"
+        }
+      }
+    ],
+    "request_body": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ComplianceEvaluationRequest"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payload"
+          }
+        }
+      }
+    },
+    "tags": [
+      "compliance"
+    ]
+  },
+  {
+    "path": "/optimizer/route-options/{shipment_id}",
+    "method": "post",
+    "operation_id": "optimize_shipment_route_optimizer_route_options__shipment_id__post",
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RouteOptimizationRead"
+            }
+          }
+        }
+      },
+      "422": {
+        "description": "Validation Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/HTTPValidationError"
+            }
+          }
+        }
+      }
+    },
+    "parameters": [
+      {
+        "name": "shipment_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "title": "Shipment Id"
+        }
+      }
+    ],
+    "request_body": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RouteOptimizationRequest"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payload"
+          }
+        }
+      }
+    },
+    "tags": [
+      "optimizer"
+    ]
+  },
+  {
+    "path": "/regulations",
+    "method": "post",
+    "operation_id": "create_regulation_regulations_post",
+    "responses": {
+      "201": {
+        "description": "Successful Response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RegulationRead"
+            }
+          }
+        }
+      },
+      "422": {
+        "description": "Validation Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/HTTPValidationError"
+            }
+          }
+        }
+      }
+    },
+    "parameters": null,
+    "request_body": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RegulationCreateRequest"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payload"
+          }
+        }
+      }
+    },
+    "tags": [
+      "regulations"
+    ]
+  },
+  {
+    "path": "/regulations/rules",
+    "method": "get",
+    "operation_id": "read_regulation_rules_regulations_rules_get",
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "items": {
+                "$ref": "#/components/schemas/ComplianceRule"
+              },
+              "type": "array",
+              "title": "Response Read Regulation Rules Regulations Rules Get"
+            }
+          }
+        }
+      }
+    },
+    "parameters": null,
+    "request_body": null,
+    "tags": [
+      "regulations"
+    ]
+  },
+  {
+    "path": "/regulations/{regulation_id}/publish-version",
+    "method": "post",
+    "operation_id": "publish_regulation_regulations__regulation_id__publish_version_post",
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/RegulationPublishRead"
+            }
+          }
+        }
+      },
+      "422": {
+        "description": "Validation Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/HTTPValidationError"
+            }
+          }
+        }
+      }
+    },
+    "parameters": [
+      {
+        "name": "regulation_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "title": "Regulation Id"
+        }
+      }
+    ],
+    "request_body": null,
+    "tags": [
+      "regulations"
+    ]
+  },
+  {
+    "path": "/regulations/impact-analysis",
+    "method": "post",
+    "operation_id": "regulation_impact_analysis_regulations_impact_analysis_post",
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ImpactAnalysisRead"
+            }
+          }
+        }
+      },
+      "422": {
+        "description": "Validation Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/HTTPValidationError"
+            }
+          }
+        }
+      }
+    },
+    "parameters": null,
+    "request_body": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ImpactAnalysisRequest"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payload"
+          }
+        }
+      }
+    },
+    "tags": [
+      "regulations"
+    ]
+  },
+  {
+    "path": "/reports/compliance/{shipment_id}",
+    "method": "get",
+    "operation_id": "export_compliance_report_reports_compliance__shipment_id__get",
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content": {
+          "application/json": {
+            "schema": {}
+          }
+        }
+      },
+      "422": {
+        "description": "Validation Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/HTTPValidationError"
+            }
+          }
+        }
+      }
+    },
+    "parameters": [
+      {
+        "name": "shipment_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "title": "Shipment Id"
+        }
+      },
+      {
+        "name": "format",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "$ref": "#/components/schemas/ReportFormat",
+          "default": "html"
+        }
+      }
+    ],
+    "request_body": null,
+    "tags": [
+      "reports"
+    ]
+  },
+  {
+    "path": "/audit-logs",
+    "method": "get",
+    "operation_id": "get_audit_logs_audit_logs_get",
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/AuditLogRead"
+              },
+              "title": "Response Get Audit Logs Audit Logs Get"
+            }
+          }
+        }
+      },
+      "422": {
+        "description": "Validation Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/HTTPValidationError"
+            }
+          }
+        }
+      }
+    },
+    "parameters": [
+      {
+        "name": "shipment_id",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Shipment Id"
+        }
+      },
+      {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "maximum": 500,
+          "minimum": 1,
+          "default": 100,
+          "title": "Limit"
+        }
+      }
+    ],
+    "request_body": null,
+    "tags": [
+      "audit"
+    ]
+  },
+  {
+    "path": "/demo/scenarios",
+    "method": "get",
+    "operation_id": "get_demo_scenarios_demo_scenarios_get",
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "items": {
+                "$ref": "#/components/schemas/DemoScenarioRead"
+              },
+              "type": "array",
+              "title": "Response Get Demo Scenarios Demo Scenarios Get"
+            }
+          }
+        }
+      }
+    },
+    "parameters": null,
+    "request_body": null,
+    "tags": [
+      "demo"
+    ]
+  },
+  {
+    "path": "/consistency/check/{shipment_id}",
+    "method": "post",
+    "operation_id": "check_shipment_consistency_consistency_check__shipment_id__post",
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ConsistencyCheckRead"
+            }
+          }
+        }
+      },
+      "422": {
+        "description": "Validation Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/HTTPValidationError"
+            }
+          }
+        }
+      }
+    },
+    "parameters": [
+      {
+        "name": "shipment_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "title": "Shipment Id"
+        }
+      }
+    ],
+    "request_body": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ConsistencyCheckRequest"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payload"
+          }
+        }
+      }
+    },
+    "tags": [
+      "consistency"
+    ]
+  },
+  {
+    "path": "/shipments/{shipment_id}/questions",
+    "method": "get",
+    "operation_id": "get_shipment_questions_shipments__shipment_id__questions_get",
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/InformationGainQuestionRead"
+              },
+              "title": "Response Get Shipment Questions Shipments  Shipment Id  Questions Get"
+            }
+          }
+        }
+      },
+      "422": {
+        "description": "Validation Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/HTTPValidationError"
+            }
+          }
+        }
+      }
+    },
+    "parameters": [
+      {
+        "name": "shipment_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "title": "Shipment Id"
+        }
+      }
+    ],
+    "request_body": null,
+    "tags": [
+      "consistency"
+    ]
+  },
+  {
+    "path": "/shipments/{shipment_id}/questions/{question_id}/answer",
+    "method": "post",
+    "operation_id": "answer_shipment_question_shipments__shipment_id__questions__question_id__answer_post",
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/QuestionAnswerRead"
+            }
+          }
+        }
+      },
+      "422": {
+        "description": "Validation Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/HTTPValidationError"
+            }
+          }
+        }
+      }
+    },
+    "parameters": [
+      {
+        "name": "shipment_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "title": "Shipment Id"
+        }
+      },
+      {
+        "name": "question_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "title": "Question Id"
+        }
+      }
+    ],
+    "request_body": {
+      "required": true,
+      "content": {
+        "application/json": {
+          "schema": {
+            "$ref": "#/components/schemas/QuestionAnswerRequest"
+          }
+        }
+      }
+    },
+    "tags": [
+      "consistency"
+    ]
+  },
+  {
+    "path": "/compliance/assessments/{shipment_id}",
+    "method": "get",
+    "operation_id": "get_assessments_compliance_assessments__shipment_id__get",
+    "responses": {
+      "200": {
+        "description": "Successful Response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ComplianceAssessmentRead"
+              },
+              "title": "Response Get Assessments Compliance Assessments  Shipment Id  Get"
+            }
+          }
+        }
+      },
+      "422": {
+        "description": "Validation Error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/HTTPValidationError"
+            }
+          }
+        }
+      }
+    },
+    "parameters": [
+      {
+        "name": "shipment_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "title": "Shipment Id"
+        }
+      }
+    ],
+    "request_body": null,
+    "tags": [
+      "compliance"
+    ]
+  }
+]

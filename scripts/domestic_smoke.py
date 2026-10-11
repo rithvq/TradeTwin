@@ -1,12 +1,13 @@
 """End-to-end domestic workflow assertions against an isolated service stack."""
 
+import json
 import uuid
 from datetime import UTC, datetime, timedelta
 
 import httpx
 
 
-def exercise(services, token=None):
+def exercise(services, token=None, infrastructure=None):
     with httpx.Client(
         timeout=60, headers={"Authorization": f"Bearer {token}"} if token else {}
     ) as client:
@@ -73,6 +74,8 @@ def exercise(services, token=None):
             assert updated["status"] == "PARTIALLY_DELIVERED"
             graph = call("shipment", "GET", base + "/graph").json()
             assert len([node for node in graph["nodes"] if node["type"] == "Location"]) == 3
+            if infrastructure:
+                verify_graph_projection(infrastructure, shipment_id, graph)
 
             def upload(item, kind, body):
                 document = call(
@@ -114,6 +117,8 @@ def exercise(services, token=None):
             assert document["extracted_fields"]["eway_bill_number"] == "123456789012"
             after = call("compliance", "POST", f"/compliance/evaluate/{shipment_id}").json()
             assert after["status"] == "COMPLIANT"
+            if infrastructure:
+                verify_completed_job(infrastructure, after)
             evidence = call("document", "GET", f"/assessments/{after['id']}/evidence").json()
             assert any(record["document_id"] == document["id"] for record in evidence)
             routes = call("compliance", "POST", f"/optimizer/route-options/{shipment_id}").json()
@@ -153,3 +158,44 @@ def exercise(services, token=None):
             )
         finally:
             call("shipment", "DELETE", base)
+
+
+def verify_graph_projection(infrastructure, shipment_id, expected):
+    from neo4j import GraphDatabase
+
+    with (
+        GraphDatabase.driver(
+            infrastructure["NEO4J_URI"],
+            auth=(infrastructure["NEO4J_USER"], infrastructure["NEO4J_PASSWORD"]),
+        ) as driver,
+        driver.session() as graph,
+    ):
+        nodes = graph.run(
+            "MATCH (n:DomesticTwinNode {projectionShipment: $shipment}) "
+            "RETURN n.id AS id, n.label AS label, n.kind AS kind",
+            shipment=shipment_id,
+        )
+        assert {(row["id"], row["label"], row["kind"]) for row in nodes} == {
+            (node["id"], node["label"], node["type"]) for node in expected["nodes"]
+        }
+        edges = graph.run(
+            "MATCH (a:DomesticTwinNode {projectionShipment: $shipment})-[r]->"
+            "(b:DomesticTwinNode {projectionShipment: $shipment}) "
+            "RETURN a.id AS source, b.id AS target, type(r) AS label",
+            shipment=shipment_id,
+        )
+        assert {(row["source"], row["target"], row["label"]) for row in edges} == {
+            (edge["source"], edge["target"], edge["label"]) for edge in expected["edges"]
+        }
+    print("PASS: persisted Neo4j nodes and relationships match the shipment projection")
+
+
+def verify_completed_job(infrastructure, assessment):
+    from redis import Redis
+
+    with Redis.from_url(infrastructure["REDIS_URL"]) as redis:
+        key = f"tradetwin:compliance:jobs:{assessment['job_id']}"
+        job = json.loads(redis.get(key))
+        assert job["status"] == "COMPLETED" and job["assessment_id"] == assessment["id"]
+        redis.delete(key)
+    print("PASS: completed compliance assessment recorded in Redis")

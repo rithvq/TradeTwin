@@ -247,7 +247,7 @@ def test_truck_provider_contract_and_failure_do_not_invent_prices(monkeypatch):
             pass
 
         def post(self, url, **kwargs):
-            assert "driving-hgv" in url
+            assert url == "https://api.heigit.org/openrouteservice/v2/directions/driving-hgv/json"
             assert set(kwargs["json"]) == {"coordinates", "instructions", "geometry", "options"}
             assert kwargs["json"]["options"]["profile_params"]["restrictions"]["weight"] == 12
             return SimpleNamespace(

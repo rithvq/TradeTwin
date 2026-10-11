@@ -1,6 +1,12 @@
 "use client";
 
-import { ArrowLeft, RefreshCw, ScanText, ShieldCheck, Upload } from "lucide-react";
+import {
+  ArrowLeft,
+  RefreshCw,
+  ScanText,
+  ShieldCheck,
+  Upload,
+} from "lucide-react";
 import Link from "next/link";
 import type { FormEvent } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -23,17 +29,22 @@ import {
   type ShipmentEvent,
 } from "../../../../lib/shipments";
 
-export default function DocumentUploadClient({ shipmentId }: { shipmentId: string }) {
+export default function DocumentUploadClient({
+  shipmentId,
+}: {
+  shipmentId: string;
+}) {
   const [shipment, setShipment] = useState<Shipment | null>(null);
   const [events, setEvents] = useState<ShipmentEvent[]>([]);
   const [documents, setDocuments] = useState<TradeDocument[]>([]);
-  const [latestAssessment, setLatestAssessment] = useState<ComplianceAssessment | null>(
-    null,
-  );
+  const [latestAssessment, setLatestAssessment] =
+    useState<ComplianceAssessment | null>(null);
   const [evidence, setEvidence] = useState<EvidenceRecord[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [extractingDocumentId, setExtractingDocumentId] = useState<string | null>(null);
+  const [extractingDocumentId, setExtractingDocumentId] = useState<
+    string | null
+  >(null);
   const [evaluating, setEvaluating] = useState(false);
 
   const loadEvidence = useCallback(async (assessmentId: string) => {
@@ -49,7 +60,9 @@ export default function DocumentUploadClient({ shipmentId }: { shipmentId: strin
       const [shipmentResult, timelineResult, documentResult, assessmentResult] =
         await Promise.all([
           apiFetch<Shipment>(`/shipments/${shipmentId}`),
-          apiFetch<{ events: ShipmentEvent[] }>(`/shipments/${shipmentId}/timeline`),
+          apiFetch<{ events: ShipmentEvent[] }>(
+            `/shipments/${shipmentId}/timeline`,
+          ),
           documentFetch<TradeDocument[]>(`/shipments/${shipmentId}/documents`),
           complianceFetch<ComplianceAssessment[]>(
             `/compliance/assessments/${shipmentId}`,
@@ -114,7 +127,9 @@ export default function DocumentUploadClient({ shipmentId }: { shipmentId: strin
       setDocuments((current) => [uploadedDocument, ...current]);
       form.reset();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not upload document");
+      setError(
+        err instanceof Error ? err.message : "Could not upload document",
+      );
     } finally {
       setUploading(false);
     }
@@ -137,7 +152,9 @@ export default function DocumentUploadClient({ shipmentId }: { shipmentId: strin
         await reevaluateCompliance();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not extract document");
+      setError(
+        err instanceof Error ? err.message : "Could not extract document",
+      );
     } finally {
       setExtractingDocumentId(null);
     }
@@ -159,16 +176,16 @@ export default function DocumentUploadClient({ shipmentId }: { shipmentId: strin
         {
           method: "POST",
           body: JSON.stringify({
-            uploaded_documents: [
-              ...uploadedDocuments,
-            ],
+            uploaded_documents: [...uploadedDocuments],
           }),
         },
       );
       setLatestAssessment(assessment);
       await loadEvidence(assessment.id);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not reevaluate compliance");
+      setError(
+        err instanceof Error ? err.message : "Could not reevaluate compliance",
+      );
     } finally {
       setEvaluating(false);
     }
@@ -220,10 +237,18 @@ export default function DocumentUploadClient({ shipmentId }: { shipmentId: strin
       <div className="mx-auto grid max-w-[1500px] gap-6 px-4 py-6 sm:px-6 xl:grid-cols-[420px_1fr]">
         <aside className="tt-panel p-5 xl:sticky xl:top-24 xl:self-start">
           <p className="tt-kicker">Evidence intake</p>
-          <h2 className="mt-1 text-lg font-semibold text-slate-950">Upload document</h2>
-          <form id="upload" onSubmit={uploadDocument} className="scroll-mt-24 mt-5 space-y-4">
+          <h2 className="mt-1 text-lg font-semibold text-slate-950">
+            Upload document
+          </h2>
+          <form
+            id="upload"
+            onSubmit={uploadDocument}
+            className="scroll-mt-24 mt-5 space-y-4"
+          >
             <label className="block">
-              <span className="text-sm font-medium text-slate-700">Document type</span>
+              <span className="text-sm font-medium text-slate-700">
+                Document type
+              </span>
               <select
                 name="document_type"
                 defaultValue="tax_invoice"
@@ -237,7 +262,9 @@ export default function DocumentUploadClient({ shipmentId }: { shipmentId: strin
               </select>
             </label>
             <label className="block">
-              <span className="text-sm font-medium text-slate-700">Consignment</span>
+              <span className="text-sm font-medium text-slate-700">
+                Consignment
+              </span>
               <select
                 name="consignment_id"
                 defaultValue={defaultConsignmentId}
@@ -252,7 +279,9 @@ export default function DocumentUploadClient({ shipmentId }: { shipmentId: strin
               </select>
             </label>
             <label className="block">
-              <span className="text-sm font-medium text-slate-700">Shipment event</span>
+              <span className="text-sm font-medium text-slate-700">
+                Shipment event
+              </span>
               <select
                 name="shipment_event_id"
                 defaultValue={defaultEventId}
@@ -267,7 +296,9 @@ export default function DocumentUploadClient({ shipmentId }: { shipmentId: strin
               </select>
             </label>
             <label className="block">
-              <span className="text-sm font-medium text-slate-700">Jurisdiction</span>
+              <span className="text-sm font-medium text-slate-700">
+                Jurisdiction
+              </span>
               <input
                 name="jurisdiction"
                 defaultValue="India"
@@ -309,13 +340,16 @@ export default function DocumentUploadClient({ shipmentId }: { shipmentId: strin
             </button>
             {latestAssessment ? (
               <p className="mt-4 text-xs text-slate-500">
-                Last assessment: {new Date(latestAssessment.created_at).toLocaleString()}
+                Last assessment:{" "}
+                {new Date(latestAssessment.created_at).toLocaleString()}
               </p>
             ) : null}
           </div>
 
           {error ? (
-            <p className="mt-4 rounded bg-red-50 p-3 text-sm text-red-700">{error}</p>
+            <p className="mt-4 rounded bg-red-50 p-3 text-sm text-red-700">
+              {error}
+            </p>
           ) : null}
         </aside>
 
@@ -336,25 +370,39 @@ export default function DocumentUploadClient({ shipmentId }: { shipmentId: strin
             </div>
             <div className="mt-5 space-y-4">
               {documents.length === 0 ? (
-                <p className="text-sm text-slate-600">No documents uploaded yet.</p>
+                <p className="text-sm text-slate-600">
+                  No documents uploaded yet.
+                </p>
               ) : null}
               {documents.map((document) => (
-                <article key={document.id} className="rounded border border-slate-200 p-4">
+                <article
+                  key={document.id}
+                  className="rounded border border-slate-200 p-4"
+                >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
-                      <p className="font-semibold text-slate-950">{document.filename}</p>
+                      <p className="font-semibold text-slate-950">
+                        {document.filename}
+                      </p>
                       <p className="mt-1 text-sm text-slate-600">
                         {displayStatus(document.document_type)} -{" "}
                         {document.jurisdiction ?? "Any jurisdiction"}
                       </p>
                     </div>
-                    <span className={verificationBadgeClasses(document.verification_status)}>
+                    <span
+                      className={verificationBadgeClasses(
+                        document.verification_status,
+                      )}
+                    >
                       {displayStatus(document.verification_status)}
                     </span>
                   </div>
                   <div className="mt-4 grid gap-4 lg:grid-cols-[220px_1fr]">
                     <div className="text-sm text-slate-600">
-                      <p>Uploaded {new Date(document.uploaded_at).toLocaleString()}</p>
+                      <p>
+                        Uploaded{" "}
+                        {new Date(document.uploaded_at).toLocaleString()}
+                      </p>
                       <p className="mt-1">
                         {Math.max(1, Math.ceil(document.size_bytes / 1024))} KB
                       </p>
@@ -379,9 +427,13 @@ export default function DocumentUploadClient({ shipmentId }: { shipmentId: strin
 
           <section id="evidence" className="tt-panel scroll-mt-24 p-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className="text-lg font-semibold text-slate-950">Evidence Trace</h2>
+              <h2 className="text-lg font-semibold text-slate-950">
+                Evidence Trace
+              </h2>
               {latestAssessment ? (
-                <span className={complianceBadgeClasses(latestAssessment.status)}>
+                <span
+                  className={complianceBadgeClasses(latestAssessment.status)}
+                >
                   {displayStatus(latestAssessment.status)}
                 </span>
               ) : null}
@@ -393,20 +445,30 @@ export default function DocumentUploadClient({ shipmentId }: { shipmentId: strin
             ) : (
               <div className="mt-5 space-y-3">
                 {evidence.map((record) => (
-                  <article key={record.id} className="rounded border border-slate-200 p-4">
+                  <article
+                    key={record.id}
+                    className="rounded border border-slate-200 p-4"
+                  >
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
-                        <p className="font-semibold text-slate-950">{record.rule_title}</p>
+                        <p className="font-semibold text-slate-950">
+                          {record.rule_title}
+                        </p>
                         <p className="mt-1 text-sm text-slate-600">
-                          {record.jurisdiction} {displayStatus(record.procedure_type)} -
-                          v{record.regulation_version}
+                          {record.jurisdiction}{" "}
+                          {displayStatus(record.procedure_type)} - v
+                          {record.regulation_version}
                         </p>
                       </div>
-                      <span className={evidenceBadgeClasses(record.evidence_type)}>
+                      <span
+                        className={evidenceBadgeClasses(record.evidence_type)}
+                      >
                         {displayStatus(record.evidence_type)}
                       </span>
                     </div>
-                    <p className="mt-3 text-sm text-slate-700">{record.explanation}</p>
+                    <p className="mt-3 text-sm text-slate-700">
+                      {record.explanation}
+                    </p>
                     <div className="mt-3 grid gap-2 text-xs text-slate-500 sm:grid-cols-2">
                       <p>Rule: {record.rule_id}</p>
                       <p>Event: {record.shipment_event_id ?? "None"}</p>
@@ -435,7 +497,9 @@ function ExtractedFields({ document }: { document: TradeDocument }) {
     <dl className="grid gap-2 text-sm sm:grid-cols-2">
       {entries.map(([key, value]) => (
         <div key={key} className="rounded bg-slate-50 px-3 py-2">
-          <dt className="text-xs font-medium text-slate-500">{displayStatus(key)}</dt>
+          <dt className="text-xs font-medium text-slate-500">
+            {displayStatus(key)}
+          </dt>
           <dd className="mt-1 text-slate-800">{String(value)}</dd>
         </div>
       ))}
@@ -443,7 +507,9 @@ function ExtractedFields({ document }: { document: TradeDocument }) {
   );
 }
 
-function toComplianceDocument(document: TradeDocument): UploadedDocumentMetadata {
+function toComplianceDocument(
+  document: TradeDocument,
+): UploadedDocumentMetadata {
   return {
     document_id: document.id,
     document_type: document.document_type,

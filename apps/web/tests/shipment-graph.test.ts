@@ -1,12 +1,16 @@
 import { describe, expect, it } from "vitest";
 
-import { buildShipmentGraphElements } from "@/components/shipment-graph-panel";
+import { buildShipmentGraphElements } from "@/lib/graph/shipment-layout";
 import type { ShipmentGraph } from "@/lib/shipments";
 
 const graph: ShipmentGraph = {
   nodes: [
     { id: "shipment:1", label: "TT-DEMO", type: "Shipment" },
-    { id: "consignment:1", label: "Batteries (UAE_TRANSIT)", type: "Consignment" },
+    {
+      id: "consignment:1",
+      label: "Batteries (UAE_TRANSIT)",
+      type: "Consignment",
+    },
     { id: "route:1", label: "Leg 1: India to UAE", type: "RouteLeg" },
     { id: "event:1", label: "LOADED", type: "ShipmentEvent" },
     { id: "country:uae", label: "UAE", type: "Country" },

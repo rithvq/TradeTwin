@@ -8,10 +8,17 @@ import type { TradeTwinModule } from "@/types/dashboard";
 
 export function MobileModuleGrid({ modules }: { modules: TradeTwinModule[] }) {
   return (
-    <section className="md:hidden" aria-labelledby="mobile-modules-title" data-testid="mobile-module-grid">
+    <section
+      className="md:hidden"
+      aria-labelledby="mobile-modules-title"
+      data-testid="mobile-module-grid"
+    >
       <div className="mb-4">
         <p className="tt-kicker">Control modules</p>
-        <h2 id="mobile-modules-title" className="mt-1 text-xl font-semibold text-ink">
+        <h2
+          id="mobile-modules-title"
+          className="mt-1 text-xl font-semibold text-ink"
+        >
           All TradeTwin modules
         </h2>
       </div>
@@ -30,14 +37,20 @@ export function MobileModuleGrid({ modules }: { modules: TradeTwinModule[] }) {
                 <CardTitle>{module.title}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm leading-6 text-secondary">{module.description}</p>
+                <p className="text-sm leading-6 text-secondary">
+                  {module.description}
+                </p>
                 {module.metric ? (
                   <div className="mt-4 flex items-end justify-between border-y border-line py-3">
-                    <span className="text-sm text-muted">{module.metric.label}</span>
+                    <span className="text-sm text-muted">
+                      {module.metric.label}
+                    </span>
                     <span className="text-xl font-semibold text-ink">
                       {module.metric.value}
                       {module.metric.isMock ? (
-                        <span className="ml-1 text-xs font-medium text-violet-800">demo</span>
+                        <span className="ml-1 text-xs font-medium text-violet-800">
+                          demo
+                        </span>
                       ) : null}
                     </span>
                   </div>

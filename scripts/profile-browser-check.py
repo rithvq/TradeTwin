@@ -14,6 +14,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import httpx
+from local_processes import stop_process
 from playwright.sync_api import expect, sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -114,11 +115,7 @@ if __name__ == "__main__":
             stderr=log,
         )
 
-        def stop():
-            child.terminate()
-            child.wait(timeout=15)
-
-        stack.callback(stop)
+        stack.callback(stop_process, child)
         for _ in range(60):
             try:
                 if httpx.get("http://localhost:3120/login", timeout=1).status_code == 200:

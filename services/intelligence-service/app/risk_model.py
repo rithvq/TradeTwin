@@ -127,8 +127,7 @@ def explain_factors(features: dict[str, float]) -> list[RiskFactor]:
                 factor="Higher declared value",
                 impact="Increases valuation review sensitivity",
                 explanation=(
-                    "The synthetic model assigns higher review likelihood to "
-                    "high-value cargo."
+                    "The synthetic model assigns higher review likelihood to high-value cargo."
                 ),
             )
         )

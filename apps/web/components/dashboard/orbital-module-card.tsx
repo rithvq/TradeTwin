@@ -20,7 +20,9 @@ export function OrbitalModuleCard({
 }) {
   const router = useRouter();
   const Icon = module.icon;
-  const relatedModules = modules.filter((item) => module.relatedIds.includes(item.id));
+  const relatedModules = modules.filter((item) =>
+    module.relatedIds.includes(item.id),
+  );
 
   return (
     <aside
@@ -43,13 +45,19 @@ export function OrbitalModuleCard({
           <Icon className="size-5" aria-hidden="true" />
         </span>
         <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase text-muted">Control module</p>
-          <h2 className="mt-1 text-xl font-semibold text-ink">{module.title}</h2>
+          <p className="text-xs font-semibold uppercase text-muted">
+            Control module
+          </p>
+          <h2 className="mt-1 text-xl font-semibold text-ink">
+            {module.title}
+          </h2>
         </div>
       </div>
 
       <StatusBadge status={module.status} className="mt-4" />
-      <p className="mt-4 text-sm leading-6 text-secondary">{module.description}</p>
+      <p className="mt-4 text-sm leading-6 text-secondary">
+        {module.description}
+      </p>
 
       {module.metric ? (
         <div className="mt-5 flex items-end justify-between border-y border-line py-4">
@@ -58,7 +66,9 @@ export function OrbitalModuleCard({
             <p className="mt-1 text-sm text-secondary">{module.metric.label}</p>
           </div>
           <div className="text-right">
-            <p className="text-3xl font-semibold text-ink">{module.metric.value}</p>
+            <p className="text-3xl font-semibold text-ink">
+              {module.metric.value}
+            </p>
             {module.metric.isMock ? (
               <p className="mt-1 text-xs text-violet-800">Demo value</p>
             ) : (
@@ -69,9 +79,16 @@ export function OrbitalModuleCard({
       ) : null}
 
       <div className="mt-5 space-y-2">
-        <p className="text-xs font-semibold uppercase text-muted">Quick actions</p>
+        <p className="text-xs font-semibold uppercase text-muted">
+          Quick actions
+        </p>
         {module.quickActions.map((action) => (
-          <Button key={action.route} asChild variant="outline" className="w-full justify-between">
+          <Button
+            key={action.route}
+            asChild
+            variant="outline"
+            className="w-full justify-between"
+          >
             <Link href={action.route}>
               {action.label}
               <ArrowUpRight className="size-4" aria-hidden="true" />
@@ -90,7 +107,9 @@ export function OrbitalModuleCard({
       </Button>
 
       <div className="mt-5 border-t border-line pt-4">
-        <p className="text-xs font-semibold uppercase text-muted">Related modules</p>
+        <p className="text-xs font-semibold uppercase text-muted">
+          Related modules
+        </p>
         <div className="mt-3 flex flex-wrap gap-2">
           {relatedModules.map((related) => (
             <Link

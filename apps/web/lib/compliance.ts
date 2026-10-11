@@ -196,35 +196,20 @@ export async function complianceFetch<T>(
   path: string,
   options?: RequestInit,
 ): Promise<T> {
-  const headers = complianceHeaders(options?.headers);
-  const response = await fetch(`${complianceApiBaseUrl}${path}`, {
+  return serviceJson<T>(complianceApiBaseUrl, path, {
     ...options,
-    headers,
+    headers: complianceHeaders(options?.headers),
   });
-
-  if (!response.ok) {
-    const detail = await response.text();
-    throw new Error(detail || `Request failed with ${response.status}`);
-  }
-
-  return response.json() as Promise<T>;
 }
 
 export async function complianceFetchBlob(
   path: string,
   options?: RequestInit,
 ): Promise<Blob> {
-  const headers = complianceHeaders(options?.headers);
-  const response = await fetch(`${complianceApiBaseUrl}${path}`, {
+  const response = await serviceRequest(complianceApiBaseUrl, path, {
     ...options,
-    headers,
+    headers: complianceHeaders(options?.headers),
   });
-
-  if (!response.ok) {
-    const detail = await response.text();
-    throw new Error(detail || `Request failed with ${response.status}`);
-  }
-
   return response.blob();
 }
 
@@ -233,8 +218,10 @@ export function complianceHeaders(existingHeaders?: HeadersInit): Headers {
   if (!headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
-  const token = typeof window === "undefined" ? demoAuthToken :
-    window.sessionStorage.getItem("tradetwin-token") ?? demoAuthToken;
+  const token =
+    typeof window === "undefined"
+      ? demoAuthToken
+      : (window.sessionStorage.getItem("tradetwin-token") ?? demoAuthToken);
   if (token && !headers.has("Authorization")) {
     headers.set("Authorization", `Bearer ${token}`);
   }
@@ -246,7 +233,18 @@ export function buildDemoDocumentPackage(
   includeBatteryCertificate: boolean,
   domestic = false,
 ): UploadedDocumentMetadata[] {
-  if (domestic) return (includeBatteryCertificate ? ["tax_invoice", "eway_bill", "packing_list"] : ["tax_invoice"]).map(document_type => ({ document_id: `demo-${shipmentId}-${document_type}`, document_type, filename: `${document_type}.txt`, jurisdiction: "India", metadata: { source: "demo-ui" } }));
+  if (domestic)
+    return (
+      includeBatteryCertificate
+        ? ["tax_invoice", "eway_bill", "packing_list"]
+        : ["tax_invoice"]
+    ).map((document_type) => ({
+      document_id: `demo-${shipmentId}-${document_type}`,
+      document_type,
+      filename: `${document_type}.txt`,
+      jurisdiction: "India",
+      metadata: { source: "demo-ui" },
+    }));
   const baseDocuments = [
     "commercial_invoice",
     "packing_list",
@@ -266,3 +264,4 @@ export function buildDemoDocumentPackage(
     metadata: { source: "demo-ui" },
   }));
 }
+import { serviceJson, serviceRequest } from "./api/http";

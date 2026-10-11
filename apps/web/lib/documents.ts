@@ -2,7 +2,11 @@ export const documentApiBaseUrl =
   process.env.NEXT_PUBLIC_DOCUMENT_SERVICE_URL ?? "/api/services/document";
 
 export type DocumentType =
-  | "tax_invoice" | "eway_bill" | "delivery_challan" | "bill_of_supply" | "proof_of_delivery"
+  | "tax_invoice"
+  | "eway_bill"
+  | "delivery_challan"
+  | "bill_of_supply"
+  | "proof_of_delivery"
   | "export_declaration"
   | "import_declaration"
   | "temporary_storage_authorization"
@@ -45,13 +49,20 @@ export type EvidenceRecord = {
   shipment_event_id: string | null;
   jurisdiction: string;
   procedure_type: string;
-  evidence_type: "DOCUMENT_SUPPORTS_RULE" | "DOCUMENT_MISSING" | "EVENT_TRIGGERED_RULE" | "RULE_EVALUATED";
+  evidence_type:
+    | "DOCUMENT_SUPPORTS_RULE"
+    | "DOCUMENT_MISSING"
+    | "EVENT_TRIGGERED_RULE"
+    | "RULE_EVALUATED";
   explanation: string;
   created_at: string;
   document: TradeDocument | null;
 };
 
-export const documentTypeOptions: Array<{ value: DocumentType; label: string }> = [
+export const documentTypeOptions: Array<{
+  value: DocumentType;
+  label: string;
+}> = [
   { value: "tax_invoice", label: "Tax invoice" },
   { value: "eway_bill", label: "E-way bill" },
   { value: "delivery_challan", label: "Delivery challan" },
@@ -65,25 +76,7 @@ export async function documentFetch<T>(
   path: string,
   options?: RequestInit,
 ): Promise<T> {
-  const headers = new Headers(options?.headers);
-  const isFormData =
-    typeof FormData !== "undefined" && options?.body instanceof FormData;
-
-  if (!isFormData && !headers.has("Content-Type")) {
-    headers.set("Content-Type", "application/json");
-  }
-
-  const response = await fetch(`${documentApiBaseUrl}${path}`, {
-    ...options,
-    headers,
-  });
-
-  if (!response.ok) {
-    const detail = await response.text();
-    throw new Error(detail || `Request failed with ${response.status}`);
-  }
-
-  return response.json() as Promise<T>;
+  return serviceJson<T>(documentApiBaseUrl, path, options);
 }
 
 export function verificationBadgeClasses(status: string): string {
@@ -99,3 +92,4 @@ export function verificationBadgeClasses(status: string): string {
   }
   return `${base} bg-slate-100 text-slate-700`;
 }
+import { serviceJson } from "./api/http";
