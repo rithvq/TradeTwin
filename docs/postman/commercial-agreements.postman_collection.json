@@ -1,0 +1,973 @@
+{
+  "info": {
+    "name": "TradeTwin Commercial Agreements Phase 1",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Existing OAuth sessions only. Set current_organization_id and profile_token per actor. Use fresh idempotency keys for new intent, preserve keys for retries; ETags include quotes. Never use mock identity headers against production."
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{profile_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8011"
+    },
+    {
+      "key": "profile_token",
+      "value": ""
+    },
+    {
+      "key": "current_organization_id",
+      "value": ""
+    },
+    {
+      "key": "seller_organization_id",
+      "value": ""
+    },
+    {
+      "key": "buyer_organization_id",
+      "value": ""
+    },
+    {
+      "key": "trade_id",
+      "value": ""
+    },
+    {
+      "key": "offer_id",
+      "value": ""
+    },
+    {
+      "key": "amendment_id",
+      "value": ""
+    },
+    {
+      "key": "organization_id",
+      "value": ""
+    },
+    {
+      "key": "member_user_id",
+      "value": ""
+    },
+    {
+      "key": "revision_id",
+      "value": ""
+    },
+    {
+      "key": "base_accepted_revision_id",
+      "value": ""
+    },
+    {
+      "key": "terms_hash",
+      "value": ""
+    },
+    {
+      "key": "etag",
+      "value": "\"1\""
+    },
+    {
+      "key": "idempotency_key",
+      "value": "replace-with-a-unique-key"
+    },
+    {
+      "key": "commercial_valid_until",
+      "value": ""
+    },
+    {
+      "key": "pickup_earliest_at",
+      "value": ""
+    },
+    {
+      "key": "pickup_latest_at",
+      "value": ""
+    },
+    {
+      "key": "delivery_deadline_at",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "GET /api/v1/me",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/me",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{current_organization_id}}"
+          }
+        ]
+      },
+      "event": []
+    },
+    {
+      "name": "GET /api/v1/reference-data",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/reference-data",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{current_organization_id}}"
+          }
+        ]
+      },
+      "event": []
+    },
+    {
+      "name": "POST /api/v1/organizations",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/organizations",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{current_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"legal_name\": \"Example business (declaration)\",\n  \"entity_type\": \"COMPANY\",\n  \"authorised_contact_name\": \"Demo Contact\",\n  \"email\": \"demo@example.invalid\",\n  \"mobile_e164\": \"+919876543210\",\n  \"registered_address\": {\n    \"address_line1\": \"12 Demo Industrial Road\",\n    \"city\": \"Chennai\",\n    \"district\": \"Chennai\",\n    \"state_code\": \"33\",\n    \"postal_code\": \"600001\",\n    \"country_code\": \"IN\",\n    \"timezone\": \"Asia/Kolkata\",\n    \"contact_name\": \"Demonstration contact\",\n    \"contact_phone_e164\": \"+919876543210\"\n  },\n  \"registration_position\": \"UNREGISTERED\",\n  \"registration_explanation\": \"Demonstration declaration only; not a tax eligibility claim.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": []
+    },
+    {
+      "name": "GET /api/v1/organizations/{organization_id}",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/organizations/{{organization_id}}",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{current_organization_id}}"
+          }
+        ]
+      },
+      "event": []
+    },
+    {
+      "name": "PATCH /api/v1/organizations/{organization_id}",
+      "request": {
+        "method": "PATCH",
+        "url": "{{base_url}}/api/v1/organizations/{{organization_id}}",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{current_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{etag}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"trade_name\": \"Example trading name\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": []
+    },
+    {
+      "name": "POST /api/v1/organizations/{organization_id}/registrations",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/organizations/{{organization_id}}/registrations",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{current_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"gstin\": \"33ABCDE1234F1Z7\",\n  \"state_code\": \"33\",\n  \"declared_taxpayer_scheme\": \"UNKNOWN\",\n  \"declared_establishment_kind\": \"UNKNOWN\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": []
+    },
+    {
+      "name": "POST /api/v1/organizations/{organization_id}/locations",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/organizations/{{organization_id}}/locations",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{current_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"label\": \"Warehouse\",\n  \"location_type\": \"WAREHOUSE\",\n  \"address\": {\n    \"address_line1\": \"12 Demo Industrial Road\",\n    \"city\": \"Chennai\",\n    \"district\": \"Chennai\",\n    \"state_code\": \"33\",\n    \"postal_code\": \"600001\",\n    \"country_code\": \"IN\",\n    \"timezone\": \"Asia/Kolkata\",\n    \"contact_name\": \"Demonstration contact\",\n    \"contact_phone_e164\": \"+919876543210\"\n  },\n  \"visibility\": \"PRIVATE\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": []
+    },
+    {
+      "name": "POST /api/v1/organizations/{organization_id}/members",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/organizations/{{organization_id}}/members",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{current_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"user_id\": \"{{member_user_id}}\",\n  \"capabilities\": [\n    \"SELLER_OPERATOR\"\n  ],\n  \"status\": \"ACTIVE\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": []
+    },
+    {
+      "name": "GET /api/v1/organizations/{organization_id}/members",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/organizations/{{organization_id}}/members",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{current_organization_id}}"
+          }
+        ]
+      },
+      "event": []
+    },
+    {
+      "name": "GET /api/v1/trading-partners",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/trading-partners?q=Demo",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{current_organization_id}}"
+          }
+        ]
+      },
+      "event": []
+    },
+    {
+      "name": "POST /api/v1/trades",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/trades",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{current_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"initiated_by_role\": \"SELLER\",\n  \"facts\": {\n    \"scope\": \"DOMESTIC_INTERSTATE\",\n    \"movement_purpose\": \"SALE\",\n    \"seller_organization_id\": \"{{seller_organization_id}}\",\n    \"buyer_organization_id\": \"{{buyer_organization_id}}\",\n    \"bill_from\": {\n      \"organization_id\": \"{{seller_organization_id}}\",\n      \"billing_address\": {\n        \"address_line1\": \"12 Demo Industrial Road\",\n        \"city\": \"Chennai\",\n        \"district\": \"Chennai\",\n        \"state_code\": \"33\",\n        \"postal_code\": \"600001\",\n        \"country_code\": \"IN\",\n        \"timezone\": \"Asia/Kolkata\",\n        \"contact_name\": \"Demonstration contact\",\n        \"contact_phone_e164\": \"+919876543210\"\n      }\n    },\n    \"bill_to\": {\n      \"organization_id\": \"{{buyer_organization_id}}\",\n      \"billing_address\": {\n        \"address_line1\": \"12 Demo Industrial Road\",\n        \"city\": \"Bengaluru\",\n        \"district\": \"Bengaluru\",\n        \"state_code\": \"29\",\n        \"postal_code\": \"560001\",\n        \"country_code\": \"IN\",\n        \"timezone\": \"Asia/Kolkata\",\n        \"contact_name\": \"Demonstration contact\",\n        \"contact_phone_e164\": \"+919876543210\"\n      }\n    },\n    \"dispatch_from\": {\n      \"address_line1\": \"12 Demo Industrial Road\",\n      \"city\": \"Chennai\",\n      \"district\": \"Chennai\",\n      \"state_code\": \"33\",\n      \"postal_code\": \"600001\",\n      \"country_code\": \"IN\",\n      \"timezone\": \"Asia/Kolkata\",\n      \"contact_name\": \"Demonstration contact\",\n      \"contact_phone_e164\": \"+919876543210\"\n    },\n    \"ship_to\": {\n      \"address_line1\": \"12 Demo Industrial Road\",\n      \"city\": \"Bengaluru\",\n      \"district\": \"Bengaluru\",\n      \"state_code\": \"29\",\n      \"postal_code\": \"560001\",\n      \"country_code\": \"IN\",\n      \"timezone\": \"Asia/Kolkata\",\n      \"contact_name\": \"Demonstration contact\",\n      \"contact_phone_e164\": \"+919876543210\"\n    },\n    \"transaction_layout\": \"REGULAR\",\n    \"currency\": \"INR\",\n    \"pricing_basis\": \"NET_TAX_EXTRA\",\n    \"tax_terms\": \"Tax settlement subject to later validation; no final payable determined.\",\n    \"items\": [\n      {\n        \"description\": \"Cotton shirts\",\n        \"specification\": \"Demo boxed cotton shirts, size M\",\n        \"hsn_confirmation\": \"NOT_PROVIDED\",\n        \"quantity\": \"10.000000\",\n        \"uqc\": \"PCS\",\n        \"unit_price_minor\": \"12500.000000\",\n        \"discount_minor\": \"500\",\n        \"hazardous_declared\": false,\n        \"temperature_controlled\": false,\n        \"fragile\": false,\n        \"stackable\": true\n      },\n      {\n        \"description\": \"Stationery\",\n        \"specification\": \"Demo notebooks\",\n        \"hsn_confirmation\": \"NOT_PROVIDED\",\n        \"quantity\": \"2.500000\",\n        \"uqc\": \"PCS\",\n        \"unit_price_minor\": \"3999.000000\",\n        \"discount_minor\": \"0\",\n        \"hazardous_declared\": false,\n        \"temperature_controlled\": false,\n        \"fragile\": false,\n        \"stackable\": true\n      }\n    ],\n    \"commercial_terms\": {\n      \"freight_payer\": \"SELLER\",\n      \"freight_included_in_goods_price\": false,\n      \"loading_responsibility\": \"SELLER\",\n      \"unloading_responsibility\": \"BUYER\",\n      \"insurance_required\": false,\n      \"insurance_responsibility\": \"NONE\",\n      \"payment_mode\": \"ON_DELIVERY\",\n      \"acceptance_window_hours\": 48,\n      \"quality_acceptance_criteria\": \"Goods match agreed specification\",\n      \"return_policy\": \"Report defects within 48 hours\",\n      \"cancellation_terms\": \"Mutual agreement required\",\n      \"partial_delivery_allowed\": false,\n      \"supplier_substitution_allowed\": false,\n      \"pickup_location_substitution_allowed\": false,\n      \"commercial_valid_until\": \"{{commercial_valid_until}}\"\n    },\n    \"delivery_requirements\": {\n      \"mode\": \"ROAD\",\n      \"pickup_earliest_at\": \"{{pickup_earliest_at}}\",\n      \"pickup_latest_at\": \"{{pickup_latest_at}}\",\n      \"delivery_deadline_at\": \"{{delivery_deadline_at}}\",\n      \"receiving_window_start_local\": \"09:00\",\n      \"receiving_window_end_local\": \"18:00\",\n      \"receiving_timezone\": \"Asia/Kolkata\",\n      \"receiving_window_crosses_midnight\": false,\n      \"consolidation_allowed\": false,\n      \"return_truck_allowed\": false,\n      \"maximum_transshipments\": 0\n    }\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code === 201) {",
+              "const r = pm.response.json();",
+              "pm.collectionVariables.set('trade_id', r.trade_id);",
+              "pm.collectionVariables.set('revision_id', r.current_revision_id);",
+              "pm.collectionVariables.set('etag', r.etag); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET /api/v1/trades",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/trades?role=SELLER",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{current_organization_id}}"
+          }
+        ]
+      },
+      "event": []
+    },
+    {
+      "name": "GET /api/v1/trades/{trade_id}",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/trades/{{trade_id}}",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{current_organization_id}}"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code < 300) { const r = pm.response.json();",
+              "const v = pm.collectionVariables;",
+              "if(r.etag) v.set('etag', r.etag);",
+              "if(r.current_revision_id) v.set('revision_id', r.current_revision_id);",
+              "if(r.accepted_revision) v.set('base_accepted_revision_id',",
+              "r.accepted_revision.id);",
+              "if(r.accepted_revision_id) v.set('base_accepted_revision_id',",
+              "r.accepted_revision_id);",
+              "if(r.active_offer) {",
+              "pm.collectionVariables.set('offer_id',r.active_offer.id);",
+              "pm.collectionVariables.set('revision_id',r.active_offer.revision_id);",
+              "pm.collectionVariables.set('terms_hash',r.active_offer.terms_hash); }",
+              "if(r.pending_amendment) v.set('amendment_id',r.pending_amendment.id); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PATCH /api/v1/trades/{trade_id}/draft",
+      "request": {
+        "method": "PATCH",
+        "url": "{{base_url}}/api/v1/trades/{{trade_id}}/draft",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{current_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{etag}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"base_revision_id\": \"{{revision_id}}\",\n  \"changes\": {\n    \"tax_terms\": \"Updated agreed declaration\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code < 300) { const r = pm.response.json();",
+              "const v = pm.collectionVariables;",
+              "if(r.etag) v.set('etag', r.etag);",
+              "if(r.current_revision_id) v.set('revision_id', r.current_revision_id);",
+              "if(r.accepted_revision) v.set('base_accepted_revision_id',",
+              "r.accepted_revision.id);",
+              "if(r.accepted_revision_id) v.set('base_accepted_revision_id',",
+              "r.accepted_revision_id);",
+              "if(r.active_offer) {",
+              "pm.collectionVariables.set('offer_id',r.active_offer.id);",
+              "pm.collectionVariables.set('revision_id',r.active_offer.revision_id);",
+              "pm.collectionVariables.set('terms_hash',r.active_offer.terms_hash); }",
+              "if(r.pending_amendment) v.set('amendment_id',r.pending_amendment.id); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST /api/v1/trades/{trade_id}/offers",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/trades/{{trade_id}}/offers",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{current_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{etag}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"revision_id\": \"{{revision_id}}\",\n  \"commercial_valid_until\": \"{{commercial_valid_until}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code < 300) { const r = pm.response.json();",
+              "const v = pm.collectionVariables;",
+              "if(r.etag) v.set('etag', r.etag);",
+              "if(r.current_revision_id) v.set('revision_id', r.current_revision_id);",
+              "if(r.accepted_revision) v.set('base_accepted_revision_id',",
+              "r.accepted_revision.id);",
+              "if(r.accepted_revision_id) v.set('base_accepted_revision_id',",
+              "r.accepted_revision_id);",
+              "if(r.active_offer) {",
+              "pm.collectionVariables.set('offer_id',r.active_offer.id);",
+              "pm.collectionVariables.set('revision_id',r.active_offer.revision_id);",
+              "pm.collectionVariables.set('terms_hash',r.active_offer.terms_hash); }",
+              "if(r.pending_amendment) v.set('amendment_id',r.pending_amendment.id); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST /api/v1/offers/{offer_id}/withdrawals",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/offers/{{offer_id}}/withdrawals",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{current_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{etag}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"reason\": \"Withdraw proposal\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code < 300) { const r = pm.response.json();",
+              "const v = pm.collectionVariables;",
+              "if(r.etag) v.set('etag', r.etag);",
+              "if(r.current_revision_id) v.set('revision_id', r.current_revision_id);",
+              "if(r.accepted_revision) v.set('base_accepted_revision_id',",
+              "r.accepted_revision.id);",
+              "if(r.accepted_revision_id) v.set('base_accepted_revision_id',",
+              "r.accepted_revision_id);",
+              "if(r.active_offer) {",
+              "pm.collectionVariables.set('offer_id',r.active_offer.id);",
+              "pm.collectionVariables.set('revision_id',r.active_offer.revision_id);",
+              "pm.collectionVariables.set('terms_hash',r.active_offer.terms_hash); }",
+              "if(r.pending_amendment) v.set('amendment_id',r.pending_amendment.id); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST /api/v1/offers/{offer_id}/confirmations",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/offers/{{offer_id}}/confirmations",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{current_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"revision_id\": \"{{revision_id}}\",\n  \"terms_hash\": \"{{terms_hash}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code < 300) { const r = pm.response.json();",
+              "const v = pm.collectionVariables;",
+              "if(r.etag) v.set('etag', r.etag);",
+              "if(r.current_revision_id) v.set('revision_id', r.current_revision_id);",
+              "if(r.accepted_revision) v.set('base_accepted_revision_id',",
+              "r.accepted_revision.id);",
+              "if(r.accepted_revision_id) v.set('base_accepted_revision_id',",
+              "r.accepted_revision_id);",
+              "if(r.active_offer) {",
+              "pm.collectionVariables.set('offer_id',r.active_offer.id);",
+              "pm.collectionVariables.set('revision_id',r.active_offer.revision_id);",
+              "pm.collectionVariables.set('terms_hash',r.active_offer.terms_hash); }",
+              "if(r.pending_amendment) v.set('amendment_id',r.pending_amendment.id); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST /api/v1/offers/{offer_id}/rejections",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/offers/{{offer_id}}/rejections",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{current_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"revision_id\": \"{{revision_id}}\",\n  \"terms_hash\": \"{{terms_hash}}\",\n  \"reason\": \"Terms need revision\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code < 300) { const r = pm.response.json();",
+              "const v = pm.collectionVariables;",
+              "if(r.etag) v.set('etag', r.etag);",
+              "if(r.current_revision_id) v.set('revision_id', r.current_revision_id);",
+              "if(r.accepted_revision) v.set('base_accepted_revision_id',",
+              "r.accepted_revision.id);",
+              "if(r.accepted_revision_id) v.set('base_accepted_revision_id',",
+              "r.accepted_revision_id);",
+              "if(r.active_offer) {",
+              "pm.collectionVariables.set('offer_id',r.active_offer.id);",
+              "pm.collectionVariables.set('revision_id',r.active_offer.revision_id);",
+              "pm.collectionVariables.set('terms_hash',r.active_offer.terms_hash); }",
+              "if(r.pending_amendment) v.set('amendment_id',r.pending_amendment.id); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST /api/v1/trades/{trade_id}/amendments",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/trades/{{trade_id}}/amendments",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{current_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{etag}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"base_accepted_revision_id\": \"{{base_accepted_revision_id}}\",\n  \"reason\": \"Change agreed quantity\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code < 300) { const r = pm.response.json();",
+              "const v = pm.collectionVariables;",
+              "if(r.etag) v.set('etag', r.etag);",
+              "if(r.current_revision_id) v.set('revision_id', r.current_revision_id);",
+              "if(r.accepted_revision) v.set('base_accepted_revision_id',",
+              "r.accepted_revision.id);",
+              "if(r.accepted_revision_id) v.set('base_accepted_revision_id',",
+              "r.accepted_revision_id);",
+              "if(r.active_offer) {",
+              "pm.collectionVariables.set('offer_id',r.active_offer.id);",
+              "pm.collectionVariables.set('revision_id',r.active_offer.revision_id);",
+              "pm.collectionVariables.set('terms_hash',r.active_offer.terms_hash); }",
+              "if(r.pending_amendment) v.set('amendment_id',r.pending_amendment.id); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PATCH /api/v1/amendments/{amendment_id}/draft",
+      "request": {
+        "method": "PATCH",
+        "url": "{{base_url}}/api/v1/amendments/{{amendment_id}}/draft",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{current_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{etag}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"base_revision_id\": \"{{revision_id}}\",\n  \"changes\": {\n    \"tax_terms\": \"Updated agreed declaration\"\n  }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code < 300) { const r = pm.response.json();",
+              "const v = pm.collectionVariables;",
+              "if(r.etag) v.set('etag', r.etag);",
+              "if(r.current_revision_id) v.set('revision_id', r.current_revision_id);",
+              "if(r.accepted_revision) v.set('base_accepted_revision_id',",
+              "r.accepted_revision.id);",
+              "if(r.accepted_revision_id) v.set('base_accepted_revision_id',",
+              "r.accepted_revision_id);",
+              "if(r.active_offer) {",
+              "pm.collectionVariables.set('offer_id',r.active_offer.id);",
+              "pm.collectionVariables.set('revision_id',r.active_offer.revision_id);",
+              "pm.collectionVariables.set('terms_hash',r.active_offer.terms_hash); }",
+              "if(r.pending_amendment) v.set('amendment_id',r.pending_amendment.id); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST /api/v1/amendments/{amendment_id}/offers",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/amendments/{{amendment_id}}/offers",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{current_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{etag}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"revision_id\": \"{{revision_id}}\",\n  \"commercial_valid_until\": \"{{commercial_valid_until}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code < 300) { const r = pm.response.json();",
+              "const v = pm.collectionVariables;",
+              "if(r.etag) v.set('etag', r.etag);",
+              "if(r.current_revision_id) v.set('revision_id', r.current_revision_id);",
+              "if(r.accepted_revision) v.set('base_accepted_revision_id',",
+              "r.accepted_revision.id);",
+              "if(r.accepted_revision_id) v.set('base_accepted_revision_id',",
+              "r.accepted_revision_id);",
+              "if(r.active_offer) {",
+              "pm.collectionVariables.set('offer_id',r.active_offer.id);",
+              "pm.collectionVariables.set('revision_id',r.active_offer.revision_id);",
+              "pm.collectionVariables.set('terms_hash',r.active_offer.terms_hash); }",
+              "if(r.pending_amendment) v.set('amendment_id',r.pending_amendment.id); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST /api/v1/amendments/{amendment_id}/withdrawals",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/amendments/{{amendment_id}}/withdrawals",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{current_organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{idempotency_key}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"reason\": \"Withdraw proposal\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code < 300) { const r = pm.response.json();",
+              "const v = pm.collectionVariables;",
+              "if(r.etag) v.set('etag', r.etag);",
+              "if(r.current_revision_id) v.set('revision_id', r.current_revision_id);",
+              "if(r.accepted_revision) v.set('base_accepted_revision_id',",
+              "r.accepted_revision.id);",
+              "if(r.accepted_revision_id) v.set('base_accepted_revision_id',",
+              "r.accepted_revision_id);",
+              "if(r.active_offer) {",
+              "pm.collectionVariables.set('offer_id',r.active_offer.id);",
+              "pm.collectionVariables.set('revision_id',r.active_offer.revision_id);",
+              "pm.collectionVariables.set('terms_hash',r.active_offer.terms_hash); }",
+              "if(r.pending_amendment) v.set('amendment_id',r.pending_amendment.id); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "GET /api/v1/trades/{trade_id}/evidence-events",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/trades/{{trade_id}}/evidence-events",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{current_organization_id}}"
+          }
+        ]
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code < 300) { const r = pm.response.json();",
+              "const v = pm.collectionVariables;",
+              "if(r.etag) v.set('etag', r.etag);",
+              "if(r.current_revision_id) v.set('revision_id', r.current_revision_id);",
+              "if(r.accepted_revision) v.set('base_accepted_revision_id',",
+              "r.accepted_revision.id);",
+              "if(r.accepted_revision_id) v.set('base_accepted_revision_id',",
+              "r.accepted_revision_id);",
+              "if(r.active_offer) {",
+              "pm.collectionVariables.set('offer_id',r.active_offer.id);",
+              "pm.collectionVariables.set('revision_id',r.active_offer.revision_id);",
+              "pm.collectionVariables.set('terms_hash',r.active_offer.terms_hash); }",
+              "if(r.pending_amendment) v.set('amendment_id',r.pending_amendment.id); }"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const offsets = {commercial_valid_until: 7, pickup_earliest_at: 1,",
+          "pickup_latest_at: 2, delivery_deadline_at: 4};",
+          "for (const [key, days] of Object.entries(offsets)) {",
+          "if (!pm.collectionVariables.get(key)) pm.collectionVariables.set(key,",
+          "new Date(Date.now() + days * 86400000).toISOString()); }"
+        ]
+      }
+    }
+  ]
+}

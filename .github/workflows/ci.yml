@@ -9,6 +9,17 @@ on:
 jobs:
   backend:
     runs-on: ubuntu-latest
+    services:
+      commercial-postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: trade_test
+          POSTGRES_PASSWORD: ${{ github.run_id }}-test-only
+          POSTGRES_DB: trade_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U trade_test -d trade_test"
+          --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,6 +52,11 @@ jobs:
 
       - name: Test
         run: pytest apps/api services/shipment-service services/compliance-service services/document-service services/intelligence-service
+
+      - name: PostgreSQL commercial acceptance and concurrency
+        env:
+          TRADE_TEST_DATABASE_URL: postgresql+psycopg://trade_test:${{ github.run_id }}-test-only@127.0.0.1:5432/trade_test
+        run: pytest services/shipment-service/tests/test_commercial_agreements.py
 
       - name: Service integration walkthrough
         run: python scripts/smoke-test.py --local
@@ -82,3 +98,19 @@ jobs:
       - name: Test frontend
         working-directory: apps/web
         run: npm test
+
+      - name: Set up browser-test Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install authenticated walkthrough dependencies
+        run: |
+          pip install -e packages/security
+          pip install -r apps/api/requirements.txt -r services/shipment-service/requirements.txt -r services/compliance-service/requirements.txt -r services/document-service/requirements.txt -r services/intelligence-service/requirements.txt -r scripts/requirements-browser.txt
+          python -m playwright install --with-deps chromium
+
+      - name: Commercial browser acceptance
+        env:
+          PLAYWRIGHT_CHANNEL: chromium
+        run: python scripts/commercial-browser-check.py

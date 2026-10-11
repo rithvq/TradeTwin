@@ -11,6 +11,7 @@ import {
   LayoutDashboard,
   LoaderCircle,
   Network,
+  Plus,
   Search,
   ShieldCheck,
   X,
@@ -78,7 +79,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </Link>
 
           <nav
-            className="order-last flex w-full items-center gap-1 sm:order-none sm:ml-3 sm:w-auto xl:ml-0"
+            className="order-last flex w-full flex-wrap items-center gap-1 sm:order-none sm:ml-3 sm:w-auto sm:flex-nowrap xl:ml-0"
             aria-label="Primary navigation"
           >
             <ShellLink
@@ -93,6 +94,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               icon={Boxes}
               label="Shipments"
             />
+            <ShellLink
+              href="/trades"
+              active={pathname.startsWith("/trades")}
+              icon={Building2}
+              label="Trades"
+            />
+            <Button asChild className="shrink-0">
+              <Link href="/trades/new">
+                <Plus className="size-4" aria-hidden="true" />
+                Create trade
+              </Link>
+            </Button>
             {shipmentId ? (
               <ShellLink
                 href={`/shipments/${shipmentId}`}

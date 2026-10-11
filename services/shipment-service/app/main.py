@@ -36,6 +36,10 @@ from app.service import (
     retry_pending_graph_sync,
     sync_graph,
 )
+from app.trades.errors import install_handlers
+from app.trades.migrate import migrate as migrate_trades
+from app.trades.openapi import install_openapi
+from app.trades.router import router as trade_router
 
 SERVICE_NAME = "shipment-service"
 
@@ -45,6 +49,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     migrate_ownership(engine, Base.metadata)
     migrate_domestic(engine)
     Base.metadata.create_all(bind=engine)
+    migrate_trades(engine)
     graph = ShipmentGraph()
     app.state.graph = graph
     if settings.seed_demo_data:
@@ -57,6 +62,9 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 app = FastAPI(title="TradeTwin Shipment Service", version="0.1.0", lifespan=lifespan)
+install_handlers(app)
+app.include_router(trade_router)
+install_openapi(app)
 
 
 @app.get("/locations/states")

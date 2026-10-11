@@ -2,6 +2,7 @@
 
 import os
 from contextvars import ContextVar
+from uuid import uuid4
 
 import httpx
 from sqlalchemy import String, event, inspect, text
@@ -110,18 +111,24 @@ async def resolve_identity(token):
 
 class ProfileMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
-        if not enabled() or request.url.path in {"/health", "/ready"}:
+        if not enabled() or request.url.path in {
+            "/health",
+            "/ready",
+            "/docs",
+            "/docs/oauth2-redirect",
+            "/openapi.json",
+        }:
             return await call_next(request)
         authorization = request.headers.get("authorization", "")
         token = authorization[7:] if authorization.startswith("Bearer ") else ""
         if not token:
-            return JSONResponse({"detail": "Sign in required"}, status_code=401)
+            return self.failure(request, "Sign in required", 401)
         try:
             user = await resolve_identity(token)
         except httpx.HTTPError:
-            return JSONResponse({"detail": "Authentication service unavailable"}, status_code=503)
+            return self.failure(request, "Authentication service unavailable", 503)
         if user is None:
-            return JSONResponse({"detail": "Session expired"}, status_code=401)
+            return self.failure(request, "Session expired", 401)
         identity_token = identity.set(user)
         credential_token = credential.set(token)
         try:
@@ -131,3 +138,22 @@ class ProfileMiddleware(BaseHTTPMiddleware):
         finally:
             identity.reset(identity_token)
             credential.reset(credential_token)
+
+    @staticmethod
+    def failure(request, message, status):
+        if request.url.path.startswith("/api/v1/"):
+            return JSONResponse(
+                {
+                    "error": {
+                        "code": "AUTHENTICATION_REQUIRED"
+                        if status == 401
+                        else "AUTHENTICATION_UNAVAILABLE",
+                        "message": message,
+                        "request_id": str(uuid4()),
+                        "field_errors": [],
+                        "retryable": status == 503,
+                    }
+                },
+                status_code=status,
+            )
+        return JSONResponse({"detail": message}, status_code=status)

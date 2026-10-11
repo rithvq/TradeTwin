@@ -1,5 +1,8 @@
 # TradeTwin
 
+Commercial agreement Phase 1: [setup, role onboarding, demo, APIs and tests](docs/commercial-agreements.md).
+Open the [trade workspace](http://localhost:3000/trades) after starting Docker.
+
 ## Codebase Maintenance
 
 See [module boundaries and repeatable verification](docs/codebase-maintenance.md)

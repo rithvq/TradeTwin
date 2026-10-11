@@ -1,0 +1,52 @@
+import type { Values } from "@/lib/trades";
+
+export const newLine = (): Values => ({
+  description: null,
+  specification: null,
+  quantity: "1.000000",
+  uqc: "PCS",
+  unit_price_minor: "0.000000",
+  discount_minor: "0",
+  hsn_confirmation: "NOT_PROVIDED",
+  hazardous_declared: false,
+  temperature_controlled: false,
+  fragile: false,
+  stackable: true,
+});
+export const address = () => ({ country_code: "IN", timezone: "Asia/Kolkata" });
+export const defaults = (): Values => ({
+  scope: "DOMESTIC_INTERSTATE",
+  movement_purpose: "SALE",
+  currency: "INR",
+  transaction_layout: "REGULAR",
+  pricing_basis: "NET_TAX_EXTRA",
+  dispatch_from: address(),
+  ship_to: address(),
+  bill_from: { billing_address: address() },
+  bill_to: { billing_address: address() },
+  items: [newLine()],
+  commercial_terms: {
+    freight_payer: "SELLER",
+    freight_included_in_goods_price: false,
+    loading_responsibility: "SELLER",
+    unloading_responsibility: "BUYER",
+    insurance_required: false,
+    insurance_responsibility: "NONE",
+    payment_mode: "ON_DELIVERY",
+    acceptance_window_hours: 48,
+    partial_delivery_allowed: false,
+    supplier_substitution_allowed: false,
+    pickup_location_substitution_allowed: false,
+    milestone_schedule: [],
+  },
+  delivery_requirements: {
+    mode: "ROAD",
+    receiving_timezone: "Asia/Kolkata",
+    receiving_window_start_local: "09:00",
+    receiving_window_end_local: "18:00",
+    receiving_window_crosses_midnight: false,
+    consolidation_allowed: false,
+    return_truck_allowed: false,
+    maximum_transshipments: 0,
+  },
+});

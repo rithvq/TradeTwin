@@ -21,7 +21,13 @@ async function proxy(request: NextRequest, context: Context) {
     return Response.json({ detail: "Service not found" }, { status: 404 });
   }
   const headers = new Headers();
-  for (const name of ["content-type", "authorization"]) {
+  for (const name of [
+    "content-type",
+    "authorization",
+    "x-organization-id",
+    "if-match",
+    "idempotency-key",
+  ]) {
     const value = request.headers.get(name);
     if (value) headers.set(name, value);
   }
@@ -56,7 +62,12 @@ async function proxy(request: NextRequest, context: Context) {
     );
     const resultHeaders = new Headers();
     resultHeaders.set("Cache-Control", "private, no-store");
-    for (const name of ["content-type", "content-disposition", "x-trace-id"]) {
+    for (const name of [
+      "content-type",
+      "content-disposition",
+      "x-trace-id",
+      "etag",
+    ]) {
       const value = response.headers.get(name);
       if (value) resultHeaders.set(name, value);
     }
@@ -72,4 +83,4 @@ async function proxy(request: NextRequest, context: Context) {
   }
 }
 
-export { proxy as GET, proxy as POST, proxy as DELETE };
+export { proxy as GET, proxy as POST, proxy as PATCH, proxy as DELETE };

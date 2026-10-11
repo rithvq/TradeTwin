@@ -120,6 +120,11 @@ function WorkspaceContent({
             </Button>
             {module.id === "shipments" ? (
               <Button asChild>
+                <Link href="/trades">Commercial agreements</Link>
+              </Button>
+            ) : null}
+            {module.id === "shipments" ? (
+              <Button asChild>
                 <Link href="/dashboard/shipments/new">
                   <Plus className="size-4" aria-hidden="true" />
                   New shipment

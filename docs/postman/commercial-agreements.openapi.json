@@ -1,0 +1,7095 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "TradeTwin Shipment Service",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/v1/me": {
+      "get": {
+        "tags": [
+          "Commercial agreements"
+        ],
+        "summary": "Me",
+        "operationId": "me_api_v1_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not accessible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Revision mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Field validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary database failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProfileSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-Organization-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Required for organisation-scoped resources; server validates active membership."
+          }
+        ]
+      }
+    },
+    "/api/v1/reference-data": {
+      "get": {
+        "tags": [
+          "Commercial agreements"
+        ],
+        "summary": "Reference Data",
+        "operationId": "reference_data_api_v1_reference_data_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not accessible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Revision mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Field validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary database failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProfileSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-Organization-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Required for organisation-scoped resources; server validates active membership."
+          }
+        ]
+      }
+    },
+    "/api/v1/organizations": {
+      "post": {
+        "tags": [
+          "Commercial agreements"
+        ],
+        "summary": "Create Org",
+        "operationId": "create_org_api_v1_organizations_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrganizationDraft"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Field validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not accessible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Revision mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary database failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProfileSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-Organization-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Required for organisation-scoped resources; server validates active membership."
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ]
+      }
+    },
+    "/api/v1/organizations/{organization_id}": {
+      "get": {
+        "tags": [
+          "Commercial agreements"
+        ],
+        "summary": "Get Org",
+        "operationId": "get_org_api_v1_organizations__organization_id__get",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Organization Id"
+            }
+          },
+          {
+            "name": "X-Organization-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Required for organisation-scoped resources; server validates active membership."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Field validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not accessible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Revision mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary database failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProfileSession": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Commercial agreements"
+        ],
+        "summary": "Patch Org",
+        "operationId": "patch_org_api_v1_organizations__organization_id__patch",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Organization Id"
+            }
+          },
+          {
+            "name": "X-Organization-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Required for organisation-scoped resources; server validates active membership."
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Current record ETag, including quotes."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrganizationDraft"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Field validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not accessible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Revision mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary database failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProfileSession": []
+          }
+        ]
+      }
+    },
+    "/api/v1/organizations/{organization_id}/registrations": {
+      "post": {
+        "tags": [
+          "Commercial agreements"
+        ],
+        "summary": "Register",
+        "operationId": "register_api_v1_organizations__organization_id__registrations_post",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Organization Id"
+            }
+          },
+          {
+            "name": "X-Organization-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Required for organisation-scoped resources; server validates active membership."
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistrationCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Field validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not accessible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Revision mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary database failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProfileSession": []
+          }
+        ]
+      }
+    },
+    "/api/v1/organizations/{organization_id}/locations": {
+      "post": {
+        "tags": [
+          "Commercial agreements"
+        ],
+        "summary": "Location",
+        "operationId": "location_api_v1_organizations__organization_id__locations_post",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Organization Id"
+            }
+          },
+          {
+            "name": "X-Organization-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Required for organisation-scoped resources; server validates active membership."
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LocationCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Field validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not accessible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Revision mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary database failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProfileSession": []
+          }
+        ]
+      }
+    },
+    "/api/v1/organizations/{organization_id}/members": {
+      "post": {
+        "tags": [
+          "Commercial agreements"
+        ],
+        "summary": "Member",
+        "operationId": "member_api_v1_organizations__organization_id__members_post",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Organization Id"
+            }
+          },
+          {
+            "name": "X-Organization-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Required for organisation-scoped resources; server validates active membership."
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MembershipChange"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Field validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not accessible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Revision mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary database failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProfileSession": []
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Commercial agreements"
+        ],
+        "summary": "Members",
+        "operationId": "members_api_v1_organizations__organization_id__members_get",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Organization Id"
+            }
+          },
+          {
+            "name": "X-Organization-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Required for organisation-scoped resources; server validates active membership."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Field validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not accessible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Revision mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary database failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProfileSession": []
+          }
+        ]
+      }
+    },
+    "/api/v1/trading-partners": {
+      "get": {
+        "tags": [
+          "Commercial agreements"
+        ],
+        "summary": "Partners",
+        "operationId": "partners_api_v1_trading_partners_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "Q"
+            }
+          },
+          {
+            "name": "X-Organization-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Required for organisation-scoped resources; server validates active membership."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Field validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not accessible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Revision mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary database failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProfileSession": []
+          }
+        ]
+      }
+    },
+    "/api/v1/trades": {
+      "post": {
+        "tags": [
+          "Commercial agreements"
+        ],
+        "summary": "Create",
+        "operationId": "create_api_v1_trades_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TradeCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TradeView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Field validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not accessible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Revision mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary database failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProfileSession": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "X-Organization-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Required for organisation-scoped resources; server validates active membership."
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ]
+      },
+      "get": {
+        "tags": [
+          "Commercial agreements"
+        ],
+        "summary": "Listing",
+        "operationId": "listing_api_v1_trades_get",
+        "parameters": [
+          {
+            "name": "role",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "SELLER",
+                "BUYER"
+              ],
+              "type": "string",
+              "default": "SELLER",
+              "title": "Role"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "DRAFT",
+                    "OFFERED",
+                    "CONFIRMED",
+                    "CANCELLED"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "name": "X-Organization-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Required for organisation-scoped resources; server validates active membership."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Field validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not accessible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Revision mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary database failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProfileSession": []
+          }
+        ]
+      }
+    },
+    "/api/v1/trades/{trade_id}": {
+      "get": {
+        "tags": [
+          "Commercial agreements"
+        ],
+        "summary": "Get Trade",
+        "operationId": "get_trade_api_v1_trades__trade_id__get",
+        "parameters": [
+          {
+            "name": "trade_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Trade Id"
+            }
+          },
+          {
+            "name": "X-Organization-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Required for organisation-scoped resources; server validates active membership."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TradeView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Field validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not accessible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Revision mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary database failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProfileSession": []
+          }
+        ]
+      }
+    },
+    "/api/v1/trades/{trade_id}/draft": {
+      "patch": {
+        "tags": [
+          "Commercial agreements"
+        ],
+        "summary": "Patch",
+        "operationId": "patch_api_v1_trades__trade_id__draft_patch",
+        "parameters": [
+          {
+            "name": "trade_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Trade Id"
+            }
+          },
+          {
+            "name": "X-Organization-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Required for organisation-scoped resources; server validates active membership."
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Current record ETag, including quotes."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DraftPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TradeView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Field validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not accessible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Revision mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary database failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProfileSession": []
+          }
+        ]
+      }
+    },
+    "/api/v1/trades/{trade_id}/offers": {
+      "post": {
+        "tags": [
+          "Commercial agreements"
+        ],
+        "summary": "Publish",
+        "operationId": "publish_api_v1_trades__trade_id__offers_post",
+        "parameters": [
+          {
+            "name": "trade_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Trade Id"
+            }
+          },
+          {
+            "name": "X-Organization-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Required for organisation-scoped resources; server validates active membership."
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Current record ETag, including quotes."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Publish"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TradeView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Field validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not accessible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Revision mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary database failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProfileSession": []
+          }
+        ]
+      }
+    },
+    "/api/v1/offers/{offer_id}/withdrawals": {
+      "post": {
+        "tags": [
+          "Commercial agreements"
+        ],
+        "summary": "Withdraw",
+        "operationId": "withdraw_api_v1_offers__offer_id__withdrawals_post",
+        "parameters": [
+          {
+            "name": "offer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Offer Id"
+            }
+          },
+          {
+            "name": "X-Organization-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Required for organisation-scoped resources; server validates active membership."
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Current record ETag, including quotes."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Reason"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TradeView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Field validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not accessible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Revision mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary database failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProfileSession": []
+          }
+        ]
+      }
+    },
+    "/api/v1/offers/{offer_id}/confirmations": {
+      "post": {
+        "tags": [
+          "Commercial agreements"
+        ],
+        "summary": "Confirm",
+        "operationId": "confirm_api_v1_offers__offer_id__confirmations_post",
+        "parameters": [
+          {
+            "name": "offer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Offer Id"
+            }
+          },
+          {
+            "name": "X-Organization-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Required for organisation-scoped resources; server validates active membership."
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Confirmation"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Field validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not accessible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Revision mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary database failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProfileSession": []
+          }
+        ]
+      }
+    },
+    "/api/v1/offers/{offer_id}/rejections": {
+      "post": {
+        "tags": [
+          "Commercial agreements"
+        ],
+        "summary": "Reject",
+        "operationId": "reject_api_v1_offers__offer_id__rejections_post",
+        "parameters": [
+          {
+            "name": "offer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Offer Id"
+            }
+          },
+          {
+            "name": "X-Organization-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Required for organisation-scoped resources; server validates active membership."
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Rejection"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Field validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not accessible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Revision mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary database failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProfileSession": []
+          }
+        ]
+      }
+    },
+    "/api/v1/trades/{trade_id}/amendments": {
+      "post": {
+        "tags": [
+          "Commercial agreements"
+        ],
+        "summary": "Amend",
+        "operationId": "amend_api_v1_trades__trade_id__amendments_post",
+        "parameters": [
+          {
+            "name": "trade_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Trade Id"
+            }
+          },
+          {
+            "name": "X-Organization-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Required for organisation-scoped resources; server validates active membership."
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Current record ETag, including quotes."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AmendmentCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TradeView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Field validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not accessible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Revision mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary database failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProfileSession": []
+          }
+        ]
+      }
+    },
+    "/api/v1/amendments/{amendment_id}/draft": {
+      "patch": {
+        "tags": [
+          "Commercial agreements"
+        ],
+        "summary": "Amend Patch",
+        "operationId": "amend_patch_api_v1_amendments__amendment_id__draft_patch",
+        "parameters": [
+          {
+            "name": "amendment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Amendment Id"
+            }
+          },
+          {
+            "name": "X-Organization-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Required for organisation-scoped resources; server validates active membership."
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Current record ETag, including quotes."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DraftPatch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TradeView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Field validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not accessible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Revision mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary database failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProfileSession": []
+          }
+        ]
+      }
+    },
+    "/api/v1/amendments/{amendment_id}/offers": {
+      "post": {
+        "tags": [
+          "Commercial agreements"
+        ],
+        "summary": "Amend Publish",
+        "operationId": "amend_publish_api_v1_amendments__amendment_id__offers_post",
+        "parameters": [
+          {
+            "name": "amendment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Amendment Id"
+            }
+          },
+          {
+            "name": "X-Organization-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Required for organisation-scoped resources; server validates active membership."
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          },
+          {
+            "name": "If-Match",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Current record ETag, including quotes."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Publish"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TradeView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Field validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not accessible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Revision mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary database failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProfileSession": []
+          }
+        ]
+      }
+    },
+    "/api/v1/amendments/{amendment_id}/withdrawals": {
+      "post": {
+        "tags": [
+          "Commercial agreements"
+        ],
+        "summary": "Amend Withdraw",
+        "operationId": "amend_withdraw_api_v1_amendments__amendment_id__withdrawals_post",
+        "parameters": [
+          {
+            "name": "amendment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Amendment Id"
+            }
+          },
+          {
+            "name": "X-Organization-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Required for organisation-scoped resources; server validates active membership."
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Reason"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TradeView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Field validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not accessible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Revision mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary database failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProfileSession": []
+          }
+        ]
+      }
+    },
+    "/api/v1/trades/{trade_id}/evidence-events": {
+      "get": {
+        "tags": [
+          "Commercial agreements"
+        ],
+        "summary": "Evidence",
+        "operationId": "evidence_api_v1_trades__trade_id__evidence_events_get",
+        "parameters": [
+          {
+            "name": "trade_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Trade Id"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "name": "X-Organization-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Required for organisation-scoped resources; server validates active membership."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Field validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not accessible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Revision mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary database failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProfileSession": []
+          }
+        ]
+      }
+    },
+    "/locations/states": {
+      "get": {
+        "summary": "Indian States",
+        "operationId": "indian_states_locations_states_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Health Health Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ready": {
+      "get": {
+        "summary": "Ready",
+        "operationId": "ready_ready_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/demo/seed": {
+      "post": {
+        "tags": [
+          "demo"
+        ],
+        "summary": "Load Demo Endpoint",
+        "operationId": "load_demo_endpoint_demo_seed_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShipmentRead"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/shipments": {
+      "get": {
+        "summary": "List Shipments Endpoint",
+        "operationId": "list_shipments_endpoint_shipments_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ShipmentRead"
+                  },
+                  "type": "array",
+                  "title": "Response List Shipments Endpoint Shipments Get"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create Shipment Endpoint",
+        "operationId": "create_shipment_endpoint_shipments_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShipmentCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShipmentRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/shipments/{shipment_id}": {
+      "get": {
+        "summary": "Get Shipment Endpoint",
+        "operationId": "get_shipment_endpoint_shipments__shipment_id__get",
+        "parameters": [
+          {
+            "name": "shipment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Shipment Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShipmentRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete Shipment Endpoint",
+        "operationId": "delete_shipment_endpoint_shipments__shipment_id__delete",
+        "parameters": [
+          {
+            "name": "shipment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Shipment Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/shipments/{shipment_id}/consignments": {
+      "post": {
+        "summary": "Add Consignment Endpoint",
+        "operationId": "add_consignment_endpoint_shipments__shipment_id__consignments_post",
+        "parameters": [
+          {
+            "name": "shipment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Shipment Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConsignmentCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsignmentRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/shipments/{shipment_id}/route-legs": {
+      "post": {
+        "summary": "Add Route Leg Endpoint",
+        "operationId": "add_route_leg_endpoint_shipments__shipment_id__route_legs_post",
+        "parameters": [
+          {
+            "name": "shipment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Shipment Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShipmentLegCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShipmentLegRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/shipments/{shipment_id}/events": {
+      "post": {
+        "summary": "Add Event Endpoint",
+        "operationId": "add_event_endpoint_shipments__shipment_id__events_post",
+        "parameters": [
+          {
+            "name": "shipment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Shipment Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShipmentEventCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShipmentEventRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/shipments/{shipment_id}/timeline": {
+      "get": {
+        "summary": "Get Timeline Endpoint",
+        "operationId": "get_timeline_endpoint_shipments__shipment_id__timeline_get",
+        "parameters": [
+          {
+            "name": "shipment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Shipment Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimelineRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/shipments/{shipment_id}/graph": {
+      "get": {
+        "summary": "Get Graph Endpoint",
+        "operationId": "get_graph_endpoint_shipments__shipment_id__graph_get",
+        "parameters": [
+          {
+            "name": "shipment_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Shipment Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShipmentGraphRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Address": {
+        "additionalProperties": false,
+        "properties": {
+          "address_line1": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Address Line1",
+            "type": "string"
+          },
+          "address_line2": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Address Line2"
+          },
+          "locality": {
+            "anyOf": [
+              {
+                "maxLength": 80,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Locality"
+          },
+          "city": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "City",
+            "type": "string"
+          },
+          "district": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "District",
+            "type": "string"
+          },
+          "state_code": {
+            "title": "State Code",
+            "type": "string"
+          },
+          "postal_code": {
+            "pattern": "^[1-9]\\d{5}$",
+            "title": "Postal Code",
+            "type": "string"
+          },
+          "country_code": {
+            "const": "IN",
+            "default": "IN",
+            "title": "Country Code",
+            "type": "string"
+          },
+          "contact_name": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Contact Name"
+          },
+          "contact_phone_e164": {
+            "anyOf": [
+              {
+                "pattern": "^\\+[1-9]\\d{7,14}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Contact Phone E164"
+          },
+          "timezone": {
+            "default": "Asia/Kolkata",
+            "title": "Timezone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "address_line1",
+          "city",
+          "district",
+          "state_code",
+          "postal_code"
+        ],
+        "title": "Address",
+        "type": "object"
+      },
+      "AmendmentCreate": {
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Reason"
+          },
+          "base_accepted_revision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Base Accepted Revision Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "reason",
+          "base_accepted_revision_id"
+        ],
+        "title": "AmendmentCreate"
+      },
+      "Confirmation": {
+        "properties": {
+          "revision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Revision Id"
+          },
+          "terms_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Terms Hash"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision_id",
+          "terms_hash"
+        ],
+        "title": "Confirmation"
+      },
+      "ConsignmentCreate": {
+        "properties": {
+          "domestic": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DomesticConsignment"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "product_name": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Product Name"
+          },
+          "product_description": {
+            "type": "string",
+            "title": "Product Description"
+          },
+          "quantity": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Quantity"
+          },
+          "declared_value": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,12}|(?=[\\d.]{1,15}0*$)\\d{0,12}\\.\\d{0,2}0*$)"
+              }
+            ],
+            "title": "Declared Value"
+          },
+          "currency": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$",
+            "title": "Currency"
+          },
+          "country_of_origin": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Country Of Origin"
+          },
+          "destination_country": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Destination Country"
+          },
+          "proposed_hs_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 20
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Proposed Hs Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_name",
+          "product_description",
+          "quantity",
+          "declared_value",
+          "currency",
+          "country_of_origin",
+          "destination_country"
+        ],
+        "title": "ConsignmentCreate"
+      },
+      "ConsignmentRead": {
+        "properties": {
+          "domestic": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DomesticConsignment"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "product_name": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Product Name"
+          },
+          "product_description": {
+            "type": "string",
+            "title": "Product Description"
+          },
+          "quantity": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Quantity"
+          },
+          "declared_value": {
+            "type": "string",
+            "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,12}|(?=[\\d.]{1,15}0*$)\\d{0,12}\\.\\d{0,2}0*$)",
+            "title": "Declared Value"
+          },
+          "currency": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$",
+            "title": "Currency"
+          },
+          "country_of_origin": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Country Of Origin"
+          },
+          "destination_country": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Destination Country"
+          },
+          "proposed_hs_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 20
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Proposed Hs Code"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "shipment_id": {
+            "type": "string",
+            "title": "Shipment Id"
+          },
+          "customs_status": {
+            "type": "string",
+            "title": "Customs Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_name",
+          "product_description",
+          "quantity",
+          "declared_value",
+          "currency",
+          "country_of_origin",
+          "destination_country",
+          "id",
+          "shipment_id",
+          "customs_status"
+        ],
+        "title": "ConsignmentRead"
+      },
+      "DomesticConsignment": {
+        "properties": {
+          "destination": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "consignment_value": {
+            "type": "number",
+            "maximum": 999999999999.99,
+            "minimum": 0.0,
+            "title": "Consignment Value"
+          },
+          "eway_bill_required": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eway Bill Required"
+          }
+        },
+        "type": "object",
+        "required": [
+          "destination",
+          "consignment_value"
+        ],
+        "title": "DomesticConsignment"
+      },
+      "DomesticLeg": {
+        "properties": {
+          "origin": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "destination": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "distance_km": {
+            "type": "number",
+            "maximum": 10000.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Distance Km"
+          }
+        },
+        "type": "object",
+        "required": [
+          "origin",
+          "destination",
+          "distance_km"
+        ],
+        "title": "DomesticLeg"
+      },
+      "DomesticPlan": {
+        "properties": {
+          "origin": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "destination": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "consignor_name": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Consignor Name"
+          },
+          "consignee_name": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Consignee Name"
+          },
+          "movement_reason": {
+            "type": "string",
+            "enum": [
+              "SUPPLY",
+              "JOB_WORK",
+              "STOCK_TRANSFER",
+              "OTHER"
+            ],
+            "title": "Movement Reason",
+            "default": "SUPPLY"
+          },
+          "registered_consignor": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Registered Consignor"
+          },
+          "ordinary_goods": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ordinary Goods"
+          }
+        },
+        "type": "object",
+        "required": [
+          "origin",
+          "destination",
+          "consignor_name",
+          "consignee_name"
+        ],
+        "title": "DomesticPlan"
+      },
+      "DraftPatch": {
+        "properties": {
+          "base_revision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Base Revision Id"
+          },
+          "changes": {
+            "$ref": "#/components/schemas/TradeDraft"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "base_revision_id",
+          "changes"
+        ],
+        "title": "DraftPatch"
+      },
+      "ErrorField": {
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "title": "Path",
+            "type": "string"
+          },
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "code",
+          "message"
+        ],
+        "title": "ErrorField",
+        "type": "object"
+      },
+      "GoodsDraft": {
+        "properties": {
+          "line_ref": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Line Ref"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "specification": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Specification"
+          },
+          "hsn_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d{2,8}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hsn Code"
+          },
+          "hsn_confirmation": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "NOT_PROVIDED",
+                  "SUGGESTED",
+                  "USER_CONFIRMED"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hsn Confirmation"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantity",
+            "gt": 0
+          },
+          "uqc": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uqc"
+          },
+          "unit_price_minor": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit Price Minor",
+            "ge": 0
+          },
+          "discount_minor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d{1,18}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discount Minor"
+          },
+          "declared_tax_rate_percent": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "string",
+                    "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                  }
+                ],
+                "decimal_places": 4,
+                "ge": 0,
+                "le": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Declared Tax Rate Percent"
+          },
+          "estimated_gross_weight_kg": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "string",
+                    "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                  }
+                ],
+                "gt": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Gross Weight Kg"
+          },
+          "package_count_estimate": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Package Count Estimate"
+          },
+          "hazardous_declared": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hazardous Declared"
+          },
+          "temperature_controlled": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temperature Controlled"
+          },
+          "temperature_min_c": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temperature Min C"
+          },
+          "temperature_max_c": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temperature Max C"
+          },
+          "fragile": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fragile"
+          },
+          "stackable": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stackable"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "GoodsDraft"
+      },
+      "GraphEdge": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "target": {
+            "type": "string",
+            "title": "Target"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "source",
+          "target",
+          "label"
+        ],
+        "title": "GraphEdge"
+      },
+      "GraphNode": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "type"
+        ],
+        "title": "GraphNode"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "Location": {
+        "properties": {
+          "state": {
+            "type": "string",
+            "title": "State"
+          },
+          "city": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "City"
+          },
+          "pincode": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]{5}$",
+            "title": "Pincode"
+          }
+        },
+        "type": "object",
+        "required": [
+          "state",
+          "city",
+          "pincode"
+        ],
+        "title": "Location"
+      },
+      "LocationCreate": {
+        "properties": {
+          "registration_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Registration Id"
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Label"
+          },
+          "location_type": {
+            "type": "string",
+            "enum": [
+              "OFFICE",
+              "WAREHOUSE",
+              "FACTORY",
+              "STORE",
+              "OTHER"
+            ],
+            "title": "Location Type"
+          },
+          "address": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "visibility": {
+            "type": "string",
+            "enum": [
+              "PRIVATE",
+              "TRADING_PROFILE"
+            ],
+            "title": "Visibility"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "label",
+          "location_type",
+          "address",
+          "visibility"
+        ],
+        "title": "LocationCreate"
+      },
+      "MembershipChange": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "User Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "SUSPENDED"
+            ],
+            "title": "Status",
+            "default": "ACTIVE"
+          },
+          "capabilities": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Capabilities"
+          },
+          "trade_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trade Id"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "user_id",
+          "capabilities"
+        ],
+        "title": "MembershipChange"
+      },
+      "OrganizationDraft": {
+        "properties": {
+          "legal_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Legal Name"
+          },
+          "trade_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trade Name"
+          },
+          "entity_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "PROPRIETORSHIP",
+                  "PARTNERSHIP",
+                  "LLP",
+                  "COMPANY",
+                  "TRUST",
+                  "SOCIETY",
+                  "OTHER"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entity Type"
+          },
+          "authorised_contact_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Authorised Contact Name"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 254,
+                "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "mobile_e164": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\+[1-9]\\d{7,14}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mobile E164"
+          },
+          "registered_address": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialAddress"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "registration_position": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "REGISTERED",
+                  "UNREGISTERED",
+                  "EXEMPTION_CLAIMED",
+                  "NOT_PROVIDED"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Registration Position"
+          },
+          "registration_explanation": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Registration Explanation"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "OrganizationDraft"
+      },
+      "PartialAddress": {
+        "properties": {
+          "address_line1": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address Line1"
+          },
+          "address_line2": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address Line2"
+          },
+          "locality": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Locality"
+          },
+          "city": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City"
+          },
+          "district": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "District"
+          },
+          "state_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "State Code"
+          },
+          "postal_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[1-9]\\d{5}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Postal Code"
+          },
+          "country_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "const": "IN"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country Code"
+          },
+          "contact_name": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contact Name"
+          },
+          "contact_phone_e164": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\+[1-9]\\d{7,14}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contact Phone E164"
+          },
+          "timezone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timezone"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "PartialAddress"
+      },
+      "PartialCommercialTerms": {
+        "properties": {
+          "freight_payer": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "SELLER",
+                  "BUYER",
+                  "SHARED"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Freight Payer"
+          },
+          "seller_freight_share_percent": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "string",
+                    "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                  }
+                ],
+                "ge": 0,
+                "le": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seller Freight Share Percent"
+          },
+          "freight_included_in_goods_price": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Freight Included In Goods Price"
+          },
+          "freight_estimate_minor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d{1,18}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Freight Estimate Minor"
+          },
+          "loading_responsibility": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "SELLER",
+                  "BUYER",
+                  "CARRIER"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Loading Responsibility"
+          },
+          "unloading_responsibility": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "SELLER",
+                  "BUYER",
+                  "CARRIER"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unloading Responsibility"
+          },
+          "insurance_required": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Insurance Required"
+          },
+          "insurance_responsibility": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "SELLER",
+                  "BUYER",
+                  "CARRIER",
+                  "NONE"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Insurance Responsibility"
+          },
+          "payment_mode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "ADVANCE",
+                  "ON_DELIVERY",
+                  "CREDIT",
+                  "MILESTONE"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payment Mode"
+          },
+          "advance_minor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d{1,18}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Advance Minor"
+          },
+          "credit_days": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Credit Days"
+          },
+          "milestone_schedule": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/PartialPaymentMilestone"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Milestone Schedule"
+          },
+          "acceptance_window_hours": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Acceptance Window Hours"
+          },
+          "quality_acceptance_criteria": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quality Acceptance Criteria"
+          },
+          "return_policy": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Return Policy"
+          },
+          "cancellation_terms": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cancellation Terms"
+          },
+          "partial_delivery_allowed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Partial Delivery Allowed"
+          },
+          "supplier_substitution_allowed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supplier Substitution Allowed"
+          },
+          "pickup_location_substitution_allowed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pickup Location Substitution Allowed"
+          },
+          "commercial_valid_until": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Commercial Valid Until"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "PartialCommercialTerms"
+      },
+      "PartialDeliveryRequirements": {
+        "properties": {
+          "mode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "const": "ROAD"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mode"
+          },
+          "pickup_earliest_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pickup Earliest At"
+          },
+          "pickup_latest_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pickup Latest At"
+          },
+          "delivery_deadline_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delivery Deadline At"
+          },
+          "receiving_window_start_local": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Receiving Window Start Local"
+          },
+          "receiving_window_end_local": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Receiving Window End Local"
+          },
+          "receiving_timezone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Receiving Timezone"
+          },
+          "receiving_window_crosses_midnight": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Receiving Window Crosses Midnight"
+          },
+          "consolidation_allowed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Consolidation Allowed"
+          },
+          "return_truck_allowed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Return Truck Allowed"
+          },
+          "maximum_transshipments": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maximum Transshipments"
+          },
+          "delivery_notes": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delivery Notes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "PartialDeliveryRequirements"
+      },
+      "PartialPartyInput": {
+        "properties": {
+          "organization_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Organization Id"
+          },
+          "registration_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Registration Id"
+          },
+          "billing_address": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialAddress"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "PartialPartyInput"
+      },
+      "PartialPaymentMilestone": {
+        "properties": {
+          "label": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label"
+          },
+          "percent_of_quoted_goods": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Percent Of Quoted Goods",
+            "gt": 0
+          },
+          "trigger": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "ORDER_CONFIRMATION",
+                  "DISPATCH",
+                  "DELIVERY",
+                  "ACCEPTANCE",
+                  "FIXED_DATE"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trigger"
+          },
+          "due_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due On"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "PartialPaymentMilestone"
+      },
+      "Publish": {
+        "properties": {
+          "revision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Revision Id"
+          },
+          "commercial_valid_until": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Commercial Valid Until"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision_id",
+          "commercial_valid_until"
+        ],
+        "title": "Publish"
+      },
+      "Reason": {
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "reason"
+        ],
+        "title": "Reason"
+      },
+      "RegistrationCreate": {
+        "properties": {
+          "gstin": {
+            "type": "string",
+            "title": "Gstin"
+          },
+          "state_code": {
+            "type": "string",
+            "title": "State Code"
+          },
+          "declared_taxpayer_scheme": {
+            "type": "string",
+            "enum": [
+              "REGULAR",
+              "COMPOSITION",
+              "OTHER",
+              "UNKNOWN"
+            ],
+            "title": "Declared Taxpayer Scheme"
+          },
+          "declared_establishment_kind": {
+            "type": "string",
+            "enum": [
+              "NORMAL",
+              "SEZ_UNIT",
+              "SEZ_DEVELOPER",
+              "UNKNOWN"
+            ],
+            "title": "Declared Establishment Kind"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "gstin",
+          "state_code",
+          "declared_taxpayer_scheme",
+          "declared_establishment_kind"
+        ],
+        "title": "RegistrationCreate"
+      },
+      "Rejection": {
+        "properties": {
+          "revision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Revision Id"
+          },
+          "terms_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Terms Hash"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision_id",
+          "terms_hash",
+          "reason"
+        ],
+        "title": "Rejection"
+      },
+      "RevisionView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "revision_number": {
+            "type": "integer",
+            "title": "Revision Number"
+          },
+          "revision_kind": {
+            "type": "string",
+            "title": "Revision Kind"
+          },
+          "facts": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Facts"
+          },
+          "pricing_summary": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Pricing Summary"
+          },
+          "terms_hash": {
+            "type": "string",
+            "title": "Terms Hash"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "revision_number",
+          "revision_kind",
+          "facts",
+          "pricing_summary",
+          "terms_hash",
+          "created_at"
+        ],
+        "title": "RevisionView"
+      },
+      "ShipmentCreate": {
+        "properties": {
+          "domestic": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DomesticPlan"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "shipment_reference": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Shipment Reference"
+          },
+          "exporter_country": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Exporter Country"
+          },
+          "importer_country": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Importer Country"
+          },
+          "transport_mode": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Transport Mode"
+          },
+          "planned_departure_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Planned Departure At"
+          },
+          "planned_arrival_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Planned Arrival At"
+          },
+          "consignments": {
+            "items": {
+              "$ref": "#/components/schemas/ConsignmentCreate"
+            },
+            "type": "array",
+            "title": "Consignments"
+          },
+          "route_legs": {
+            "items": {
+              "$ref": "#/components/schemas/ShipmentLegCreate"
+            },
+            "type": "array",
+            "title": "Route Legs"
+          }
+        },
+        "type": "object",
+        "required": [
+          "shipment_reference",
+          "exporter_country",
+          "importer_country",
+          "transport_mode",
+          "planned_departure_at",
+          "planned_arrival_at"
+        ],
+        "title": "ShipmentCreate"
+      },
+      "ShipmentEventCreate": {
+        "properties": {
+          "consignment_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Consignment Id"
+          },
+          "event_type": {
+            "$ref": "#/components/schemas/ShipmentEventType"
+          },
+          "location_country": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Location Country"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Occurred At"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metadata"
+          }
+        },
+        "type": "object",
+        "required": [
+          "event_type",
+          "location_country",
+          "occurred_at"
+        ],
+        "title": "ShipmentEventCreate"
+      },
+      "ShipmentEventRead": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "shipment_id": {
+            "type": "string",
+            "title": "Shipment Id"
+          },
+          "consignment_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Consignment Id"
+          },
+          "event_type": {
+            "type": "string",
+            "title": "Event Type"
+          },
+          "location_country": {
+            "type": "string",
+            "title": "Location Country"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Occurred At"
+          },
+          "metadata": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metadata"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "shipment_id",
+          "consignment_id",
+          "event_type",
+          "location_country",
+          "occurred_at"
+        ],
+        "title": "ShipmentEventRead"
+      },
+      "ShipmentEventType": {
+        "type": "string",
+        "enum": [
+          "ARRIVED_AT_HUB",
+          "DELIVERED",
+          "CREATED",
+          "LOADED",
+          "ARRIVED_AT_TRANSIT_PORT",
+          "UNLOADED",
+          "TEMPORARY_STORAGE",
+          "TRANSSHIPMENT",
+          "CONTAINER_OPENED",
+          "CONTAINER_RESEALED",
+          "ROUTE_CHANGED"
+        ],
+        "title": "ShipmentEventType"
+      },
+      "ShipmentGraphRead": {
+        "properties": {
+          "nodes": {
+            "items": {
+              "$ref": "#/components/schemas/GraphNode"
+            },
+            "type": "array",
+            "title": "Nodes"
+          },
+          "edges": {
+            "items": {
+              "$ref": "#/components/schemas/GraphEdge"
+            },
+            "type": "array",
+            "title": "Edges"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nodes",
+          "edges"
+        ],
+        "title": "ShipmentGraphRead"
+      },
+      "ShipmentLegCreate": {
+        "properties": {
+          "domestic": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DomesticLeg"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sequence_number": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Sequence Number"
+          },
+          "origin_country": {
+            "type": "string",
+            "title": "Origin Country"
+          },
+          "destination_country": {
+            "type": "string",
+            "title": "Destination Country"
+          },
+          "transport_mode": {
+            "type": "string",
+            "title": "Transport Mode"
+          },
+          "carrier_name": {
+            "type": "string",
+            "title": "Carrier Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sequence_number",
+          "origin_country",
+          "destination_country",
+          "transport_mode",
+          "carrier_name"
+        ],
+        "title": "ShipmentLegCreate"
+      },
+      "ShipmentLegRead": {
+        "properties": {
+          "domestic": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DomesticLeg"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sequence_number": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Sequence Number"
+          },
+          "origin_country": {
+            "type": "string",
+            "title": "Origin Country"
+          },
+          "destination_country": {
+            "type": "string",
+            "title": "Destination Country"
+          },
+          "transport_mode": {
+            "type": "string",
+            "title": "Transport Mode"
+          },
+          "carrier_name": {
+            "type": "string",
+            "title": "Carrier Name"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "shipment_id": {
+            "type": "string",
+            "title": "Shipment Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sequence_number",
+          "origin_country",
+          "destination_country",
+          "transport_mode",
+          "carrier_name",
+          "id",
+          "shipment_id"
+        ],
+        "title": "ShipmentLegRead"
+      },
+      "ShipmentRead": {
+        "properties": {
+          "domestic": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DomesticPlan"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "shipment_reference": {
+            "type": "string",
+            "title": "Shipment Reference"
+          },
+          "exporter_country": {
+            "type": "string",
+            "title": "Exporter Country"
+          },
+          "importer_country": {
+            "type": "string",
+            "title": "Importer Country"
+          },
+          "transport_mode": {
+            "type": "string",
+            "title": "Transport Mode"
+          },
+          "planned_departure_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Planned Departure At"
+          },
+          "planned_arrival_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Planned Arrival At"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "consignments": {
+            "items": {
+              "$ref": "#/components/schemas/ConsignmentRead"
+            },
+            "type": "array",
+            "title": "Consignments"
+          },
+          "route_legs": {
+            "items": {
+              "$ref": "#/components/schemas/ShipmentLegRead"
+            },
+            "type": "array",
+            "title": "Route Legs"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "shipment_reference",
+          "exporter_country",
+          "importer_country",
+          "transport_mode",
+          "planned_departure_at",
+          "planned_arrival_at",
+          "status",
+          "created_at"
+        ],
+        "title": "ShipmentRead"
+      },
+      "TimelineRead": {
+        "properties": {
+          "shipment_id": {
+            "type": "string",
+            "title": "Shipment Id"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/ShipmentEventRead"
+            },
+            "type": "array",
+            "title": "Events"
+          }
+        },
+        "type": "object",
+        "required": [
+          "shipment_id",
+          "events"
+        ],
+        "title": "TimelineRead"
+      },
+      "TradeCreate": {
+        "properties": {
+          "initiated_by_role": {
+            "type": "string",
+            "enum": [
+              "SELLER",
+              "BUYER"
+            ],
+            "title": "Initiated By Role"
+          },
+          "facts": {
+            "$ref": "#/components/schemas/TradeDraft"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "initiated_by_role"
+        ],
+        "title": "TradeCreate"
+      },
+      "TradeDraft": {
+        "properties": {
+          "scope": {
+            "anyOf": [
+              {
+                "type": "string",
+                "const": "DOMESTIC_INTERSTATE"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scope"
+          },
+          "movement_purpose": {
+            "anyOf": [
+              {
+                "type": "string",
+                "const": "SALE"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Movement Purpose"
+          },
+          "seller_organization_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seller Organization Id"
+          },
+          "buyer_organization_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Buyer Organization Id"
+          },
+          "seller_registration_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seller Registration Id"
+          },
+          "buyer_registration_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Buyer Registration Id"
+          },
+          "bill_from": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialPartyInput"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "bill_to": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialPartyInput"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "dispatch_from": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialAddress"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ship_to": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialAddress"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "transaction_layout": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "REGULAR",
+                  "BILL_TO_SHIP_TO",
+                  "BILL_FROM_DISPATCH_FROM",
+                  "COMBINATION"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transaction Layout"
+          },
+          "purchase_order_reference": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Purchase Order Reference"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string",
+                "const": "INR"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "pricing_basis": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "NET_TAX_EXTRA",
+                  "GROSS_TAX_INCLUDED"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pricing Basis"
+          },
+          "tax_terms": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tax Terms"
+          },
+          "items": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/GoodsDraft"
+                },
+                "type": "array",
+                "maxItems": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Items"
+          },
+          "commercial_terms": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialCommercialTerms"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "delivery_requirements": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PartialDeliveryRequirements"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "TradeDraft"
+      },
+      "TradeView": {
+        "properties": {
+          "trade_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Trade Id"
+          },
+          "reference": {
+            "type": "string",
+            "title": "Reference"
+          },
+          "agreement_status": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "OFFERED",
+              "CONFIRMED",
+              "CANCELLED"
+            ],
+            "title": "Agreement Status"
+          },
+          "accepted_revision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RevisionView"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "current_candidate_revision": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RevisionView"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "current_revision_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Revision Id"
+          },
+          "revision_number": {
+            "type": "integer",
+            "title": "Revision Number"
+          },
+          "active_offer": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Active Offer"
+          },
+          "pending_amendment": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pending Amendment"
+          },
+          "approval_progress": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Approval Progress"
+          },
+          "pricing_summary": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Pricing Summary"
+          },
+          "next_actions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Next Actions"
+          },
+          "next_action_owners": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Next Action Owners"
+          },
+          "counterparty": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Counterparty"
+          },
+          "validation_errors": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorField"
+            },
+            "type": "array",
+            "title": "Validation Errors"
+          },
+          "dispatch_readiness": {
+            "type": "string",
+            "const": "NOT_ASSESSED",
+            "title": "Dispatch Readiness",
+            "default": "NOT_ASSESSED"
+          },
+          "etag": {
+            "type": "string",
+            "title": "Etag"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "trade_id",
+          "reference",
+          "agreement_status",
+          "accepted_revision",
+          "current_candidate_revision",
+          "current_revision_id",
+          "revision_number",
+          "active_offer",
+          "pending_amendment",
+          "approval_progress",
+          "pricing_summary",
+          "next_actions",
+          "validation_errors",
+          "etag"
+        ],
+        "title": "TradeView"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "OrganizationFields": {
+        "additionalProperties": false,
+        "properties": {
+          "legal_name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Legal Name",
+            "type": "string"
+          },
+          "trade_name": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Trade Name"
+          },
+          "entity_type": {
+            "enum": [
+              "PROPRIETORSHIP",
+              "PARTNERSHIP",
+              "LLP",
+              "COMPANY",
+              "TRUST",
+              "SOCIETY",
+              "OTHER"
+            ],
+            "title": "Entity Type",
+            "type": "string"
+          },
+          "authorised_contact_name": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Authorised Contact Name",
+            "type": "string"
+          },
+          "email": {
+            "maxLength": 254,
+            "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$",
+            "title": "Email",
+            "type": "string"
+          },
+          "mobile_e164": {
+            "pattern": "^\\+[1-9]\\d{7,14}$",
+            "title": "Mobile E164",
+            "type": "string"
+          },
+          "registered_address": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "registration_position": {
+            "enum": [
+              "REGISTERED",
+              "UNREGISTERED",
+              "EXEMPTION_CLAIMED",
+              "NOT_PROVIDED"
+            ],
+            "title": "Registration Position",
+            "type": "string"
+          },
+          "registration_explanation": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Registration Explanation"
+          }
+        },
+        "required": [
+          "legal_name",
+          "entity_type",
+          "authorised_contact_name",
+          "email",
+          "mobile_e164",
+          "registered_address",
+          "registration_position"
+        ],
+        "title": "OrganizationFields",
+        "type": "object"
+      },
+      "CommercialTerms": {
+        "additionalProperties": false,
+        "properties": {
+          "freight_payer": {
+            "enum": [
+              "SELLER",
+              "BUYER",
+              "SHARED"
+            ],
+            "title": "Freight Payer",
+            "type": "string"
+          },
+          "seller_freight_share_percent": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                    "type": "string"
+                  }
+                ],
+                "ge": 0,
+                "le": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Seller Freight Share Percent"
+          },
+          "freight_included_in_goods_price": {
+            "title": "Freight Included In Goods Price",
+            "type": "boolean"
+          },
+          "freight_estimate_minor": {
+            "anyOf": [
+              {
+                "pattern": "^\\d{1,18}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Freight Estimate Minor"
+          },
+          "loading_responsibility": {
+            "enum": [
+              "SELLER",
+              "BUYER",
+              "CARRIER"
+            ],
+            "title": "Loading Responsibility",
+            "type": "string"
+          },
+          "unloading_responsibility": {
+            "enum": [
+              "SELLER",
+              "BUYER",
+              "CARRIER"
+            ],
+            "title": "Unloading Responsibility",
+            "type": "string"
+          },
+          "insurance_required": {
+            "title": "Insurance Required",
+            "type": "boolean"
+          },
+          "insurance_responsibility": {
+            "enum": [
+              "SELLER",
+              "BUYER",
+              "CARRIER",
+              "NONE"
+            ],
+            "title": "Insurance Responsibility",
+            "type": "string"
+          },
+          "payment_mode": {
+            "enum": [
+              "ADVANCE",
+              "ON_DELIVERY",
+              "CREDIT",
+              "MILESTONE"
+            ],
+            "title": "Payment Mode",
+            "type": "string"
+          },
+          "advance_minor": {
+            "anyOf": [
+              {
+                "pattern": "^\\d{1,18}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Advance Minor"
+          },
+          "credit_days": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Credit Days"
+          },
+          "milestone_schedule": {
+            "items": {
+              "$ref": "#/components/schemas/PaymentMilestone"
+            },
+            "title": "Milestone Schedule",
+            "type": "array"
+          },
+          "acceptance_window_hours": {
+            "exclusiveMinimum": 0,
+            "title": "Acceptance Window Hours",
+            "type": "integer"
+          },
+          "quality_acceptance_criteria": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Quality Acceptance Criteria",
+            "type": "string"
+          },
+          "return_policy": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Return Policy",
+            "type": "string"
+          },
+          "cancellation_terms": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Cancellation Terms",
+            "type": "string"
+          },
+          "partial_delivery_allowed": {
+            "title": "Partial Delivery Allowed",
+            "type": "boolean"
+          },
+          "supplier_substitution_allowed": {
+            "title": "Supplier Substitution Allowed",
+            "type": "boolean"
+          },
+          "pickup_location_substitution_allowed": {
+            "title": "Pickup Location Substitution Allowed",
+            "type": "boolean"
+          },
+          "commercial_valid_until": {
+            "format": "date-time",
+            "title": "Commercial Valid Until",
+            "type": "string"
+          }
+        },
+        "required": [
+          "freight_payer",
+          "freight_included_in_goods_price",
+          "loading_responsibility",
+          "unloading_responsibility",
+          "insurance_required",
+          "insurance_responsibility",
+          "payment_mode",
+          "acceptance_window_hours",
+          "quality_acceptance_criteria",
+          "return_policy",
+          "cancellation_terms",
+          "partial_delivery_allowed",
+          "supplier_substitution_allowed",
+          "pickup_location_substitution_allowed",
+          "commercial_valid_until"
+        ],
+        "title": "CommercialTerms",
+        "type": "object"
+      },
+      "DeliveryRequirements": {
+        "additionalProperties": false,
+        "properties": {
+          "mode": {
+            "const": "ROAD",
+            "title": "Mode",
+            "type": "string"
+          },
+          "pickup_earliest_at": {
+            "format": "date-time",
+            "title": "Pickup Earliest At",
+            "type": "string"
+          },
+          "pickup_latest_at": {
+            "format": "date-time",
+            "title": "Pickup Latest At",
+            "type": "string"
+          },
+          "delivery_deadline_at": {
+            "format": "date-time",
+            "title": "Delivery Deadline At",
+            "type": "string"
+          },
+          "receiving_window_start_local": {
+            "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$",
+            "title": "Receiving Window Start Local",
+            "type": "string"
+          },
+          "receiving_window_end_local": {
+            "pattern": "^(?:[01]\\d|2[0-3]):[0-5]\\d$",
+            "title": "Receiving Window End Local",
+            "type": "string"
+          },
+          "receiving_timezone": {
+            "title": "Receiving Timezone",
+            "type": "string"
+          },
+          "receiving_window_crosses_midnight": {
+            "title": "Receiving Window Crosses Midnight",
+            "type": "boolean"
+          },
+          "consolidation_allowed": {
+            "title": "Consolidation Allowed",
+            "type": "boolean"
+          },
+          "return_truck_allowed": {
+            "title": "Return Truck Allowed",
+            "type": "boolean"
+          },
+          "maximum_transshipments": {
+            "minimum": 0,
+            "title": "Maximum Transshipments",
+            "type": "integer"
+          },
+          "delivery_notes": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Delivery Notes"
+          }
+        },
+        "required": [
+          "mode",
+          "pickup_earliest_at",
+          "pickup_latest_at",
+          "delivery_deadline_at",
+          "receiving_window_start_local",
+          "receiving_window_end_local",
+          "receiving_timezone",
+          "receiving_window_crosses_midnight",
+          "consolidation_allowed",
+          "return_truck_allowed",
+          "maximum_transshipments"
+        ],
+        "title": "DeliveryRequirements",
+        "type": "object"
+      },
+      "GoodsLine": {
+        "additionalProperties": false,
+        "properties": {
+          "line_ref": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Line Ref"
+          },
+          "description": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Description",
+            "type": "string"
+          },
+          "specification": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Specification",
+            "type": "string"
+          },
+          "hsn_code": {
+            "anyOf": [
+              {
+                "pattern": "^\\d{2,8}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Hsn Code"
+          },
+          "hsn_confirmation": {
+            "enum": [
+              "NOT_PROVIDED",
+              "SUGGESTED",
+              "USER_CONFIRMED"
+            ],
+            "title": "Hsn Confirmation",
+            "type": "string"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "gt": 0,
+            "title": "Quantity"
+          },
+          "uqc": {
+            "title": "Uqc",
+            "type": "string"
+          },
+          "unit_price_minor": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "ge": 0,
+            "title": "Unit Price Minor"
+          },
+          "discount_minor": {
+            "default": "0",
+            "pattern": "^\\d{1,18}$",
+            "title": "Discount Minor",
+            "type": "string"
+          },
+          "declared_tax_rate_percent": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                    "type": "string"
+                  }
+                ],
+                "decimal_places": 4,
+                "ge": 0,
+                "le": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Declared Tax Rate Percent"
+          },
+          "estimated_gross_weight_kg": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                    "type": "string"
+                  }
+                ],
+                "gt": 0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Estimated Gross Weight Kg"
+          },
+          "package_count_estimate": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Package Count Estimate"
+          },
+          "hazardous_declared": {
+            "title": "Hazardous Declared",
+            "type": "boolean"
+          },
+          "temperature_controlled": {
+            "title": "Temperature Controlled",
+            "type": "boolean"
+          },
+          "temperature_min_c": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Temperature Min C"
+          },
+          "temperature_max_c": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Temperature Max C"
+          },
+          "fragile": {
+            "title": "Fragile",
+            "type": "boolean"
+          },
+          "stackable": {
+            "title": "Stackable",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "description",
+          "specification",
+          "hsn_confirmation",
+          "quantity",
+          "uqc",
+          "unit_price_minor",
+          "hazardous_declared",
+          "temperature_controlled",
+          "fragile",
+          "stackable"
+        ],
+        "title": "GoodsLine",
+        "type": "object"
+      },
+      "PartyInput": {
+        "additionalProperties": false,
+        "properties": {
+          "organization_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Organization Id"
+          },
+          "registration_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Registration Id"
+          },
+          "billing_address": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Address"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "title": "PartyInput",
+        "type": "object"
+      },
+      "PaymentMilestone": {
+        "additionalProperties": false,
+        "properties": {
+          "label": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          },
+          "percent_of_quoted_goods": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "gt": 0,
+            "title": "Percent Of Quoted Goods"
+          },
+          "trigger": {
+            "enum": [
+              "ORDER_CONFIRMATION",
+              "DISPATCH",
+              "DELIVERY",
+              "ACCEPTANCE",
+              "FIXED_DATE"
+            ],
+            "title": "Trigger",
+            "type": "string"
+          },
+          "due_on": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Due On"
+          }
+        },
+        "required": [
+          "label",
+          "percent_of_quoted_goods",
+          "trigger"
+        ],
+        "title": "PaymentMilestone",
+        "type": "object"
+      },
+      "TradeFacts": {
+        "additionalProperties": false,
+        "properties": {
+          "scope": {
+            "const": "DOMESTIC_INTERSTATE",
+            "title": "Scope",
+            "type": "string"
+          },
+          "movement_purpose": {
+            "const": "SALE",
+            "title": "Movement Purpose",
+            "type": "string"
+          },
+          "seller_organization_id": {
+            "format": "uuid",
+            "title": "Seller Organization Id",
+            "type": "string"
+          },
+          "buyer_organization_id": {
+            "format": "uuid",
+            "title": "Buyer Organization Id",
+            "type": "string"
+          },
+          "seller_registration_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Seller Registration Id"
+          },
+          "buyer_registration_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Buyer Registration Id"
+          },
+          "bill_from": {
+            "$ref": "#/components/schemas/PartyInput"
+          },
+          "bill_to": {
+            "$ref": "#/components/schemas/PartyInput"
+          },
+          "dispatch_from": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "ship_to": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "transaction_layout": {
+            "enum": [
+              "REGULAR",
+              "BILL_TO_SHIP_TO",
+              "BILL_FROM_DISPATCH_FROM",
+              "COMBINATION"
+            ],
+            "title": "Transaction Layout",
+            "type": "string"
+          },
+          "purchase_order_reference": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Purchase Order Reference"
+          },
+          "currency": {
+            "const": "INR",
+            "title": "Currency",
+            "type": "string"
+          },
+          "pricing_basis": {
+            "enum": [
+              "NET_TAX_EXTRA",
+              "GROSS_TAX_INCLUDED"
+            ],
+            "title": "Pricing Basis",
+            "type": "string"
+          },
+          "tax_terms": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Tax Terms",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/GoodsLine"
+            },
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Items",
+            "type": "array"
+          },
+          "commercial_terms": {
+            "$ref": "#/components/schemas/CommercialTerms"
+          },
+          "delivery_requirements": {
+            "$ref": "#/components/schemas/DeliveryRequirements"
+          }
+        },
+        "required": [
+          "scope",
+          "movement_purpose",
+          "seller_organization_id",
+          "buyer_organization_id",
+          "bill_from",
+          "bill_to",
+          "dispatch_from",
+          "ship_to",
+          "transaction_layout",
+          "currency",
+          "pricing_basis",
+          "tax_terms",
+          "items",
+          "commercial_terms",
+          "delivery_requirements"
+        ],
+        "title": "TradeFacts",
+        "type": "object"
+      },
+      "ErrorDetail": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "request_id": {
+            "format": "uuid",
+            "title": "Request Id",
+            "type": "string"
+          },
+          "field_errors": {
+            "items": {
+              "$ref": "#/components/schemas/ErrorField"
+            },
+            "title": "Field Errors",
+            "type": "array"
+          },
+          "retryable": {
+            "title": "Retryable",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "request_id",
+          "field_errors",
+          "retryable"
+        ],
+        "title": "ErrorDetail",
+        "type": "object"
+      },
+      "ErrorResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorDetail"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "title": "ErrorResponse",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "ProfileSession": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Existing OAuth profile session token"
+      }
+    }
+  }
+}
