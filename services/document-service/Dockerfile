@@ -10,6 +10,7 @@ COPY services/document-service/requirements.txt .
 COPY packages/security /opt/tradetwin-security
 RUN pip install --no-cache-dir --timeout 120 --retries 5 -r requirements.txt /opt/tradetwin-security
 COPY services/document-service/ .
+COPY data/fixtures/document-desk ./data/fixtures/document-desk
 COPY conftest.py ./conftest.py
 
 EXPOSE 8000

@@ -8,6 +8,13 @@ from pathlib import Path
 
 path = Path(__file__).resolve().parents[1] / ".secrets/document-keyring.json"
 path.parent.mkdir(exist_ok=True, mode=0o700)
+worker_path = path.parent / "document-worker-token"
+if not worker_path.exists():
+    with os.fdopen(
+        os.open(worker_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600), "w"
+    ) as handle:
+        handle.write(secrets.token_urlsafe(48))
+    print("Document worker credential created; never commit it.")
 if path.exists():
     print("Document key ring already exists; left unchanged.")
 else:

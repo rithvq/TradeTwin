@@ -336,6 +336,8 @@ def evidence(
     cursor: UUID | None = None,
     consignment_id: UUID | None = None,
     subject_type: str | None = None,
+    document_id: UUID | None = None,
+    document_version_id: UUID | None = None,
     db: Session = Depends(get_db),
 ):
     ctx = context(request, db)
@@ -345,6 +347,10 @@ def evidence(
         query = query.where(Audit.consignment_id == str(consignment_id))
     if subject_type:
         query = query.where(Audit.subject_type == subject_type)
+    if document_id:
+        query = query.where(Audit.document_id == str(document_id))
+    if document_version_id:
+        query = query.where(Audit.document_version_id == str(document_version_id))
     if cursor:
         previous = db.get(Audit, str(cursor))
         if not previous or previous.trade_id != str(trade_id):
@@ -357,7 +363,18 @@ def evidence(
                 and_(Audit.created_at == previous.created_at, Audit.id > previous.id),
             )
         )
-    rows = list(db.scalars(query.order_by(Audit.created_at, Audit.id).limit(51)))
+    from app.document_desk import access as document_access
+
+    rows = []
+    for row in db.scalars(query.order_by(Audit.created_at, Audit.id)):
+        if row.document_id:
+            try:
+                document_access.document(db, ctx, row.document_id)
+            except TradeError:
+                continue
+        rows.append(row)
+        if len(rows) == 51:
+            break
     return {
         "items": [
             {
@@ -371,6 +388,8 @@ def evidence(
                 "subject_id": row.subject_id,
                 "subject_type": row.subject_type,
                 "consignment_id": row.consignment_id,
+                "document_id": row.document_id,
+                "document_version_id": row.document_version_id,
                 "execution_mode": row.execution_mode,
                 "terms_hash": row.terms_hash,
                 "summary": row.redacted_summary_json,
@@ -384,3 +403,7 @@ def evidence(
 from app.operations.router import router as operations_router  # noqa: E402
 
 router.include_router(operations_router)
+
+from app.document_desk.router import router as document_router  # noqa: E402
+
+router.include_router(document_router)

@@ -12,12 +12,18 @@ export function EvidenceUpload({
   records,
   reload,
   consignmentOnly = false,
+  allowJson = false,
+  onUploaded,
+  purposeOverride,
 }: {
   tradeId: string;
   consignments: Consignment[];
   records: Attachment[];
   reload: () => Promise<void>;
   consignmentOnly?: boolean;
+  allowJson?: boolean;
+  onUploaded?: (record: Attachment) => Promise<void>;
+  purposeOverride?: string;
 }) {
   const { org, me } = useTradeContext();
   const formId = useId();
@@ -67,7 +73,7 @@ export function EvidenceUpload({
                 org,
                 tradeId,
                 consignment,
-                purpose,
+                purposeOverride ?? purpose,
                 file.name,
                 sha,
               ]);
@@ -88,7 +94,7 @@ export function EvidenceUpload({
                   {
                     trade_id: tradeId,
                     consignment_id: consignment || null,
-                    purpose,
+                    purpose: purposeOverride ?? purpose,
                     original_name: file.name,
                     content_type: file.type,
                     size_bytes: file.size,
@@ -115,7 +121,7 @@ export function EvidenceUpload({
                 }
                 attempt.stored = true;
               }
-              await tradeRequest(
+              const completed = await tradeRequest<Attachment>(
                 `/operational-attachments/${record.id}/completions`,
                 org,
                 "POST",
@@ -124,6 +130,7 @@ export function EvidenceUpload({
                 attempt.completeKey,
               );
               upload.current = null;
+              if (onUploaded) await onUploaded(completed);
               await reload();
             } catch (problem) {
               setError(
@@ -136,31 +143,33 @@ export function EvidenceUpload({
             }
           }}
         >
-          <div>
-            <label
-              htmlFor={`${formId}-purpose`}
-              className="text-sm font-medium"
-            >
-              Purpose
-            </label>
-            <select
-              id={`${formId}-purpose`}
-              className="mt-1 block w-full rounded border p-2"
-              value={purpose}
-              onChange={(e) => setPurpose(e.target.value)}
-            >
-              {[
-                "PICKUP",
-                "INCIDENT",
-                "POD",
-                "RECEIPT",
-                "OTHER",
-                ...(finance ? ["PAYMENT"] : []),
-              ].map((p) => (
-                <option key={p}>{p}</option>
-              ))}
-            </select>
-          </div>
+          {!purposeOverride && (
+            <div>
+              <label
+                htmlFor={`${formId}-purpose`}
+                className="text-sm font-medium"
+              >
+                Purpose
+              </label>
+              <select
+                id={`${formId}-purpose`}
+                className="mt-1 block w-full rounded border p-2"
+                value={purpose}
+                onChange={(e) => setPurpose(e.target.value)}
+              >
+                {[
+                  "PICKUP",
+                  "INCIDENT",
+                  "POD",
+                  "RECEIPT",
+                  "OTHER",
+                  ...(finance ? ["PAYMENT"] : []),
+                ].map((p) => (
+                  <option key={p}>{p}</option>
+                ))}
+              </select>
+            </div>
+          )}
           <div>
             <label
               htmlFor={`${formId}-consignment`}
@@ -189,7 +198,7 @@ export function EvidenceUpload({
             <input
               id={`${formId}-file`}
               type="file"
-              accept="application/pdf,image/png,image/jpeg"
+              accept={`application/pdf,image/png,image/jpeg${allowJson ? ",application/json" : ""}`}
               className="mt-1 block w-full text-sm"
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
               required

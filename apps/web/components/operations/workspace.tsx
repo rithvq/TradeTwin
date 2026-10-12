@@ -18,6 +18,7 @@ import {
 } from "./shared";
 import { EvidenceUpload } from "./evidence-upload";
 import { OperationalGraph } from "./graph";
+import { DocumentModulePanel } from "@/components/document-desk/module-panel";
 
 const modules = [
   "Shipments",
@@ -154,6 +155,12 @@ export function OperationsWorkspace({ tradeId }: { tradeId: string }) {
                     href={`/shipments/consignments/${cn.id}/assignment`}
                   >
                     Transport assignment
+                  </Link>
+                  <Link
+                    className="text-accent underline"
+                    href={`/documents/trades/${tradeId}?consignment=${cn.id}`}
+                  >
+                    Documents
                   </Link>
                   <Link
                     className="text-accent underline"
@@ -404,6 +411,7 @@ export function OperationsWorkspace({ tradeId }: { tradeId: string }) {
         </Section>
       )}
       {module === "Evidence" && <EvidenceTimeline tradeId={tradeId} />}
+      <DocumentModulePanel tradeId={tradeId} module={module} />
     </div>
   );
 }

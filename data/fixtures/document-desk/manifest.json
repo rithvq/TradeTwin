@@ -1,0 +1,42 @@
+{
+  "eway-copy.pdf": {
+    "sha256": "a1008d39abb56179444801068194c51bdbe6c8b239092ef4210bd5b91c69957f",
+    "size_bytes": 1826
+  },
+  "hostile-content.pdf": {
+    "sha256": "b52fbfc4fd5a9bb778b87fee8375c92c7c3dfb04eb0efa05d1bc89317b8d5739",
+    "size_bytes": 1934
+  },
+  "invoice.pdf": {
+    "sha256": "f3f05ec2803cbcc1bcf23400975192da777198de545282ad15eacfb0e27af4c1",
+    "size_bytes": 2144
+  },
+  "lr-gr.pdf": {
+    "sha256": "35035508451285839a0e412b1d447c7769cc4bac0250a43f5cf9a5d99a783b25",
+    "size_bytes": 1805
+  },
+  "mismatched-invoice.pdf": {
+    "sha256": "b288beb11ed5235c132dd473c188679da6a57f44769c5b11ef1a2a703eda1284",
+    "size_bytes": 10776
+  },
+  "packing-list.pdf": {
+    "sha256": "1733fecd25941867b3fc979924a363916d5723d25071319ab48ba6969a103f3d",
+    "size_bytes": 1825
+  },
+  "payment-evidence.pdf": {
+    "sha256": "6c53d24e4204b25ac86c1f0e1622590c08e5653e2707d8246b61eef27c1bc1a7",
+    "size_bytes": 1840
+  },
+  "scanned-invoice.png": {
+    "sha256": "cb6845ca67f8d8466f0fbea3fb1eeb84ff73e7059acafef25d8c602edee3448d",
+    "size_bytes": 96943
+  },
+  "signed-payload.json": {
+    "sha256": "ca8e078dcac8ecb9baa627486c7b6ad6d919a2a3865f97e778dea5cba53f41b8",
+    "size_bytes": 1501
+  },
+  "simulation-public.pem": {
+    "sha256": "c70cc014bd4eb880d27ed527b3cd6f8764643030d881c0cd053608dbab6c29e7",
+    "size_bytes": 451
+  }
+}

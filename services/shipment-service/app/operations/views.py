@@ -161,6 +161,15 @@ def planning_context(db, ctx, trade, row):
         "movement_purpose": source["movement_purpose"],
         "dispatch_readiness": "NOT_ASSESSED",
     }
+    from app.document_desk.views import context_view
+
+    documents = context_view(db, ctx, row.id)
+    inputs.update(
+        document_context_schema_version=1,
+        document_context_hash=documents["document_context_hash"],
+        document_evidence_refs=documents["linked_document_refs"],
+        document_context_freshness=documents["freshness"],
+    )
     return {**inputs, "input_hash": digest(inputs), "request_id": ctx.request_id}
 
 

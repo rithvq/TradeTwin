@@ -13,6 +13,10 @@ from .models import Attachment, AttachmentLink
 
 
 def access(db, ctx, row, upload=False):
+    if not upload:
+        from app.document_desk.access import protected_attachment
+
+        protected_attachment(db, ctx, row)
     if row.consignment_id:
         trade, cn, side = consignment(
             db, ctx, row.consignment_id, "attachment.upload" if upload else "consignment.read"

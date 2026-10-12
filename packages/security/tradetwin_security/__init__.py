@@ -111,6 +111,16 @@ async def resolve_identity(token):
 
 class ProfileMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
+        if request.url.path.startswith("/internal/document-desk/"):
+            import hmac
+
+            from .document_worker import token as worker_token
+
+            expected = worker_token()
+            supplied = request.headers.get("X-Document-Worker-Token", "")
+            if not expected or not hmac.compare_digest(expected, supplied):
+                return self.failure(request, "Worker authentication required", 403)
+            return await call_next(request)
         if not enabled() or request.url.path in {
             "/health",
             "/ready",

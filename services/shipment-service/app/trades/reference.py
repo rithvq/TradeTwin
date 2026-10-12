@@ -167,3 +167,58 @@ ROLE_PERMISSIONS.update(
         },
     }
 )
+
+_DOCUMENT_READ = {"document.read", "document.original.download", "document.financial.read"}
+_DOCUMENT_OPERATOR = {
+    "document.register",
+    "document.version.add",
+    "document.process",
+    "document.review",
+    "document.map",
+    "document.check",
+    "document.verify.request",
+    "document.share",
+    "document.archive",
+    "document.manual_attestation.record",
+}
+ROLE_PERMISSIONS.update(
+    {
+        "SELLER_DOCUMENT_OPERATOR": _READ
+        | _DOCUMENT_READ
+        | _DOCUMENT_OPERATOR
+        | {"attachment.upload"},
+        "BUYER_DOCUMENT_REVIEWER": _READ
+        | _DOCUMENT_READ
+        | _DOCUMENT_OPERATOR
+        | {
+            "document.review.submit",
+            "attachment.upload",
+        },
+        "SELLER_DOCUMENT_REVIEWER": _READ
+        | _DOCUMENT_READ
+        | _DOCUMENT_OPERATOR
+        | {
+            "document.review.submit",
+            "attachment.upload",
+        },
+        "INTEGRATION_ADMINISTRATOR": {"organization.read", "document.provider.configure"},
+    }
+)
+for _role in ("SELLER_FINANCE", "BUYER_FINANCE"):
+    ROLE_PERMISSIONS[_role] |= (
+        _DOCUMENT_READ
+        | _DOCUMENT_OPERATOR
+        | {
+            "document.review.submit",
+            "document.payment_evidence.read",
+        }
+    )
+ROLE_PERMISSIONS["CARRIER_DISPATCHER"] |= {
+    "document.read",
+    "document.register",
+    "document.version.add",
+    "document.process",
+    "document.review",
+    "document.original.download",
+}
+ROLE_PERMISSIONS["DRIVER"] |= {"document.read"}

@@ -362,9 +362,18 @@ class VoidDecision(Schema):
 class AttachmentUploadInput(Schema):
     trade_id: UUID
     consignment_id: UUID | None = None
-    purpose: Literal["POD", "PICKUP", "INCIDENT", "RECEIPT", "PAYMENT", "OTHER"]
+    purpose: Literal[
+        "POD",
+        "PICKUP",
+        "INCIDENT",
+        "RECEIPT",
+        "PAYMENT",
+        "OTHER",
+        "DOCUMENT_FINANCIAL",
+        "DOCUMENT_OPERATIONAL",
+    ]
     original_name: str = Field(min_length=1, max_length=200)
-    content_type: Literal["application/pdf", "image/jpeg", "image/png"]
+    content_type: Literal["application/pdf", "image/jpeg", "image/png", "application/json"]
     size_bytes: int = Field(gt=0, le=20 * 1024 * 1024)
 
 

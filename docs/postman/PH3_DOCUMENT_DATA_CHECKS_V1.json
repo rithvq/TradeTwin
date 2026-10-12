@@ -1,0 +1,124 @@
+{
+  "id": "PH3_DOCUMENT_DATA_CHECKS_V1",
+  "version": "1",
+  "status": "PUBLISHED",
+  "kind": "DATA_RECONCILIATION_ONLY",
+  "missing_input_outcome": "UNKNOWN",
+  "unsupported_profile_outcome": "NOT_EVALUATED",
+  "draft_stage": "PROVISIONAL",
+  "dispatch_readiness": "NOT_ASSESSED",
+  "checks": [
+    {
+      "code": "DOCUMENT_IDENTITY_COMPLETE",
+      "version": "1"
+    },
+    {
+      "code": "IDENTIFIER_FORMAT",
+      "version": "1"
+    },
+    {
+      "code": "PARTY_GSTIN_MATCH",
+      "version": "1"
+    },
+    {
+      "code": "PARTY_NAME_DIFFERENCE",
+      "version": "1"
+    },
+    {
+      "code": "BILL_FROM_ADDRESS_MATCH",
+      "version": "1"
+    },
+    {
+      "code": "BILL_TO_ADDRESS_MATCH",
+      "version": "1"
+    },
+    {
+      "code": "DISPATCH_ADDRESS_MATCH",
+      "version": "1"
+    },
+    {
+      "code": "SHIP_TO_ADDRESS_MATCH",
+      "version": "1"
+    },
+    {
+      "code": "PO_REFERENCE_MATCH",
+      "version": "1"
+    },
+    {
+      "code": "DOCUMENT_REFERENCE_MATCH",
+      "version": "1"
+    },
+    {
+      "code": "LINE_MAPPING_QUANTITY_CAP",
+      "version": "1"
+    },
+    {
+      "code": "CONSIGNMENT_MAPPING_QUANTITY_CAP",
+      "version": "1"
+    },
+    {
+      "code": "UQC_MATCH",
+      "version": "1"
+    },
+    {
+      "code": "HSN_DECLARATION_DIFFERENCE",
+      "version": "1"
+    },
+    {
+      "code": "DECLARED_LINE_ARITHMETIC",
+      "version": "1"
+    },
+    {
+      "code": "DECLARED_TOTAL_ARITHMETIC",
+      "version": "1"
+    },
+    {
+      "code": "PRICE_BASIS_COMPARABLE",
+      "version": "1"
+    },
+    {
+      "code": "DECLARED_PRICE_DIFFERENCE",
+      "version": "1"
+    },
+    {
+      "code": "VEHICLE_REFERENCE_MATCH",
+      "version": "1"
+    },
+    {
+      "code": "CARRIER_REFERENCE_MATCH",
+      "version": "1"
+    },
+    {
+      "code": "PACKING_WEIGHT_DIFFERENCE",
+      "version": "1"
+    },
+    {
+      "code": "PACKING_PACKAGE_DIFFERENCE",
+      "version": "1"
+    },
+    {
+      "code": "EWB_PRINTED_TIME_WINDOW",
+      "version": "1"
+    },
+    {
+      "code": "SIGNED_PAYLOAD_PRINTED_FIELD_MATCH",
+      "version": "1"
+    },
+    {
+      "code": "DUPLICATE_PRESENTATION_CANDIDATE",
+      "version": "1"
+    },
+    {
+      "code": "PAYMENT_EVIDENCE_REFERENCE_MATCH",
+      "version": "1"
+    },
+    {
+      "code": "PAYMENT_EVIDENCE_AMOUNT_MATCH",
+      "version": "1"
+    },
+    {
+      "code": "POD_RECEIPT_REFERENCE_MATCH",
+      "version": "1"
+    }
+  ]
+}

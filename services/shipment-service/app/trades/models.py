@@ -332,6 +332,8 @@ class Amendment(Mutable, TradeBase):
 
 class Audit(Record, TradeBase):
     __tablename__ = "trade_audit_events"
+    document_id: Mapped[str | None] = mapped_column(Uuid(as_uuid=False), nullable=True)
+    document_version_id: Mapped[str | None] = mapped_column(Uuid(as_uuid=False), nullable=True)
     __table_args__ = (Index("ix_trade_evidence_time", "trade_id", "created_at", "id"),)
     trade_id: Mapped[str | None] = mapped_column(ForeignKey("trades.id"), nullable=True)
     actor_user_id: Mapped[str] = mapped_column(ForeignKey("trade_users.id"))

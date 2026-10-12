@@ -94,6 +94,9 @@ def install_openapi(app):
         from app.operations.contracts import install
 
         install(document)
+        from app.document_desk.contracts import install as install_documents
+
+        install_documents(document)
         app.openapi_schema = document
         return document
 

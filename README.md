@@ -1,5 +1,7 @@
 # TradeTwin
 
+Document evidence Phase 3: [Document Desk setup, permissions, processing, verification, demo and tests](docs/document-desk-phase3.md).
+
 Operational Phase 2: [consignments, transport, receipt, inspection, disputes, payments and simulations](docs/operations-phase2.md).
 
 Commercial agreement Phase 1: [setup, role onboarding, demo, APIs and tests](docs/commercial-agreements.md).

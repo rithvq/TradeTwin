@@ -11,6 +11,7 @@ import {
 } from "@/lib/trades";
 import { AgreementView } from "./agreement-view";
 import { useTradeContext } from "./trade-context";
+import { DocumentModulePanel } from "@/components/document-desk/module-panel";
 
 const modules = [
   "Shipments",
@@ -124,6 +125,9 @@ export function TradeWorkspace({ tradeId }: { tradeId: string }) {
   if (!org) return <p>Select an organisation to view this trade.</p>;
   return (
     <div className="space-y-6">
+      {activeModule !== "Shipments" && trade && (
+        <DocumentModulePanel tradeId={tradeId} module={activeModule} />
+      )}
       {error ? (
         <p role="alert" className="text-red-800">
           {error}

@@ -64,6 +64,9 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 app = FastAPI(title="TradeTwin Shipment Service", version="0.1.0", lifespan=lifespan)
 install_handlers(app)
 app.include_router(trade_router)
+from app.document_desk.router import internal as document_worker_router  # noqa: E402
+
+app.include_router(document_worker_router)
 install_openapi(app)
 
 

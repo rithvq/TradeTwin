@@ -27,7 +27,18 @@ from .schemas import Address, OrganizationFields
 from .terms import digest, input_facts, price, validate_publication
 
 
-def audit(db, ctx, action, subject, trade=None, revision=None, summary=None, consignment=None):
+def audit(
+    db,
+    ctx,
+    action,
+    subject,
+    trade=None,
+    revision=None,
+    summary=None,
+    consignment=None,
+    document=None,
+    document_version=None,
+):
     def redact(value):
         if isinstance(value, dict):
             return {key: redact(item) for key, item in value.items()}
@@ -58,6 +69,8 @@ def audit(db, ctx, action, subject, trade=None, revision=None, summary=None, con
             redacted_summary_json=redact(summary or {}),
             consignment_id=consignment.id if consignment else None,
             execution_mode=trade.execution_mode if trade else "PRODUCTION",
+            document_id=document.id if document else None,
+            document_version_id=document_version.id if document_version else None,
         )
     )
 

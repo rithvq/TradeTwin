@@ -65,6 +65,10 @@ export function DriverTask({ id }: { id: string }) {
   const [payload, setPayload] = useState<Values>({});
   const assignment = resource.data,
     cn = assignment?.consignment;
+  const projections = useOperationsResource<{ items: Values[] }>(
+    `/consignments/${cn?.id ?? "00000000-0000-0000-0000-000000000000"}/document-operational-projections`,
+    org,
+  );
   if (resource.error) return <p role="alert">{resource.error}</p>;
   if (!assignment || !cn) return <p role="status">Loading driver task...</p>;
   const allowed =
@@ -146,6 +150,21 @@ export function DriverTask({ id }: { id: string }) {
           />
         ))}
       </Section>
+      {!!projections.data?.items.length && (
+        <Section name="Operational document evidence">
+          {projections.data.items.map((p) => (
+            <Facts
+              key={String(p.document_id)}
+              values={{
+                document_type: p.document_type,
+                execution_mode: p.execution_mode,
+                printed_fields: p.fields,
+                dispatch_readiness: p.dispatch_readiness,
+              }}
+            />
+          ))}
+        </Section>
+      )}
       {allowed && cn.movement_status !== "DELIVERY_CLOSED" && (
         <Section name="Movement observation">
           <form

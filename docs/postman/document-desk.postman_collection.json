@@ -1,0 +1,821 @@
+{
+  "info": {
+    "name": "TradeTwin Phase 3 Document Desk",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Explicit reviewer inputs required. Upload/finalise CLEAN files with the existing Phase 2 collection. Poll jobs before using extracted heads; no provider credentials bundled."
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8011"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "organization_id",
+      "value": ""
+    },
+    {
+      "key": "trade_id",
+      "value": ""
+    },
+    {
+      "key": "document_id",
+      "value": ""
+    },
+    {
+      "key": "version_id",
+      "value": ""
+    },
+    {
+      "key": "clean_attachment_id",
+      "value": ""
+    },
+    {
+      "key": "fact_id",
+      "value": ""
+    },
+    {
+      "key": "run_id",
+      "value": ""
+    },
+    {
+      "key": "job_id",
+      "value": ""
+    },
+    {
+      "key": "document_etag",
+      "value": ""
+    },
+    {
+      "key": "content_hash",
+      "value": ""
+    },
+    {
+      "key": "review_body",
+      "value": ""
+    },
+    {
+      "key": "mapping_body",
+      "value": ""
+    },
+    {
+      "key": "carrier_token",
+      "value": ""
+    },
+    {
+      "key": "carrier_organization_id",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Register previously uploaded CLEAN invoice",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/trades/{{trade_id}}/documents",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"trade_id\": \"{{trade_id}}\",\n  \"document_type\": \"TAX_INVOICE\",\n  \"label\": \"Invoice\",\n  \"primary_attachment_id\": \"{{clean_attachment_id}}\",\n  \"visibility\": \"OWNER_ONLY\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const r=pm.response.json(); const v=pm.collectionVariables;",
+              "v.set('document_id',r.id);v.set('version_id',r.current_version_id);v.set('document_etag',r.etag);",
+              "v.set('fact_id',r.latest_draft_fact_revision_id||r.effective_fact_revision_id);",
+              "pm.test('No dispatch approval',()=>pm.expect(r.status_dimensions.dispatch_readiness).to.eql('NOT_ASSESSED'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Queue actual native extraction",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/document-versions/{{version_id}}/processing-jobs",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"stage\": \"EXTRACT\",\n  \"strategy\": \"NATIVE_TEXT\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 202', () => pm.response.to.have.status(202));",
+              "const r=pm.response.json(); const v=pm.collectionVariables;",
+              "v.set('job_id',r.job_id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Poll job until terminal; retain attempts",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/document-processing-jobs/{{job_id}}",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{token}}"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const r=pm.response.json(); const v=pm.collectionVariables;",
+              "pm.test('No worker credential',()=>pm.expect(JSON.stringify(r)).not.to.include('lease_token'));",
+              "if(r.extraction_run_ids.length)v.set('run_id',r.extraction_run_ids.at(-1));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reload document head after job finishes",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/documents/{{document_id}}",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{token}}"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const r=pm.response.json(); const v=pm.collectionVariables;",
+              "v.set('document_id',r.id);v.set('version_id',r.current_version_id);v.set('document_etag',r.etag);",
+              "v.set('fact_id',r.latest_draft_fact_revision_id||r.effective_fact_revision_id);",
+              "pm.test('No dispatch approval',()=>pm.expect(r.status_dimensions.dispatch_readiness).to.eql('NOT_ASSESSED'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Source-linked observations",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/document-extraction-runs/{{run_id}}/observations",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{token}}"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const r=pm.response.json(); const v=pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Load proposed fact; reviewer must explicitly prepare review_body",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/document-fact-revisions/{{fact_id}}",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{token}}"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const r=pm.response.json(); const v=pm.collectionVariables;",
+              "v.set('content_hash',r.content_hash);",
+              "pm.test('No invented confidence',()=>pm.expect(r.canonical_document_json).to.be.an('object'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Save human review with explicit provenance",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/document-versions/{{version_id}}/fact-revisions",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{document_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{review_body}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const r=pm.response.json(); const v=pm.collectionVariables;",
+              "v.set('fact_id',r.id);v.set('content_hash',r.content_hash);v.set('document_etag',r.etag);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Submit exact reviewed snapshot",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/document-fact-revisions/{{fact_id}}/submissions",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{document_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"content_hash\": \"{{content_hash}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const r=pm.response.json(); const v=pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reload exact head",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/documents/{{document_id}}",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{token}}"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const r=pm.response.json(); const v=pm.collectionVariables;",
+              "v.set('document_id',r.id);v.set('version_id',r.current_version_id);v.set('document_etag',r.etag);",
+              "v.set('fact_id',r.latest_draft_fact_revision_id||r.effective_fact_revision_id);",
+              "pm.test('No dispatch approval',()=>pm.expect(r.status_dimensions.dispatch_readiness).to.eql('NOT_ASSESSED'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Human-confirmed 40/60 mappings (prepare mapping_body)",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/documents/{{document_id}}/mapping-revisions",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{document_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{mapping_body}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201', () => pm.response.to.have.status(201));",
+              "const r=pm.response.json(); const v=pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Queue reviewed data checks",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/document-versions/{{version_id}}/assessment-runs",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fact_revision_id\": \"{{fact_id}}\",\n  \"scope\": \"TRADE\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 202', () => pm.response.to.have.status(202));",
+              "const r=pm.response.json(); const v=pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Request unavailable authority check honestly",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/document-versions/{{version_id}}/verification-checks",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fact_revision_id\": \"{{fact_id}}\",\n  \"check_type\": \"GSTIN_AUTHORITY_LOOKUP\",\n  \"target_field_path\": \"parties.supplier.gstin\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 202', () => pm.response.to.have.status(202));",
+              "const r=pm.response.json(); const v=pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Export permission-filtered provenance",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/document-versions/{{version_id}}/evidence-manifest",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{token}}"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200', () => pm.response.to.have.status(200));",
+              "const r=pm.response.json(); const v=pm.collectionVariables;",
+              "pm.test('No storage secrets',()=>pm.expect(JSON.stringify(r)).not.to.include('object_key'));",
+              "pm.test('Dispatch not assessed',()=>pm.expect(r.dispatch_readiness).to.eql('NOT_ASSESSED'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Failure: forged universal verification flag",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/trades/{{trade_id}}/documents",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"trade_id\": \"{{trade_id}}\",\n  \"document_type\": \"TAX_INVOICE\",\n  \"label\": \"Rejected\",\n  \"primary_attachment_id\": \"{{clean_attachment_id}}\",\n  \"verified\": true\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 422', () => pm.response.to.have.status(422));",
+              "const r=pm.response.json(); const v=pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Failure: wrong snapshot hash",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/document-fact-revisions/{{fact_id}}/submissions",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{document_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{token}}"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"content_hash\": \"0000000000000000000000000000000000000000000000000000000000000000\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 409', () => pm.response.to.have.status(409));",
+              "const r=pm.response.json(); const v=pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Failure: carrier cannot fetch invoice OCR",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/document-extraction-runs/{{run_id}}/observations",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{carrier_organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "type": "string",
+              "value": "{{carrier_token}}"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 404', () => pm.response.to.have.status(404));",
+              "const r=pm.response.json(); const v=pm.collectionVariables;"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

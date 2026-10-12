@@ -63,6 +63,16 @@ services:
         required: false
     ports:
       - "127.0.0.1:${SHIPMENT_SERVICE_PORT:-8011}:8000"
+    environment:
+      DOCUMENT_WORKER_TOKEN_FILE: /run/secrets/document-worker-token
+      DOCUMENT_FIXTURE_DIRECTORY: /app/data/fixtures/document-desk
+    volumes:
+      - type: bind
+        source: ./.secrets/document-worker-token
+        target: /run/secrets/document-worker-token
+        read_only: true
+        bind:
+          create_host_path: false
     depends_on:
       postgres:
         condition: service_healthy
@@ -101,7 +111,17 @@ services:
         required: false
     environment:
       DOCUMENT_ENCRYPTION_KEY_FILE: /run/secrets/document-keyring.json
+      DOCUMENT_WORKER_TOKEN_FILE: /run/secrets/document-worker-token
+      DOCUMENT_FIXTURE_DIRECTORY: /app/data/fixtures/document-desk
+      DOCUMENT_SIMULATION_FIXTURES_FILE: /app/data/fixtures/document-desk/simulation-extraction.json
+      EVIDENCE_CLAMAV_HOST: ${EVIDENCE_CLAMAV_HOST:-clamav}
     volumes:
+      - type: bind
+        source: ./.secrets/document-worker-token
+        target: /run/secrets/document-worker-token
+        read_only: true
+        bind:
+          create_host_path: false
       - type: bind
         source: ./.secrets/document-keyring.json
         target: /run/secrets/document-keyring.json
@@ -115,6 +135,49 @@ services:
         condition: service_healthy
       minio:
         condition: service_started
+
+  document-worker:
+    build:
+      context: .
+      dockerfile: services/shipment-service/Dockerfile
+    command: ["python", "-m", "app.document_desk.worker"]
+    env_file:
+      - path: .env.example
+      - path: .env
+        required: false
+    environment:
+      DOCUMENT_WORKER_TOKEN_FILE: /run/secrets/document-worker-token
+    volumes:
+      - type: bind
+        source: ./.secrets/document-worker-token
+        target: /run/secrets/document-worker-token
+        read_only: true
+        bind:
+          create_host_path: false
+    healthcheck:
+      test: ["CMD", "python", "-c", "import time,pathlib; assert time.time()-float(pathlib.Path('/tmp/document-worker-heartbeat').read_text())<90"]
+      interval: 20s
+      timeout: 5s
+      start_period: 60s
+      retries: 3
+    depends_on:
+      shipment-service:
+        condition: service_healthy
+      document-service:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  clamav:
+    image: ${CLAMAV_IMAGE:-clamav/clamav:1.4}
+    volumes:
+      - clamav-data:/var/lib/clamav
+    healthcheck:
+      test: ["CMD", "clamdscan", "--ping=1"]
+      interval: 20s
+      timeout: 5s
+      start_period: 180s
+      retries: 12
 
   intelligence-service:
     healthcheck: *backend-health
@@ -195,6 +258,7 @@ services:
       - minio-data:/data
 
 volumes:
+  clamav-data:
   postgres-data:
   neo4j-data:
   redis-data:

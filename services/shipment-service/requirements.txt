@@ -8,3 +8,4 @@ neo4j==5.28.2
 pytest==8.4.1
 httpx==0.28.1
 ruff==0.12.10
+redis==5.0.8

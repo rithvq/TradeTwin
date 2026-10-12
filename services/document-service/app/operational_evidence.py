@@ -1,4 +1,4 @@
-"""No extraction: byte-preserving encrypted operational evidence, authorized by Shipments."""
+"""Byte-preserving encrypted operational evidence, authorized by Shipments."""
 
 import base64
 import hashlib
@@ -42,6 +42,20 @@ def authorize(request, ident, upload=False):
 
 
 def signature(content, mime):
+    if mime == "application/json":
+        try:
+            from app.document_processing.structured import lossless_json
+
+            data = lossless_json(content)
+            return isinstance(data, dict) and (
+                data.get("schema_version") == "PH3_CANONICAL_V1"
+                or any(isinstance(data.get(k), str) for k in ("SignedInvoice", "SignedQRCode"))
+                or (
+                    isinstance(data.get("DocDtls"), dict) and isinstance(data.get("ItemList"), list)
+                )
+            )
+        except (ValueError, UnicodeError):
+            return False
     return {
         "application/pdf": content.startswith(b"%PDF-"),
         "image/png": content.startswith(b"\x89PNG\r\n\x1a\n"),
