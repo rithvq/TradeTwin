@@ -131,6 +131,7 @@ def save(db, ctx, ident, payload):
     row.source_context_json = context
     doc.current_mapping_revision_id = row.id
     db.add(row)
+    db.flush()
     for m in payload.mappings:
         target = (
             db.get(ConsignmentItem, str(m.consignment_item_id)) if m.consignment_item_id else None

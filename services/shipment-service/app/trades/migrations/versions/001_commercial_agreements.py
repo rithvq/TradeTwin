@@ -14,7 +14,9 @@ def upgrade():
     TradeBase.metadata.create_all(
         connection,
         tables=[
-            table for table in TradeBase.metadata.sorted_tables if not table.name.startswith("op_")
+            table
+            for table in TradeBase.metadata.sorted_tables
+            if table.name == "trades" or table.name.startswith("trade_")
         ],
     )
     if connection.dialect.name == "postgresql":

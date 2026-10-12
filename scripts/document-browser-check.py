@@ -21,6 +21,7 @@ from uuid import uuid4
 
 import httpx
 from local_processes import stop_process
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 from playwright.sync_api import expect, sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -114,6 +115,7 @@ def exercise(fx, tokens):
                 "INV-000001"
             )
             expect(page.locator("img").first).to_be_visible(timeout=20000)
+            expect(page.get_by_role("button", name="Save review draft", exact=True)).to_be_enabled()
             page.get_by_role("button", name="Confirm proposed values", exact=True).click()
             if correction:
                 page.get_by_label("Value parties.supplier.gstin", exact=True).fill(
@@ -122,10 +124,21 @@ def exercise(fx, tokens):
                 page.get_by_label("Reason parties.supplier.gstin", exact=True).fill(
                     "Corrected I to 1 against the visible source; simulation fixture."
                 )
-            with page.expect_response(
-                lambda r: "/fact-revisions" in r.url and r.request.method == "POST"
-            ) as pending:
-                page.get_by_role("button", name="Save review draft", exact=True).click()
+            decisions = page.locator('select[aria-label^="Decision "]')
+            for decision in decisions.all():
+                expect(decision).not_to_have_value("")
+            try:
+                with page.expect_response(
+                    lambda r: "/fact-revisions" in r.url and r.request.method == "POST"
+                ) as pending:
+                    page.get_by_role("button", name="Save review draft", exact=True).click()
+            except PlaywrightTimeoutError as problem:
+                OUTPUT.mkdir(parents=True, exist_ok=True)
+                page.screenshot(path=str(OUTPUT / "review-save-failure.png"), full_page=True)
+                alerts = page.get_by_role("alert").all_text_contents()
+                raise AssertionError(
+                    f"Review save sent no response. UI alerts: {alerts}; browser errors: {errors}"
+                ) from problem
             assert pending.value.status == 201, pending.value.text()
             with page.expect_response(
                 lambda r: "/submissions" in r.url and r.request.method == "POST"

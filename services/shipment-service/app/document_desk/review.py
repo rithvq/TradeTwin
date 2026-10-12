@@ -110,6 +110,7 @@ def save(db, ctx, ident, payload):
         created_by_organization_id=ctx.org_id,
     )
     decision_values = []
+    decision_rows = []
     for path, decision in decisions.items():
         try:
             valid = field_path(path)
@@ -186,7 +187,7 @@ def save(db, ctx, ident, payload):
         data["document_line_ref"] = line_ref
         data["source_locator"] = source
         decision_values.append(data)
-        db.add(
+        decision_rows.append(
             FieldDecision(
                 fact_revision_id=revision.id,
                 field_path=path,
@@ -203,6 +204,9 @@ def save(db, ctx, ident, payload):
         {"canonical_document": canonical, "field_decisions": decision_values}
     )
     db.add(revision)
+    # Validation queries must not autoflush children before their parent exists.
+    db.flush()
+    db.add_all(decision_rows)
     for index, line in enumerate(canonical["lines"]):
         db.add(
             ReviewedLine(

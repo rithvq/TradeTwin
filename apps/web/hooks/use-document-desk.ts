@@ -12,6 +12,8 @@ import {
 import { useTradeContext } from "@/components/trades/trade-context";
 import { useOperationsResource } from "./use-operations";
 
+const noObservations: Observation[] = [];
+
 export function useDocumentVersion(versionId: string) {
   const { org } = useTradeContext();
   const selectedFact = useSearchParams().get("fact");
@@ -24,12 +26,29 @@ export function useDocumentVersion(versionId: string) {
     `/document-fact-revisions/${selectedFact ?? resource.data?.selected_fact_revision_id ?? "00000000-0000-0000-0000-000000000000"}`,
     org,
   );
-  const [observations, setObservations] = useState<Observation[]>([]);
+  const [observationSource, setObservationSource] = useState<{
+    org: string;
+    versionId: string;
+    runId: string | null;
+    items: Observation[];
+  } | null>(null);
   const [job, setJob] = useState<Job | null>(null);
   const [jobId, setJobId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [runs, setRuns] = useState<ExtractionRun[]>([]);
   const [candidate, setCandidate] = useState<ExtractionRun | null>(null);
+  const extractionRunId = candidate?.id ?? fact.data?.extraction_run_id ?? null;
+  const selectedFactId =
+    selectedFact ?? resource.data?.selected_fact_revision_id;
+  const observationsReady =
+    resource.data?.id === versionId &&
+    (!selectedFactId || fact.data?.id === selectedFactId) &&
+    observationSource?.org === org &&
+    observationSource.versionId === versionId &&
+    observationSource.runId === extractionRunId;
+  const observations = observationsReady
+    ? observationSource.items
+    : noObservations;
   const generation = useRef(0);
   const reloadResource = resource.reload,
     reloadFact = fact.reload;
@@ -44,30 +63,34 @@ export function useDocumentVersion(versionId: string) {
         org,
       );
       if (current === generation.current) setRuns(loaded.items);
-      const latest =
-        candidate ??
-        loaded.items.find((r) => r.id === fact.data?.extraction_run_id) ??
-        loaded.items.at(-1);
-      const value = latest
+      const value = extractionRunId
         ? await tradeRequest<{ items: Observation[] }>(
-            `/document-extraction-runs/${latest.id}/observations`,
+            `/document-extraction-runs/${extractionRunId}/observations`,
             org,
           )
         : { items: [] };
-      if (current === generation.current) setObservations(value.items);
+      if (current === generation.current) {
+        setObservationSource({
+          org,
+          versionId,
+          runId: extractionRunId,
+          items: value.items,
+        });
+        setError("");
+      }
     } catch (problem) {
       if (current === generation.current)
         setError(
           problem instanceof Error ? problem.message : "Extraction unavailable",
         );
     }
-  }, [org, versionId, fact.data?.extraction_run_id, candidate]);
+  }, [org, versionId, extractionRunId]);
   useEffect(() => {
     void loadObservations();
     return invalidate;
   }, [loadObservations, invalidate]);
   useEffect(() => {
-    setObservations([]);
+    setObservationSource(null);
     setJob(null);
     setJobId(null);
     setCandidate(null);
@@ -76,9 +99,9 @@ export function useDocumentVersion(versionId: string) {
     if (doc?.latest_job_id) setJobId(doc.latest_job_id);
   }, [doc?.latest_job_id, org, versionId]);
   async function reload() {
+    await loadObservations();
     await resource.reload();
     await fact.reload();
-    await loadObservations();
   }
   useEffect(() => {
     if (!jobId) return;
@@ -95,9 +118,9 @@ export function useDocumentVersion(versionId: string) {
           ["SUCCEEDED", "PARTIAL", "FAILED", "CANCELLED"].includes(next.status)
         ) {
           setJobId(null);
+          await loadObservations();
           await reloadResource();
           await reloadFact();
-          await loadObservations();
         }
       } catch (problem) {
         if (active) {
@@ -121,6 +144,7 @@ export function useDocumentVersion(versionId: string) {
     version: resource.data,
     fact: fact.data,
     observations,
+    observationsReady,
     runs,
     candidate,
     selectExtraction: setCandidate,

@@ -8,7 +8,7 @@ from uuid import uuid4
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, func, select, text
+from sqlalchemy import create_engine, event, func, select, text
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm import sessionmaker
 from tradetwin_security import identity
@@ -54,6 +54,12 @@ def flow(tmp_path):
         url or f"sqlite:///{tmp_path / 'documents.db'}",
         connect_args={} if url else {"check_same_thread": False},
     )
+    if not url:
+
+        @event.listens_for(engine, "connect")
+        def enforce_foreign_keys(connection, _):
+            connection.execute("PRAGMA foreign_keys = ON")
+
     schema = f"documents_test_{uuid4().hex}" if url else None
     if schema:
         with engine.begin() as connection:
@@ -364,6 +370,15 @@ def prepared(flow):
     response = flow.document()
     assert response.status_code == 201, response.text
     return flow.reviewed(flow.extract(response.json()))
+
+
+def test_review_saves_parent_before_decisions_with_foreign_keys_enforced(flow):
+    if not flow.postgres:
+        with flow.sessions() as db:
+            assert db.scalar(text("PRAGMA foreign_keys")) == 1
+    doc = prepared(flow)
+    fact = flow.get(f"/document-fact-revisions/{doc['effective_fact_revision_id']}")
+    assert len(fact["field_decisions"]) == len(flatten(fact["canonical_document_json"]))
 
 
 def test_real_revision_ledgers_mapping_40_60_totals_once_no_business_mutation(flow):

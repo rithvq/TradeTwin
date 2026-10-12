@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, Plus, Save, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useOperationalMutation } from "@/hooks/use-operations";
@@ -46,6 +46,13 @@ export function ReviewDesk({
   const [manualValue, setManualValue] = useState("");
   const [manualReason, setManualReason] = useState("");
   const [extraError, setExtraError] = useState("");
+  const initializedReview = useRef("");
+  const reviewKey = JSON.stringify([
+    org,
+    version?.id,
+    fact?.id,
+    desk.candidate?.id,
+  ]);
   const [catalog, setCatalog] = useState<
     { path: string; value_type: string }[]
   >([]);
@@ -69,6 +76,25 @@ export function ReviewDesk({
     );
   }
   useEffect(() => {
+    if (initializedReview.current === reviewKey) {
+      // Immutable source refreshes must not discard in-progress human decisions.
+      setDecisions((old) =>
+        Object.fromEntries(
+          Object.entries(old).map(([path, value]) => [
+            path,
+            {
+              ...value,
+              observation:
+                value.provenance === "HUMAN_TRANSCRIPTION"
+                  ? value.observation
+                  : (observed(path, canonical) ?? value.observation),
+            },
+          ]),
+        ),
+      );
+      return;
+    }
+    initializedReview.current = reviewKey;
     const value =
       desk.candidate?.proposed_document_json ??
       fact?.canonical_document_json ??
@@ -76,7 +102,10 @@ export function ReviewDesk({
     setCanonical(value);
     const initial: Record<string, Decision> = {};
     for (const path of Object.keys(flattenDocument(value))) {
-      const saved = fact?.field_decisions.find((d) => d.field_path === path);
+      const saved =
+        !desk.candidate || desk.candidate.id === fact?.extraction_run_id
+          ? fact?.field_decisions.find((d) => d.field_path === path)
+          : undefined;
       initial[path] = {
         decision: saved?.decision ?? "",
         reason: saved?.reason ?? "",
@@ -86,7 +115,7 @@ export function ReviewDesk({
     }
     setDecisions(initial);
     setExtraError("");
-  }, [fact?.id, observations, desk.candidate?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [reviewKey, observations]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     void tradeRequest<{ fields: { path: string; value_type: string }[] }>(
       "/document-field-catalog",
@@ -102,7 +131,7 @@ export function ReviewDesk({
     setDecisions((old) => ({ ...old, [path]: { ...old[path], ...next } }));
   }
   async function save() {
-    if (!doc || !version) return;
+    if (!doc || !version || !desk.observationsReady) return;
     setExtraError("");
     if (Object.keys(flat).some((path) => !decisions[path]?.decision)) {
       setExtraError("Choose a review decision for every captured value.");
@@ -238,6 +267,7 @@ export function ReviewDesk({
                         {
                           ...value,
                           decision:
+                            !value.decision &&
                             value.observation?.validation_status === "PARSED"
                               ? "CONFIRMED"
                               : value.decision,
@@ -486,7 +516,10 @@ export function ReviewDesk({
           )}
           <div className="flex flex-wrap gap-2">
             {editable && (
-              <Button disabled={mutation.pending} onClick={() => void save()}>
+              <Button
+                disabled={mutation.pending || !desk.observationsReady}
+                onClick={() => void save()}
+              >
                 <Save className="size-4" />
                 Save review draft
               </Button>
