@@ -36,13 +36,15 @@ def prepare(db, ctx, ident, payload):
     inherited = context.inherited(db, trade, cn)
     data = payload.facts.model_dump(mode="json")
     transit = data["declared_transit_state_codes"]
-    if transit is not None and {
+    corridor = [
         inherited["origin_state_code"],
+        *(transit or []),
         inherited["destination_state_code"],
-    } & set(transit):
+    ]
+    if transit is not None and any(a == b for a, b in zip(corridor, corridor[1:], strict=False)):
         fail(
             "VALIDATION_ERROR",
-            "Transit states contain intermediate states only.",
+            "A corridor must not repeat adjacent states; non-adjacent state reentry is preserved.",
             "facts.declared_transit_state_codes",
             422,
         )
@@ -238,9 +240,46 @@ def manifest(db, ctx, ident, payload):
 
 def transport(db, ctx, ident, payload):
     trade, cn, _ = context.access(db, ctx, ident, "transport.evidence.prepare", False, True)
-    assignment = exists(db, Assignment, payload.assignment_id)
-    if assignment.id != cn.active_assignment_id or assignment.status != "ACCEPTED":
-        fail("ASSIGNMENT_CHANGED", "Use the current accepted assignment.")
+    if payload.assignment_id is None:
+        from app.freight.access import invited_scope
+        from app.operations.models import Vehicle
+        from app.trades.access import require
+        from app.trades.models import User
+
+        if not invited_scope(db, ctx, cn, "transport.evidence.prepare"):
+            fail(
+                "FORBIDDEN",
+                "Unassigned planning evidence requires an active own-carrier RFQ invitation.",
+                status=403,
+            )
+        subject = exists(
+            db, Vehicle if payload.subject_type == "VEHICLE" else User, payload.subject_id
+        )
+        if payload.subject_type == "VEHICLE" and (
+            subject.carrier_organization_id != ctx.org_id
+            or not subject.active
+            or subject.execution_mode != trade.execution_mode
+        ):
+            fail("NOT_FOUND", "Owned active vehicle not found.", status=404)
+        if payload.subject_type == "DRIVER":
+            if (
+                not subject.active
+                or require(db, subject, ctx.org_id, "shipment.event.record", trade.id).capability
+                != "DRIVER"
+            ):
+                fail("NOT_FOUND", "Carrier driver not found.", status=404)
+        from types import SimpleNamespace
+
+        assignment = SimpleNamespace(
+            id=None,
+            vehicle_id=str(payload.subject_id) if payload.subject_type == "VEHICLE" else None,
+            driver_user_id=str(payload.subject_id) if payload.subject_type == "DRIVER" else None,
+            carrier_organization_id=ctx.org_id,
+        )
+    else:
+        assignment = exists(db, Assignment, payload.assignment_id)
+        if assignment.id != cn.active_assignment_id or assignment.status != "ACCEPTED":
+            fail("ASSIGNMENT_CHANGED", "Use the current accepted assignment.")
     subjects = {
         "VEHICLE": assignment.vehicle_id,
         "DRIVER": assignment.driver_user_id,
@@ -333,7 +372,13 @@ def transport(db, ctx, ident, payload):
             )
     if payload.parent_permit_evidence_revision_id:
         parent = exists(db, TransportEvidence, payload.parent_permit_evidence_revision_id)
-        if parent.assignment_id != assignment.id or parent.evidence_type != "GOODS_PERMIT":
+        if (
+            parent.assignment_id != assignment.id
+            or parent.evidence_type != "GOODS_PERMIT"
+            or parent.consignment_id != cn.id
+            or parent.subject_id != str(payload.subject_id)
+            or parent.owner_organisation_id != ctx.org_id
+        ):
             fail("NOT_FOUND", "Parent permit evidence not found for this assignment.", status=404)
     data = {
         **payload.model_dump(mode="json"),

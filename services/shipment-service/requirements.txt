@@ -12,3 +12,4 @@ ruff==0.12.10
 redis==5.0.8
 cryptography==50.0.1
 reportlab==4.4.5
+networkx==3.5

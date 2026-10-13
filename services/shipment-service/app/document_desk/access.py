@@ -9,6 +9,7 @@ from app.trades.models import Participant, Trade
 from .models import AccessGrant, Asset, Document, SubjectLink, Version
 
 FINANCIAL = {"TAX_INVOICE", "BILL_OF_SUPPLY", "PURCHASE_ORDER", "SIGNED_EINVOICE_JSON"}
+FINANCIAL.add("FREIGHT_QUOTE")
 INVOICE_PRESENTATIONS = {"TAX_INVOICE", "SIGNED_EINVOICE_JSON"}
 OPERATIONAL = {"LR_GR", "POD", "PACKING_LIST", "EWAY_BILL_COPY", "DELIVERY_CHALLAN"}
 TRANSPORT = {
@@ -81,6 +82,29 @@ def document(db, ctx, ident, permission="document.read", lock=False, projection=
         )
     )
     owner = row.owner_organization_id == ctx.org_id
+    if row.document_type == "FREIGHT_QUOTE":
+        if not owner:
+            from app.freight.access import price_access
+
+            if not price_access(db, ctx, trade):
+                fail("NOT_FOUND", "Private quote document not found.", status=404)
+        else:
+            if not has(db, ctx, "freight.quote.prepare", trade.id) and not has(
+                db, ctx, "freight.price.read", trade.id
+            ):
+                fail("NOT_FOUND", "Private quote document not found.", status=404)
+            require(db, ctx.user, ctx.org_id, permission, trade.id)
+            return row, trade
+    if (
+        owner
+        and row.document_type in TRANSPORT
+        and (
+            has(db, ctx, "transport.evidence.prepare", trade.id)
+            or has(db, ctx, "transport.evidence.review", trade.id)
+        )
+    ):
+        require(db, ctx.user, ctx.org_id, permission, trade.id)
+        return row, trade
     grants = list(
         db.scalars(
             select(AccessGrant).where(
@@ -247,6 +271,7 @@ def registration_access(db, ctx, trade_id, document_type, consignment_id=None):
     elif (
         document_type
         in {
+            "FREIGHT_QUOTE",
             "LR_GR",
             "POD",
             "VEHICLE_RC",

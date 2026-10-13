@@ -147,7 +147,7 @@ def claim(db, worker, job_id=None):
             evaluation.job_state, evaluation.decision = "FAILED", "BLOCKED"
         db.commit()
         return None
-    if row.stage in {"EVAL_COMPLIANCE", "PROJECT_MOVEMENT"}:
+    if row.stage in {"EVAL_COMPLIANCE", "PROJECT_MOVEMENT", "TRADETWIN_RUN", "ROUTE_GENERATION"}:
         lock_trade(db, row.trade_id)
     else:
         version = db.get(Version, row.document_version_id)
@@ -181,7 +181,7 @@ def claim(db, worker, job_id=None):
     row.row_version += 1
     db.flush()
     ctx = Context(db.get(User, row.requested_by_user_id), row.requested_by_organization_id, uid())
-    if row.stage in {"EVAL_COMPLIANCE", "PROJECT_MOVEMENT"}:
+    if row.stage in {"EVAL_COMPLIANCE", "PROJECT_MOVEMENT", "TRADETWIN_RUN", "ROUTE_GENERATION"}:
         from app.compliance.ledger import record as compliance_record
 
         compliance_record(db, ctx, "COMPLIANCE_ATTEMPT_STARTED", row, row.trade_id)
@@ -211,7 +211,12 @@ def leased(db, job_id, attempt_id, token, lock=True):
         basis = db.scalar(query)
         if not basis:
             fail("JOB_ALREADY_TERMINAL", "Job no longer exists.")
-        if basis.stage in {"EVAL_COMPLIANCE", "PROJECT_MOVEMENT"}:
+        if basis.stage in {
+            "EVAL_COMPLIANCE",
+            "PROJECT_MOVEMENT",
+            "TRADETWIN_RUN",
+            "ROUTE_GENERATION",
+        }:
             lock_trade(db, basis.trade_id)
         else:
             version = db.get(Version, basis.document_version_id)
@@ -324,6 +329,22 @@ def failed(db, lease, code):
     )
     if job.status == "FAILED":
         job.finished_at = now()
+    if job.stage in {"TRADETWIN_RUN", "ROUTE_GENERATION"}:
+        from app.freight.models import Generation, Run
+
+        model, key = (
+            (Run, "run_id") if job.stage == "TRADETWIN_RUN" else (Generation, "generation_id")
+        )
+        row = db.get(model, job.request_json[key])
+        if row.job_state not in {"COMPLETED", "FAILED", "CANCELLED"} and job.status == "FAILED":
+            row.job_state = "FAILED"
+        from app.compliance.ledger import record as freight_record
+
+        freight_record(
+            db, job_context(db, job), "FREIGHT_JOB_FAILED", job, job.trade_id, {"error_code": code}
+        )
+        db.commit()
+        return
     if job.stage in {"EVAL_COMPLIANCE", "PROJECT_MOVEMENT"}:
         from app.compliance.ledger import record as compliance_record
         from app.compliance.models import Evaluation

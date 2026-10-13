@@ -1,0 +1,118 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "pickup_location_revision_id": {
+      "format": "uuid",
+      "title": "Pickup Location Revision Id",
+      "type": "string"
+    },
+    "drop_location_revision_id": {
+      "format": "uuid",
+      "title": "Drop Location Revision Id",
+      "type": "string"
+    },
+    "requested_route_template_revision_ids": {
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "maxItems": 20,
+      "minItems": 1,
+      "title": "Requested Route Template Revision Ids",
+      "type": "array"
+    },
+    "requested_pickup_window_start": {
+      "format": "date-time",
+      "title": "Requested Pickup Window Start",
+      "type": "string"
+    },
+    "requested_pickup_window_end": {
+      "format": "date-time",
+      "title": "Requested Pickup Window End",
+      "type": "string"
+    },
+    "required_arrival_by": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Required Arrival By"
+    },
+    "service_requirement_codes": {
+      "items": {
+        "enum": [
+          "TOLL",
+          "FUEL_SURCHARGE",
+          "LOADING",
+          "UNLOADING",
+          "HANDLING",
+          "CARGO_INSURANCE",
+          "OTHER"
+        ],
+        "type": "string"
+      },
+      "title": "Service Requirement Codes",
+      "type": "array"
+    },
+    "invited_carrier_organisation_ids": {
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "maxItems": 30,
+      "minItems": 1,
+      "title": "Invited Carrier Organisation Ids",
+      "type": "array"
+    },
+    "response_deadline": {
+      "format": "date-time",
+      "title": "Response Deadline",
+      "type": "string"
+    },
+    "supersedes_rfq_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Supersedes Rfq Id"
+    },
+    "request_note": {
+      "anyOf": [
+        {
+          "maxLength": 2000,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Request Note"
+    }
+  },
+  "required": [
+    "pickup_location_revision_id",
+    "drop_location_revision_id",
+    "requested_route_template_revision_ids",
+    "requested_pickup_window_start",
+    "requested_pickup_window_end",
+    "invited_carrier_organisation_ids",
+    "response_deadline"
+  ],
+  "title": "RFQInput",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Phase 5 command fields. Server-derived identity, execution mode and hashes are never client overrides."
+}

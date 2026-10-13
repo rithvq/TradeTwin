@@ -71,6 +71,18 @@ def consignment(db, ctx, ident, permission="consignment.read", side=None, lock=F
         }:
             fail("FORBIDDEN", "Buyer/seller authority is required.", status=403)
         require(db, ctx.user, ctx.org_id, permission, trade.id)
+        from sqlalchemy import inspect
+
+        if permission in {
+            "consignment.read",
+            "attachment.upload",
+            "transport.evidence.prepare",
+            "transport.evidence.review",
+        } and inspect(db.get_bind()).has_table("freight_rfqs"):
+            from app.freight.access import invited_scope
+
+            if invited_scope(db, ctx, row, permission):
+                return trade, row, role
         assignments = list(
             db.scalars(
                 select(Assignment).where(

@@ -56,7 +56,9 @@ export function Fields({
         return (
           <div
             key={spec.path}
-            className={spec.kind === "textarea" ? "sm:col-span-2" : ""}
+            className={
+              spec.kind === "textarea" ? "min-w-0 sm:col-span-2" : "min-w-0"
+            }
           >
             {spec.kind === "boolean" ? (
               <label

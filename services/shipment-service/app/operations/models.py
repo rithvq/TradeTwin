@@ -43,6 +43,10 @@ class Vehicle(Mutable, TradeBase):
     registration_number: Mapped[str] = mapped_column(String(20))
     vehicle_json: Mapped[dict] = mapped_column(JSON_TYPE)
     active: Mapped[bool] = mapped_column(Boolean, default=True)
+    current_routing_profile_revision_id: Mapped[str | None] = mapped_column(ID, nullable=True)
+    execution_mode: Mapped[str] = mapped_column(
+        String(20), default="PRODUCTION", server_default="PRODUCTION"
+    )
 
 
 class Consignment(Mutable, TradeBase):

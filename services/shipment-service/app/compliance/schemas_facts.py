@@ -61,10 +61,6 @@ class Facts(Schema):
         editable = set(type(self).model_fields) - {"schema_version", "field_provenance"}
         if set(self.field_provenance) - editable:
             raise ValueError("Provenance may describe editable fields only")
-        if self.declared_transit_state_codes is not None and len(
-            set(self.declared_transit_state_codes)
-        ) != len(self.declared_transit_state_codes):
-            raise ValueError("Declared intermediate states must be unique and ordered")
         return self
 
 
@@ -160,7 +156,7 @@ class ManifestPrepare(Schema):
 class TransportInput(Schema):
     subject_type: Literal["VEHICLE", "DRIVER", "CARRIER", "CONSIGNMENT"]
     subject_id: UUID
-    assignment_id: UUID
+    assignment_id: UUID | None = None
     evidence_type: Literal[
         "VEHICLE_RC",
         "VEHICLE_INSURANCE",

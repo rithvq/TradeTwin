@@ -56,6 +56,22 @@ def publish_outbox(sessions):
 def complete(db, lease, output):
     job, attempt = jobs.leased(db, *lease)
     ctx = jobs.job_context(db, job)
+    if job.stage == "ROUTE_GENERATION":
+        from app.freight.routing import complete_generation
+
+        complete_generation(db, ctx, job.request_json["generation_id"])
+        job.status, job.finished_at = "SUCCEEDED", now()
+        attempt.status, attempt.finished_at = "SUCCEEDED", now()
+        db.commit()
+        return
+    if job.stage == "TRADETWIN_RUN":
+        from app.freight.runs import complete as complete_run
+
+        complete_run(db, ctx, job.request_json["run_id"])
+        job.status, job.finished_at = "SUCCEEDED", now()
+        attempt.status, attempt.finished_at = "SUCCEEDED", now()
+        db.commit()
+        return
     if job.stage == "PROJECT_MOVEMENT":
         from app.compliance.projection import deliver
 
@@ -149,7 +165,13 @@ def run_one(sessions=SessionLocal, job_id=None, processor=None):
         with sessions() as db:
             row = db.get(Job, lease[0])
             stage = row.stage
-        if stage in {"COMPARE", "EVAL_COMPLIANCE", "PROJECT_MOVEMENT"}:
+        if stage in {
+            "COMPARE",
+            "EVAL_COMPLIANCE",
+            "PROJECT_MOVEMENT",
+            "TRADETWIN_RUN",
+            "ROUTE_GENERATION",
+        }:
             output = {}
         elif processor:
             output = processor(lease)

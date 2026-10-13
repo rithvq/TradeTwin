@@ -145,6 +145,9 @@ def complete(db, ctx, ident):
             and set(facts["commodity_scope_codes"]) <= set(state["supported_commodity_codes"])
             and corridor in state["supported_corridors"]
         )
+        from app.freight.commitments import plan_valid
+
+        supported_profile = supported_profile and plan_valid(db, trade, cn, facts, at)
         data["proof"]["scope_supported"] = (
             None
             if not profile_known or scope is None or excluded is None

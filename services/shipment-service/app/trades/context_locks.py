@@ -79,7 +79,7 @@ def bump_context(db, trade_id, code):
 
 
 def invalidate(db, trade, action, summary):
-    if not trade:
+    if not trade or db.info.get("defer_compliance_context"):
         return
     accepted = "ACCEPTED" in action and any(
         word in action for word in ("OFFER", "AMENDMENT", "REVISION")

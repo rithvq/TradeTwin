@@ -157,6 +157,9 @@ def release(db, row, status="SUPERSEDED"):
             from app.trades.models import now
 
             booking.released_at = now()
+            from app.freight.persistence import resource_changed
+
+            resource_changed(db, row.execution_mode, booking.resource_type, booking.resource_id)
     row.active_assignment_id = None
 
 
@@ -194,6 +197,9 @@ def patch(db, ctx, ident, payload):
         "delivery_notes",
     }
     if material:
+        from app.freight.commitments import guard_manual_change
+
+        guard_manual_change(db, row)
         release(db, row)
         row.planning_status = "DRAFT"
     if "items" in changes:
@@ -231,6 +237,12 @@ def transition(db, ctx, ident, payload, cancel=False):
     match(ctx, row)
     before_pickup(row)
     if cancel:
+        from sqlalchemy import inspect
+
+        from app.freight.commitments import abort_service
+
+        if inspect(db.get_bind()).has_table("freight_commitments"):
+            abort_service(db, ctx, row)
         row.planning_status = "CANCELLED"
         release(db, row, "CANCELLED")
     else:

@@ -58,6 +58,12 @@ jobs:
           services/shipment-service/tests/test_operations.py
           services/shipment-service/tests/test_document_desk.py
           services/shipment-service/tests/test_dispatch_policy.py
+          services/shipment-service/tests/test_freight_planning.py
+
+      - name: Freight planning contract drift
+        run: |
+          python scripts/export-freight-contracts.py
+          git diff --exit-code -- docs/postman
 
       - name: Guarded dispatch contract drift
         run: |
@@ -136,3 +142,8 @@ jobs:
         env:
           PLAYWRIGHT_CHANNEL: chromium
         run: python scripts/dispatch-browser-check.py
+
+      - name: Freight planning browser acceptance
+        env:
+          PLAYWRIGHT_CHANNEL: chromium
+        run: python scripts/freight-browser-check.py

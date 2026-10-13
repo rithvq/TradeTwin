@@ -158,7 +158,7 @@ def propose(db, ctx, ident, payload):
     return view(assignment, trade, ctx)
 
 
-def decide(db, ctx, ident, payload):
+def decide(db, ctx, ident, payload, freight_selection_id=None):
     assignment = exists(db, Assignment, ident)
     trade, row, _ = consignment(db, ctx, assignment.consignment_id, "assignment.respond", lock=True)
     if ctx.org_id != assignment.carrier_organization_id or not has(
@@ -168,6 +168,23 @@ def decide(db, ctx, ident, payload):
     require(db, ctx.user, ctx.org_id, "assignment.respond", trade.id)
     before_pickup(row)
     aligned(row)
+    from sqlalchemy import inspect
+
+    from app.freight.commitments import guard_manual_change
+    from app.freight.models import SelectionHead
+
+    if inspect(db.get_bind()).has_table(SelectionHead.__tablename__):
+        linked = db.scalar(
+            select(SelectionHead).where(SelectionHead.proposed_assignment_id == assignment.id)
+        )
+        if linked and linked.current_proposal_id != freight_selection_id:
+            fail(
+                "FREIGHT_COMMITMENT_ACCEPTANCE_REQUIRED",
+                "Accept the quote-linked assignment through its exact-hash freight selection.",
+                details={"permitted_next_actions": ["FREIGHT_SELECTION_CARRIER_DECISION"]},
+            )
+        if not freight_selection_id:
+            guard_manual_change(db, row)
     db.refresh(assignment)
     if assignment.status != "PROPOSED":
         fail("INVALID_MOVEMENT_TRANSITION", "This proposal already has a decision.")
@@ -273,6 +290,11 @@ def decide(db, ctx, ident, payload):
                 )
             ):
                 booking.released_at = now()
+                from app.freight.persistence import resource_changed
+
+                resource_changed(
+                    db, trade.execution_mode, booking.resource_type, booking.resource_id
+                )
             record(db, ctx, "ASSIGNMENT_SUPERSEDED", predecessor, trade, row)
             db.flush()
         assignment.status = "ACCEPTED"
@@ -301,6 +323,9 @@ def decide(db, ctx, ident, payload):
                     booking_end_at=assignment.booking_end_at,
                 )
             )
+            from app.freight.persistence import resource_changed
+
+            resource_changed(db, trade.execution_mode, kind, resource)
     assignment.decided_by_user_id, assignment.decided_at = ctx.user.id, now()
     touch(assignment)
     touch(row)

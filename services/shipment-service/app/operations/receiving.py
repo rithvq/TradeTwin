@@ -285,6 +285,9 @@ def close(db, ctx, ident, payload):
         )
     ):
         booking.released_at = now()
+        from app.freight.persistence import resource_changed
+
+        resource_changed(db, trade.execution_mode, booking.resource_type, booking.resource_id)
     touch(row)
     record(db, ctx, "DELIVERY_CLOSED", closure, trade, row)
     from .schedules import refresh_triggers

@@ -286,6 +286,7 @@ function RegistrationForm({
         allowJson={type === "SIGNED_EINVOICE_JSON"}
         purposeOverride={
           [
+            "FREIGHT_QUOTE",
             "TAX_INVOICE",
             "BILL_OF_SUPPLY",
             "PURCHASE_ORDER",

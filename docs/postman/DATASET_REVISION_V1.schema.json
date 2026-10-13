@@ -1,0 +1,419 @@
+{
+  "$defs": {
+    "Edge": {
+      "additionalProperties": false,
+      "properties": {
+        "edge_key": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Edge Key",
+          "type": "string"
+        },
+        "from_node_key": {
+          "title": "From Node Key",
+          "type": "string"
+        },
+        "to_node_key": {
+          "title": "To Node Key",
+          "type": "string"
+        },
+        "directed": {
+          "default": true,
+          "title": "Directed",
+          "type": "boolean"
+        },
+        "distance_meters": {
+          "exclusiveMinimum": 0,
+          "title": "Distance Meters",
+          "type": "integer"
+        },
+        "estimated_driving_seconds": {
+          "exclusiveMinimum": 0,
+          "title": "Estimated Driving Seconds",
+          "type": "integer"
+        },
+        "ordered_state_sequence": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Ordered State Sequence"
+        },
+        "allowed_vehicle_profile_codes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Allowed Vehicle Profile Codes",
+          "type": "array"
+        },
+        "maximum_height_mm": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Maximum Height Mm"
+        },
+        "maximum_width_mm": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Maximum Width Mm"
+        },
+        "maximum_length_mm": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Maximum Length Mm"
+        },
+        "maximum_loaded_weight_kg": {
+          "anyOf": [
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,14}|(?=[\\d.]{1,21}0*$)\\d{0,14}\\.\\d{0,6}0*$)",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Maximum Loaded Weight Kg"
+        },
+        "maximum_axle_load_kg": {
+          "anyOf": [
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,14}|(?=[\\d.]{1,21}0*$)\\d{0,14}\\.\\d{0,6}0*$)",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Maximum Axle Load Kg"
+        },
+        "restriction_refs": {
+          "default": [],
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Restriction Refs",
+          "type": "array"
+        },
+        "toll_record_refs": {
+          "default": [],
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Toll Record Refs",
+          "type": "array"
+        },
+        "assessment_coverage": {
+          "additionalProperties": {
+            "enum": [
+              "ASSESSED_UNRESTRICTED",
+              "ASSESSED_LIMIT",
+              "UNKNOWN"
+            ],
+            "type": "string"
+          },
+          "title": "Assessment Coverage",
+          "type": "object"
+        },
+        "limitations": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Limitations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "edge_key",
+        "from_node_key",
+        "to_node_key",
+        "distance_meters",
+        "estimated_driving_seconds",
+        "ordered_state_sequence",
+        "allowed_vehicle_profile_codes",
+        "assessment_coverage"
+      ],
+      "title": "Edge",
+      "type": "object"
+    },
+    "Node": {
+      "additionalProperties": false,
+      "properties": {
+        "node_key": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Node Key",
+          "type": "string"
+        },
+        "latitude": {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "title": "Latitude",
+          "type": "string"
+        },
+        "longitude": {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "title": "Longitude",
+          "type": "string"
+        },
+        "state_code": {
+          "title": "State Code",
+          "type": "string"
+        },
+        "node_kind": {
+          "enum": [
+            "PICKUP_ACCESS",
+            "DROP_ACCESS",
+            "JUNCTION",
+            "APPROVED_STOP"
+          ],
+          "title": "Node Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "node_key",
+        "latitude",
+        "longitude",
+        "state_code",
+        "node_kind"
+      ],
+      "title": "Node",
+      "type": "object"
+    },
+    "PlanningPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "policy_code": {
+          "const": "BASELINE_ROAD_V1",
+          "default": "BASELINE_ROAD_V1",
+          "title": "Policy Code",
+          "type": "string"
+        },
+        "accepted_location_precisions": {
+          "items": {
+            "enum": [
+              "CONFIRMED_LOADING_GATE",
+              "PREMISES"
+            ],
+            "type": "string"
+          },
+          "maxItems": 2,
+          "minItems": 1,
+          "title": "Accepted Location Precisions",
+          "type": "array"
+        },
+        "cost_assumption_independent_review_required": {
+          "const": true,
+          "default": true,
+          "title": "Cost Assumption Independent Review Required",
+          "type": "boolean"
+        },
+        "missing_restrictions_block_ranking": {
+          "const": true,
+          "default": true,
+          "title": "Missing Restrictions Block Ranking",
+          "type": "boolean"
+        },
+        "hard_constraints_not_weightable": {
+          "const": true,
+          "default": true,
+          "title": "Hard Constraints Not Weightable",
+          "type": "boolean"
+        }
+      },
+      "title": "PlanningPolicy",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "dataset_code": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Dataset Code",
+      "type": "string"
+    },
+    "version": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Version",
+      "type": "string"
+    },
+    "source_kind": {
+      "enum": [
+        "SIMULATION_FIXTURE",
+        "LICENSED_PROVIDER",
+        "MANUAL_OPERATIONAL_RECORD"
+      ],
+      "title": "Source Kind",
+      "type": "string"
+    },
+    "source_reference": {
+      "maxLength": 2000,
+      "minLength": 1,
+      "title": "Source Reference",
+      "type": "string"
+    },
+    "supported_state_codes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Supported State Codes",
+      "type": "array"
+    },
+    "supported_vehicle_profile_codes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Supported Vehicle Profile Codes",
+      "type": "array"
+    },
+    "observed_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Observed At"
+    },
+    "valid_from": {
+      "format": "date-time",
+      "title": "Valid From",
+      "type": "string"
+    },
+    "valid_until": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Valid Until"
+    },
+    "attribution_text": {
+      "title": "Attribution Text",
+      "type": "string"
+    },
+    "license_reference": {
+      "title": "License Reference",
+      "type": "string"
+    },
+    "retention_policy": {
+      "enum": [
+        "PERMITTED_ARCHIVE",
+        "UNTIL_DATE",
+        "NO_CONTENT_STORAGE"
+      ],
+      "title": "Retention Policy",
+      "type": "string"
+    },
+    "retention_until": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Retention Until"
+    },
+    "export_allowed": {
+      "title": "Export Allowed",
+      "type": "boolean"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Limitations",
+      "type": "array"
+    },
+    "nodes": {
+      "items": {
+        "$ref": "#/$defs/Node"
+      },
+      "maxItems": 200,
+      "minItems": 2,
+      "title": "Nodes",
+      "type": "array"
+    },
+    "edges": {
+      "items": {
+        "$ref": "#/$defs/Edge"
+      },
+      "maxItems": 500,
+      "minItems": 1,
+      "title": "Edges",
+      "type": "array"
+    },
+    "planning_policy": {
+      "$ref": "#/$defs/PlanningPolicy"
+    }
+  },
+  "required": [
+    "dataset_code",
+    "version",
+    "source_kind",
+    "source_reference",
+    "supported_state_codes",
+    "supported_vehicle_profile_codes",
+    "valid_from",
+    "attribution_text",
+    "license_reference",
+    "retention_policy",
+    "export_allowed",
+    "limitations",
+    "nodes",
+    "edges"
+  ],
+  "title": "DatasetInput",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Phase 5 command fields. Server-derived identity, execution mode and hashes are never client overrides."
+}

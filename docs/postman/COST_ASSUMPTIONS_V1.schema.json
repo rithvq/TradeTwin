@@ -1,0 +1,252 @@
+{
+  "$defs": {
+    "ExternalCost": {
+      "additionalProperties": false,
+      "properties": {
+        "component_id": {
+          "format": "uuid",
+          "title": "Component Id",
+          "type": "string"
+        },
+        "category": {
+          "enum": [
+            "TOLL",
+            "FUEL_SURCHARGE",
+            "LOADING",
+            "UNLOADING",
+            "HANDLING",
+            "CARGO_INSURANCE",
+            "OTHER"
+          ],
+          "title": "Category",
+          "type": "string"
+        },
+        "label": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "applies_to_quote_revision_ids": {
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "maxItems": 30,
+          "title": "Applies To Quote Revision Ids",
+          "type": "array"
+        },
+        "basis": {
+          "enum": [
+            "FIXED",
+            "PER_KM",
+            "PER_KG",
+            "PER_PACKAGE"
+          ],
+          "title": "Basis",
+          "type": "string"
+        },
+        "fixed_amount_minor": {
+          "anyOf": [
+            {
+              "pattern": "^(0|[1-9][0-9]{0,17})$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fixed Amount Minor"
+        },
+        "rate_minor_per_unit": {
+          "anyOf": [
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,14}|(?=[\\d.]{1,21}0*$)\\d{0,14}\\.\\d{0,6}0*$)",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rate Minor Per Unit"
+        },
+        "quantity_source": {
+          "enum": [
+            "ROUTE_DISTANCE_KM",
+            "CARGO_GROSS_KG",
+            "PACKAGE_COUNT",
+            "FIXED"
+          ],
+          "title": "Quantity Source",
+          "type": "string"
+        },
+        "fixed_quantity": {
+          "anyOf": [
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,14}|(?=[\\d.]{1,21}0*$)\\d{0,14}\\.\\d{0,6}0*$)",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fixed Quantity"
+        },
+        "amount_includes_applicable_tax": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Amount Includes Applicable Tax"
+        },
+        "source_kind": {
+          "enum": [
+            "REVIEWED_EXTERNAL_OFFER",
+            "USER_ESTIMATE",
+            "LICENSED_DATA",
+            "SIMULATION"
+          ],
+          "title": "Source Kind",
+          "type": "string"
+        },
+        "source_reference": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Reference"
+        },
+        "valid_until": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Valid Until"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note"
+        }
+      },
+      "required": [
+        "component_id",
+        "category",
+        "label",
+        "applies_to_quote_revision_ids",
+        "basis",
+        "quantity_source",
+        "source_kind"
+      ],
+      "title": "ExternalCost",
+      "type": "object"
+    },
+    "RecipientTax": {
+      "additionalProperties": false,
+      "properties": {
+        "quote_revision_id": {
+          "format": "uuid",
+          "title": "Quote Revision Id",
+          "type": "string"
+        },
+        "amount_minor": {
+          "anyOf": [
+            {
+              "pattern": "^(0|[1-9][0-9]{0,17})$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Amount Minor"
+        },
+        "basis_document_version_ids": {
+          "default": [],
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "maxItems": 30,
+          "title": "Basis Document Version Ids",
+          "type": "array"
+        },
+        "declaration_note": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Declaration Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "quote_revision_id",
+        "amount_minor",
+        "declaration_note"
+      ],
+      "title": "RecipientTax",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "comparison_policy": {
+      "enum": [
+        "QUOTED_AMOUNTS_ONLY",
+        "ALLOW_DECLARED_ESTIMATES"
+      ],
+      "title": "Comparison Policy",
+      "type": "string"
+    },
+    "external_cost_components": {
+      "items": {
+        "$ref": "#/$defs/ExternalCost"
+      },
+      "maxItems": 30,
+      "title": "External Cost Components",
+      "type": "array"
+    },
+    "recipient_tax_cash_estimates": {
+      "items": {
+        "$ref": "#/$defs/RecipientTax"
+      },
+      "maxItems": 30,
+      "title": "Recipient Tax Cash Estimates",
+      "type": "array"
+    }
+  },
+  "required": [
+    "comparison_policy"
+  ],
+  "title": "AssumptionsInput",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Phase 5 command fields. Server-derived identity, execution mode and hashes are never client overrides."
+}

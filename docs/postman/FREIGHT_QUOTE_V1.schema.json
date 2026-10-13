@@ -1,0 +1,446 @@
+{
+  "$defs": {
+    "Charge": {
+      "additionalProperties": false,
+      "properties": {
+        "component_id": {
+          "format": "uuid",
+          "title": "Component Id",
+          "type": "string"
+        },
+        "component_code": {
+          "enum": [
+            "BASE_FREIGHT",
+            "TOLL",
+            "FUEL_SURCHARGE",
+            "LOADING",
+            "UNLOADING",
+            "HANDLING",
+            "INSURANCE",
+            "OTHER"
+          ],
+          "title": "Component Code",
+          "type": "string"
+        },
+        "label": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "amount_minor": {
+          "pattern": "^(0|[1-9][0-9]{0,17})$",
+          "title": "Amount Minor",
+          "type": "string"
+        }
+      },
+      "required": [
+        "component_id",
+        "component_code",
+        "label",
+        "amount_minor"
+      ],
+      "title": "Charge",
+      "type": "object"
+    },
+    "Coverage": {
+      "additionalProperties": false,
+      "properties": {
+        "category_code": {
+          "enum": [
+            "TOLL",
+            "FUEL_SURCHARGE",
+            "LOADING",
+            "UNLOADING",
+            "HANDLING",
+            "CARGO_INSURANCE",
+            "OTHER"
+          ],
+          "title": "Category Code",
+          "type": "string"
+        },
+        "coverage": {
+          "enum": [
+            "INCLUDED_IN_QUOTED_PRICE",
+            "EXCLUDED_PAYER_COST",
+            "NOT_APPLICABLE",
+            "UNKNOWN"
+          ],
+          "title": "Coverage",
+          "type": "string"
+        },
+        "explanation": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Explanation",
+          "type": "string"
+        }
+      },
+      "required": [
+        "category_code",
+        "coverage",
+        "explanation"
+      ],
+      "title": "Coverage",
+      "type": "object"
+    },
+    "WaitTerm": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "enum": [
+            "ORIGIN_WAIT",
+            "DESTINATION_WAIT"
+          ],
+          "title": "Code",
+          "type": "string"
+        },
+        "free_minutes": {
+          "minimum": 0,
+          "title": "Free Minutes",
+          "type": "integer"
+        },
+        "billing_increment_minutes": {
+          "exclusiveMinimum": 0,
+          "title": "Billing Increment Minutes",
+          "type": "integer"
+        },
+        "charge_per_increment_gross_minor": {
+          "pattern": "^(0|[1-9][0-9]{0,17})$",
+          "title": "Charge Per Increment Gross Minor",
+          "type": "string"
+        },
+        "maximum_charge_gross_minor": {
+          "anyOf": [
+            {
+              "pattern": "^(0|[1-9][0-9]{0,17})$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Maximum Charge Gross Minor"
+        },
+        "applicability_note": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Applicability Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "free_minutes",
+        "billing_increment_minutes",
+        "charge_per_increment_gross_minor",
+        "applicability_note"
+      ],
+      "title": "WaitTerm",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "quote_head_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Quote Head Id"
+    },
+    "route_template_revision_id": {
+      "format": "uuid",
+      "title": "Route Template Revision Id",
+      "type": "string"
+    },
+    "vehicle_id": {
+      "format": "uuid",
+      "title": "Vehicle Id",
+      "type": "string"
+    },
+    "routing_vehicle_profile_revision_id": {
+      "format": "uuid",
+      "title": "Routing Vehicle Profile Revision Id",
+      "type": "string"
+    },
+    "driver_user_id": {
+      "format": "uuid",
+      "title": "Driver User Id",
+      "type": "string"
+    },
+    "transport_evidence_revision_ids": {
+      "default": [],
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "maxItems": 30,
+      "title": "Transport Evidence Revision Ids",
+      "type": "array"
+    },
+    "offered_pickup_window_start": {
+      "format": "date-time",
+      "title": "Offered Pickup Window Start",
+      "type": "string"
+    },
+    "offered_pickup_window_end": {
+      "format": "date-time",
+      "title": "Offered Pickup Window End",
+      "type": "string"
+    },
+    "offered_delivery_window_start": {
+      "format": "date-time",
+      "title": "Offered Delivery Window Start",
+      "type": "string"
+    },
+    "offered_delivery_window_end": {
+      "format": "date-time",
+      "title": "Offered Delivery Window End",
+      "type": "string"
+    },
+    "booking_window_start": {
+      "format": "date-time",
+      "title": "Booking Window Start",
+      "type": "string"
+    },
+    "booking_window_end": {
+      "format": "date-time",
+      "title": "Booking Window End",
+      "type": "string"
+    },
+    "delivery_commitment_kind": {
+      "default": "TARGET_ONLY",
+      "enum": [
+        "TARGET_ONLY",
+        "CONTRACTUAL_DEADLINE"
+      ],
+      "title": "Delivery Commitment Kind",
+      "type": "string"
+    },
+    "delivery_terms": {
+      "maxLength": 2000,
+      "minLength": 1,
+      "title": "Delivery Terms",
+      "type": "string"
+    },
+    "currency": {
+      "const": "INR",
+      "default": "INR",
+      "title": "Currency",
+      "type": "string"
+    },
+    "offer_kind": {
+      "enum": [
+        "FIRM_OFFER",
+        "INDICATIVE"
+      ],
+      "title": "Offer Kind",
+      "type": "string"
+    },
+    "pricing_basis": {
+      "const": "FIXED_FOR_CONSIGNMENT_AND_ROUTE",
+      "default": "FIXED_FOR_CONSIGNMENT_AND_ROUTE",
+      "title": "Pricing Basis",
+      "type": "string"
+    },
+    "charge_components": {
+      "items": {
+        "$ref": "#/$defs/Charge"
+      },
+      "maxItems": 20,
+      "minItems": 1,
+      "title": "Charge Components",
+      "type": "array"
+    },
+    "discount_minor": {
+      "default": "0",
+      "pattern": "^(0|[1-9][0-9]{0,17})$",
+      "title": "Discount Minor",
+      "type": "string"
+    },
+    "carrier_charged_tax_minor": {
+      "anyOf": [
+        {
+          "pattern": "^(0|[1-9][0-9]{0,17})$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Carrier Charged Tax Minor"
+    },
+    "tax_treatment": {
+      "enum": [
+        "DECLARED_SUPPLIER_CHARGED",
+        "DECLARED_RECIPIENT_ACCOUNTED",
+        "DECLARED_NO_TAX",
+        "UNRESOLVED"
+      ],
+      "title": "Tax Treatment",
+      "type": "string"
+    },
+    "tax_note": {
+      "anyOf": [
+        {
+          "maxLength": 2000,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Tax Note"
+    },
+    "service_coverage": {
+      "items": {
+        "$ref": "#/$defs/Coverage"
+      },
+      "maxItems": 10,
+      "title": "Service Coverage",
+      "type": "array"
+    },
+    "unpriced_carrier_extras_allowed": {
+      "const": false,
+      "default": false,
+      "title": "Unpriced Carrier Extras Allowed",
+      "type": "boolean"
+    },
+    "contingent_charge_terms": {
+      "items": {
+        "$ref": "#/$defs/WaitTerm"
+      },
+      "maxItems": 10,
+      "title": "Contingent Charge Terms",
+      "type": "array"
+    },
+    "cancellation_terms": {
+      "maxLength": 4000,
+      "minLength": 1,
+      "title": "Cancellation Terms",
+      "type": "string"
+    },
+    "exclusions": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 20,
+      "title": "Exclusions",
+      "type": "array"
+    },
+    "price_limitations": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 20,
+      "title": "Price Limitations",
+      "type": "array"
+    },
+    "valid_from": {
+      "format": "date-time",
+      "title": "Valid From",
+      "type": "string"
+    },
+    "accept_by": {
+      "format": "date-time",
+      "title": "Accept By",
+      "type": "string"
+    },
+    "source_mode": {
+      "default": "PORTAL_ENTRY",
+      "enum": [
+        "PORTAL_ENTRY",
+        "REVIEWED_QUOTE_DOCUMENT",
+        "SIMULATION"
+      ],
+      "title": "Source Mode",
+      "type": "string"
+    },
+    "quote_document_version_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Quote Document Version Id"
+    },
+    "quote_document_fact_revision_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Quote Document Fact Revision Id"
+    },
+    "carrier_offer_reference": {
+      "anyOf": [
+        {
+          "maxLength": 100,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Carrier Offer Reference"
+    },
+    "note": {
+      "anyOf": [
+        {
+          "maxLength": 2000,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Note"
+    }
+  },
+  "required": [
+    "route_template_revision_id",
+    "vehicle_id",
+    "routing_vehicle_profile_revision_id",
+    "driver_user_id",
+    "offered_pickup_window_start",
+    "offered_pickup_window_end",
+    "offered_delivery_window_start",
+    "offered_delivery_window_end",
+    "booking_window_start",
+    "booking_window_end",
+    "delivery_terms",
+    "offer_kind",
+    "charge_components",
+    "carrier_charged_tax_minor",
+    "tax_treatment",
+    "service_coverage",
+    "cancellation_terms",
+    "valid_from",
+    "accept_by"
+  ],
+  "title": "QuoteInput",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Phase 5 command fields. Server-derived identity, execution mode and hashes are never client overrides."
+}

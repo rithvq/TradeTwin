@@ -1,6 +1,7 @@
 import { type Values } from "./trades";
 
 export const documentTypes = [
+  "FREIGHT_QUOTE",
   "TAX_INVOICE",
   "BILL_OF_SUPPLY",
   "DELIVERY_CHALLAN",

@@ -22,6 +22,13 @@ export function TransportTasks() {
         <Refresh reload={resource.reload} />
       </header>
       {resource.error && <p role="alert">{resource.error}</p>}
+      {member?.permissions.some(
+        (p) => p.permission_code === "freight.rfq.invited.read",
+      ) && (
+        <Link href="/optimizer/freight" className="text-accent underline">
+          Invited freight RFQs and route offers
+        </Link>
+      )}
       {resource.data?.items.map((a) => (
         <article key={a.id} className="space-y-3 border-b py-4">
           <div className="flex flex-wrap justify-between gap-3">

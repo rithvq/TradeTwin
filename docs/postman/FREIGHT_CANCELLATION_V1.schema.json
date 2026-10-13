@@ -1,0 +1,46 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "reason": {
+      "maxLength": 2000,
+      "minLength": 1,
+      "title": "Reason",
+      "type": "string"
+    },
+    "commitment_hash": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Commitment Hash",
+      "type": "string"
+    },
+    "proposed_fee_position": {
+      "enum": [
+        "NO_FEE",
+        "AGREED_AMOUNT"
+      ],
+      "title": "Proposed Fee Position",
+      "type": "string"
+    },
+    "proposed_fee_minor": {
+      "pattern": "^(0|[1-9][0-9]{0,17})$",
+      "title": "Proposed Fee Minor",
+      "type": "string"
+    },
+    "proposed_fee_note": {
+      "maxLength": 2000,
+      "minLength": 1,
+      "title": "Proposed Fee Note",
+      "type": "string"
+    }
+  },
+  "required": [
+    "reason",
+    "commitment_hash",
+    "proposed_fee_position",
+    "proposed_fee_minor",
+    "proposed_fee_note"
+  ],
+  "title": "CancellationInput",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Phase 5 command fields. Server-derived identity, execution mode and hashes are never client overrides."
+}

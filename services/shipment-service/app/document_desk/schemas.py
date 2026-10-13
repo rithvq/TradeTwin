@@ -9,6 +9,7 @@ from app.trades.reference import UQC
 from app.trades.schemas import Minor, NonnegativeDecimal, PositiveDecimal, Schema, state, utc
 
 DocumentType = Literal[
+    "FREIGHT_QUOTE",
     "TAX_INVOICE",
     "BILL_OF_SUPPLY",
     "DELIVERY_CHALLAN",

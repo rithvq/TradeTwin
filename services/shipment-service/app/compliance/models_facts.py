@@ -128,7 +128,9 @@ class TransportEvidence(Snapshot, TradeBase):
         Index("ix_transport_evidence_subject", "assignment_id", "subject_id", "evidence_type"),
     )
     owner_organisation_id: Mapped[str] = mapped_column(ForeignKey("trade_organizations.id"))
-    assignment_id: Mapped[str] = mapped_column(ForeignKey("op_transport_assignments.id"))
+    assignment_id: Mapped[str | None] = mapped_column(
+        ForeignKey("op_transport_assignments.id"), nullable=True
+    )
     subject_type: Mapped[str] = mapped_column(String(20))
     subject_id: Mapped[str] = mapped_column(String(36))
     evidence_type: Mapped[str] = mapped_column(String(40))

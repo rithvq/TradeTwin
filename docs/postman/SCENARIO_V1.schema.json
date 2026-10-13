@@ -1,0 +1,75 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "scenario_code": {
+      "enum": [
+        "BASE",
+        "EXTRA_WAIT",
+        "EXTRA_STOP"
+      ],
+      "title": "Scenario Code",
+      "type": "string"
+    },
+    "label": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Label",
+      "type": "string"
+    },
+    "delay_placement": {
+      "enum": [
+        "ORIGIN_BEFORE_DEPARTURE",
+        "IN_TRANSIT",
+        "DESTINATION_UNLOADING"
+      ],
+      "title": "Delay Placement",
+      "type": "string"
+    },
+    "additional_wait_minutes": {
+      "default": 0,
+      "maximum": 43200,
+      "minimum": 0,
+      "title": "Additional Wait Minutes",
+      "type": "integer"
+    },
+    "additional_stop_minutes": {
+      "default": 0,
+      "maximum": 43200,
+      "minimum": 0,
+      "title": "Additional Stop Minutes",
+      "type": "integer"
+    },
+    "assumption_origin": {
+      "enum": [
+        "USER_INPUT",
+        "PUBLISHED_QUOTE_TERM",
+        "SIMULATION"
+      ],
+      "title": "Assumption Origin",
+      "type": "string"
+    },
+    "assumption_note": {
+      "anyOf": [
+        {
+          "maxLength": 1000,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Assumption Note"
+    }
+  },
+  "required": [
+    "scenario_code",
+    "label",
+    "delay_placement",
+    "assumption_origin"
+  ],
+  "title": "Scenario",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Phase 5 command fields. Server-derived identity, execution mode and hashes are never client overrides."
+}

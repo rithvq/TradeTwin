@@ -17,6 +17,7 @@ for name in list(sys.modules):
 
 from app.compliance.models import TABLES  # noqa: E402
 from app.document_desk.models import Document  # noqa: E402
+from app.freight.models import TABLES as FREIGHT_TABLES  # noqa: E402
 from app.operations.models import Assignment  # noqa: E402
 from app.trades.migrate import migrate  # noqa: E402
 from app.trades.models import TradeBase  # noqa: E402
@@ -56,6 +57,7 @@ def test_phase_migrations_only_create_their_own_tables(migration_engine):
     assert Document.__table__.metadata is TradeBase.metadata
     assert Assignment.__table__.metadata is TradeBase.metadata
     assert all(model.__table__.metadata is TradeBase.metadata for model in TABLES)
+    assert all(model.__table__.metadata is TradeBase.metadata for model in FREIGHT_TABLES)
     expected = set(TradeBase.metadata.tables)
     commercial = {
         name
@@ -77,6 +79,10 @@ def test_phase_migrations_only_create_their_own_tables(migration_engine):
     actual = set(inspect(migration_engine).get_table_names()) - {"trade_alembic_version"}
     assert actual == commercial | operational | documents
 
+    upgrade_to(migration_engine, "trade_004")
+    actual = set(inspect(migration_engine).get_table_names()) - {"trade_alembic_version"}
+    assert actual == expected - {m.__tablename__ for m in FREIGHT_TABLES}
+
     migrate(migration_engine)
     migrate(migration_engine)
     actual = set(inspect(migration_engine).get_table_names()) - {"trade_alembic_version"}
@@ -91,5 +97,5 @@ def test_fresh_database_upgrades_directly_to_head(migration_engine):
     assert set(TradeBase.metadata.tables).issubset(inspect(migration_engine).get_table_names())
     with migration_engine.connect() as connection:
         assert (
-            connection.scalar(text("SELECT version_num FROM trade_alembic_version")) == "trade_004"
+            connection.scalar(text("SELECT version_num FROM trade_alembic_version")) == "trade_005"
         )

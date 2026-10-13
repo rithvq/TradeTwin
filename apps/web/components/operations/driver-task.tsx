@@ -14,6 +14,7 @@ import { ConsignmentHeader, Facts, MovementTimeline, Section } from "./shared";
 import { EvidenceUpload } from "./evidence-upload";
 import { DriverPacket } from "@/components/compliance/driver-packet";
 import type { Readiness } from "@/lib/guarded-dispatch";
+import { CommittedRoute } from "@/components/freight/route-plan";
 
 const incident: FieldSpec[] = [
   {
@@ -175,6 +176,7 @@ export function DriverTask({ id }: { id: string }) {
           />
         ))}
       </Section>
+      <CommittedRoute consignmentId={cn.id} />
       {!!projections.data?.items.length && (
         <Section name="Operational document evidence">
           {projections.data.items.map((p) => (

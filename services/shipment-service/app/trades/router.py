@@ -411,3 +411,7 @@ router.include_router(document_router)
 from app.compliance.router import router as compliance_router  # noqa: E402
 
 router.include_router(compliance_router)
+
+from app.freight.router import router as freight_router  # noqa: E402
+
+router.include_router(freight_router)

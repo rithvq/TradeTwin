@@ -1,0 +1,1412 @@
+{
+  "info": {
+    "name": "TradeTwin Phase 5 Freight Planning",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Local templates. Select current role, exact hashes and ETags. Quotes reserve nothing; commitment does not dispatch or pay."
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8011"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "organization_id",
+      "value": ""
+    },
+    {
+      "key": "consignment_id",
+      "value": ""
+    },
+    {
+      "key": "vehicle_id",
+      "value": ""
+    },
+    {
+      "key": "rfq_id",
+      "value": ""
+    },
+    {
+      "key": "quote_id",
+      "value": ""
+    },
+    {
+      "key": "run_id",
+      "value": ""
+    },
+    {
+      "key": "selection_id",
+      "value": ""
+    },
+    {
+      "key": "commitment_id",
+      "value": ""
+    },
+    {
+      "key": "cancellation_id",
+      "value": ""
+    },
+    {
+      "key": "assumption_id",
+      "value": ""
+    },
+    {
+      "key": "context_etag",
+      "value": ""
+    },
+    {
+      "key": "head_etag",
+      "value": ""
+    },
+    {
+      "key": "stale_etag",
+      "value": "\"0\""
+    },
+    {
+      "key": "location_json",
+      "value": "{}"
+    },
+    {
+      "key": "profile_json",
+      "value": "{}"
+    },
+    {
+      "key": "rfq_json",
+      "value": "{}"
+    },
+    {
+      "key": "quote_json",
+      "value": "{}"
+    },
+    {
+      "key": "assumptions_json",
+      "value": "{}"
+    },
+    {
+      "key": "run_json",
+      "value": "{}"
+    },
+    {
+      "key": "selection_json",
+      "value": "{}"
+    },
+    {
+      "key": "decision_json",
+      "value": "{}"
+    },
+    {
+      "key": "cancellation_json",
+      "value": "{}"
+    },
+    {
+      "key": "scenario_json",
+      "value": "{}"
+    }
+  ],
+  "item": [
+    {
+      "name": "Current routing and payer context",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/consignments/{{consignment_id}}/tradetwin-context",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Confirm current loading gate",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/consignments/{{consignment_id}}/routing-location-revisions",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{head_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{location_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status', () => pm.response.to.have.status(201));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Owned routing-profile revision",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/vehicles/{{vehicle_id}}/routing-profile-revisions",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{head_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{profile_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status', () => pm.response.to.have.status(201));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Retained templates",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/consignments/{{consignment_id}}/route-templates",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Prepare immutable RFQ",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/consignments/{{consignment_id}}/freight-rfqs",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{head_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{rfq_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status', () => pm.response.to.have.status(201));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Publish exact RFQ hash",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/freight-rfqs/{{rfq_id}}/publications",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{head_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{decision_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invited operational RFQ",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/freight-rfqs/{{rfq_id}}",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Carrier prepares fixed offer",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/freight-rfqs/{{rfq_id}}/quote-revisions",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{quote_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status', () => pm.response.to.have.status(201));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Carrier submits exact quote hash",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/freight-quote-revisions/{{quote_id}}/submissions",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{head_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{decision_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Private external-cost declaration",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/consignments/{{consignment_id}}/tradetwin-cost-assumption-revisions",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{assumptions_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status', () => pm.response.to.have.status(201));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Independent payer declaration review",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/tradetwin-cost-assumption-revisions/{{assumption_id}}/reviews",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{decision_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Run deterministic TradeTwin",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/consignments/{{consignment_id}}/tradetwin-runs",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{context_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{run_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status', () => pm.response.to.have.status(202));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Comparison and excluded candidates",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/tradetwin-runs/{{run_id}}",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Immutable stress comparison",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/tradetwin-runs/{{run_id}}/scenario-runs",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{context_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{scenario_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status', () => pm.response.to.have.status(202));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Propose BASE candidate",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/consignments/{{consignment_id}}/tradetwin-selections",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{head_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{selection_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status', () => pm.response.to.have.status(201));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Exact-hash payer decision",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/tradetwin-selections/{{selection_id}}/payer-decisions",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{head_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{decision_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Exact-hash coordinator decision",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/tradetwin-selections/{{selection_id}}/coordinator-decisions",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{head_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{decision_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Exact-hash carrier decision",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/tradetwin-selections/{{selection_id}}/carrier-decisions",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{head_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{decision_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Selected operational route",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/consignments/{{consignment_id}}/route-plan",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Fresh Phase 4 constraints",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/consignments/{{consignment_id}}/compliance-constraints",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Decision evidence",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/tradetwin-runs/{{run_id}}/evidence-manifest",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Commitment evidence",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/freight-commitments/{{commitment_id}}/evidence-manifest",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bilateral cancellation proposal",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/freight-commitments/{{commitment_id}}/cancellation-proposals",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{cancellation_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status', () => pm.response.to.have.status(201));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cancellation decision",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/freight-cancellation-proposals/{{cancellation_id}}/decisions",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{head_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{decision_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reject stale selection version",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/consignments/{{consignment_id}}/tradetwin-selections",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{stale_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{selection_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status', () => pm.response.to.have.status(412));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reject expired/withdrawn acceptance",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/tradetwin-selections/{{selection_id}}/carrier-decisions",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{head_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{decision_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status', () => pm.response.to.have.status(409));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reject resource conflict",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/tradetwin-selections/{{selection_id}}/carrier-decisions",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{head_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{decision_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status', () => pm.response.to.have.status(409));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

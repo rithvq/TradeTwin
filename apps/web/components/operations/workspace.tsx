@@ -21,6 +21,8 @@ import { OperationalGraph } from "./graph";
 import { DocumentModulePanel } from "@/components/document-desk/module-panel";
 import { ReleaseDesk } from "@/components/compliance/release-desk";
 import { RegulationsDesk } from "@/components/compliance/regulations";
+import { FreightDesk } from "@/components/freight/desk";
+import { RoutingDataDesk } from "@/components/freight/datasets";
 
 const modules = [
   "Shipments",
@@ -350,13 +352,22 @@ export function OperationsWorkspace({ tradeId }: { tradeId: string }) {
       {["Compliance", "Risk", "Optimizer", "Evidence", "Graph"].includes(
         module,
       ) &&
-        data.consignments.map((cn) => (
-          <ComplianceAccess
-            key={`${cn.id}:${module}`}
-            cn={cn}
-            module={module}
-          />
-        ))}
+        data.consignments.map((cn) =>
+          module === "Optimizer" ? (
+            <details key={`${cn.id}:${module}`} className="border-t py-3">
+              <summary className="cursor-pointer font-medium">
+                Current actual dispatch constraints / {cn.reference}
+              </summary>
+              <ComplianceAccess cn={cn} module={module} />
+            </details>
+          ) : (
+            <ComplianceAccess
+              key={`${cn.id}:${module}`}
+              cn={cn}
+              module={module}
+            />
+          ),
+        )}
       {module === "Graph" && <OperationalGraph graph={data.graph} />}
       {module === "Risk" && (
         <Section name="Operational exceptions">
@@ -393,19 +404,19 @@ export function OperationsWorkspace({ tradeId }: { tradeId: string }) {
           ))}
         </Section>
       )}
-      {module === "Optimizer" && (
-        <Section name="Planning inputs">
-          <p className="text-sm text-secondary">
-            Planning inputs available. Route and price optimisation arrives in
-            Phase 5.
-          </p>
-          {data.consignments.map((c) => (
-            <PlanningPreview key={c.id} id={c.id} label={c.reference} />
-          ))}
-        </Section>
-      )}
+      {["Shipments", "Optimizer", "Risk", "Graph", "Evidence"].includes(
+        module,
+      ) &&
+        data.consignments.map((c) => (
+          <FreightAccess
+            key={`${c.id}:freight:${module}`}
+            cn={c}
+            module={module}
+          />
+        ))}
       {module === "Regulations" && (
         <Section name="Regulatory context">
+          <RoutingDataDesk />
           <RegulationsDesk
             attachments={data.documents}
             tradeId={tradeId}
@@ -504,23 +515,22 @@ function RegulatoryContext({
   );
 }
 
-function PlanningPreview({ id, label }: { id: string; label: string }) {
-  const { org } = useTradeContext();
-  const { data, error } = useOperationsResource<Values>(
-    `/consignments/${id}/planning-context`,
-    org,
-  );
-  return (
-    <details className="border-b py-3">
-      <summary className="cursor-pointer font-medium">{label}</summary>
-      {error && <p role="alert">{error}</p>}
-      {data && (
-        <pre className="mt-3 max-h-96 overflow-auto rounded border bg-surface p-4 text-xs">
-          {JSON.stringify(data, null, 2)}
-        </pre>
-      )}
-    </details>
-  );
+function FreightAccess({
+  cn,
+  module,
+}: {
+  cn: Operations["consignments"][number];
+  module: string;
+}) {
+  const { me, org } = useTradeContext();
+  const granted = me.memberships
+    .find((m) => m.organization_id === org)
+    ?.permissions.some(
+      (p) =>
+        p.permission_code === "tradetwin.read" &&
+        (!p.trade_id || p.trade_id === cn.trade_id),
+    );
+  return granted ? <FreightDesk consignmentId={cn.id} module={module} /> : null;
 }
 function EvidenceTimeline({ tradeId }: { tradeId: string }) {
   const { org } = useTradeContext();

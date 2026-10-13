@@ -214,7 +214,12 @@ export type Operations = {
     verification_status?: string;
   }[];
   graph: {
-    nodes: { id: string; type: string; label: string }[];
+    nodes: {
+      id: string;
+      type: string;
+      label: string;
+      details?: Values | null;
+    }[];
     edges: { source: string; target: string; type: string }[];
   };
   allowed_actions: string[];

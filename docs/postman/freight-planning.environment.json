@@ -1,0 +1,156 @@
+{
+  "name": "TradeTwin Phase 5 Local Template",
+  "values": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8011",
+      "enabled": true,
+      "type": "default"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "enabled": true,
+      "type": "secret"
+    },
+    {
+      "key": "organization_id",
+      "value": "",
+      "enabled": true,
+      "type": "default"
+    },
+    {
+      "key": "consignment_id",
+      "value": "",
+      "enabled": true,
+      "type": "default"
+    },
+    {
+      "key": "vehicle_id",
+      "value": "",
+      "enabled": true,
+      "type": "default"
+    },
+    {
+      "key": "rfq_id",
+      "value": "",
+      "enabled": true,
+      "type": "default"
+    },
+    {
+      "key": "quote_id",
+      "value": "",
+      "enabled": true,
+      "type": "default"
+    },
+    {
+      "key": "run_id",
+      "value": "",
+      "enabled": true,
+      "type": "default"
+    },
+    {
+      "key": "selection_id",
+      "value": "",
+      "enabled": true,
+      "type": "default"
+    },
+    {
+      "key": "commitment_id",
+      "value": "",
+      "enabled": true,
+      "type": "default"
+    },
+    {
+      "key": "cancellation_id",
+      "value": "",
+      "enabled": true,
+      "type": "default"
+    },
+    {
+      "key": "assumption_id",
+      "value": "",
+      "enabled": true,
+      "type": "default"
+    },
+    {
+      "key": "context_etag",
+      "value": "",
+      "enabled": true,
+      "type": "default"
+    },
+    {
+      "key": "head_etag",
+      "value": "",
+      "enabled": true,
+      "type": "default"
+    },
+    {
+      "key": "stale_etag",
+      "value": "\"0\"",
+      "enabled": true,
+      "type": "default"
+    },
+    {
+      "key": "location_json",
+      "value": "{}",
+      "enabled": true,
+      "type": "default"
+    },
+    {
+      "key": "profile_json",
+      "value": "{}",
+      "enabled": true,
+      "type": "default"
+    },
+    {
+      "key": "rfq_json",
+      "value": "{}",
+      "enabled": true,
+      "type": "default"
+    },
+    {
+      "key": "quote_json",
+      "value": "{}",
+      "enabled": true,
+      "type": "default"
+    },
+    {
+      "key": "assumptions_json",
+      "value": "{}",
+      "enabled": true,
+      "type": "default"
+    },
+    {
+      "key": "run_json",
+      "value": "{}",
+      "enabled": true,
+      "type": "default"
+    },
+    {
+      "key": "selection_json",
+      "value": "{}",
+      "enabled": true,
+      "type": "default"
+    },
+    {
+      "key": "decision_json",
+      "value": "{}",
+      "enabled": true,
+      "type": "default"
+    },
+    {
+      "key": "cancellation_json",
+      "value": "{}",
+      "enabled": true,
+      "type": "default"
+    },
+    {
+      "key": "scenario_json",
+      "value": "{}",
+      "enabled": true,
+      "type": "default"
+    }
+  ],
+  "_postman_variable_scope": "environment"
+}

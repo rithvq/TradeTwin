@@ -1,0 +1,245 @@
+{
+  "$defs": {
+    "Intent": {
+      "additionalProperties": false,
+      "properties": {
+        "intended_pickup_at": {
+          "format": "date-time",
+          "title": "Intended Pickup At",
+          "type": "string"
+        },
+        "intended_departure_at": {
+          "format": "date-time",
+          "title": "Intended Departure At",
+          "type": "string"
+        },
+        "required_arrival_by": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Required Arrival By"
+        },
+        "planned_stop_seconds": {
+          "default": 0,
+          "maximum": 86400,
+          "minimum": 0,
+          "title": "Planned Stop Seconds",
+          "type": "integer"
+        },
+        "planned_stops": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "maxItems": 20,
+          "title": "Planned Stops",
+          "type": "array"
+        }
+      },
+      "required": [
+        "intended_pickup_at",
+        "intended_departure_at"
+      ],
+      "title": "Intent",
+      "type": "object"
+    },
+    "Scenario": {
+      "additionalProperties": false,
+      "properties": {
+        "scenario_code": {
+          "enum": [
+            "BASE",
+            "EXTRA_WAIT",
+            "EXTRA_STOP"
+          ],
+          "title": "Scenario Code",
+          "type": "string"
+        },
+        "label": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        },
+        "delay_placement": {
+          "enum": [
+            "ORIGIN_BEFORE_DEPARTURE",
+            "IN_TRANSIT",
+            "DESTINATION_UNLOADING"
+          ],
+          "title": "Delay Placement",
+          "type": "string"
+        },
+        "additional_wait_minutes": {
+          "default": 0,
+          "maximum": 43200,
+          "minimum": 0,
+          "title": "Additional Wait Minutes",
+          "type": "integer"
+        },
+        "additional_stop_minutes": {
+          "default": 0,
+          "maximum": 43200,
+          "minimum": 0,
+          "title": "Additional Stop Minutes",
+          "type": "integer"
+        },
+        "assumption_origin": {
+          "enum": [
+            "USER_INPUT",
+            "PUBLISHED_QUOTE_TERM",
+            "SIMULATION"
+          ],
+          "title": "Assumption Origin",
+          "type": "string"
+        },
+        "assumption_note": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Assumption Note"
+        }
+      },
+      "required": [
+        "scenario_code",
+        "label",
+        "delay_placement",
+        "assumption_origin"
+      ],
+      "title": "Scenario",
+      "type": "object"
+    },
+    "Weights": {
+      "additionalProperties": false,
+      "properties": {
+        "cost_basis_points": {
+          "default": 5000,
+          "maximum": 10000,
+          "minimum": 0,
+          "title": "Cost Basis Points",
+          "type": "integer"
+        },
+        "time_basis_points": {
+          "default": 5000,
+          "maximum": 10000,
+          "minimum": 0,
+          "title": "Time Basis Points",
+          "type": "integer"
+        }
+      },
+      "title": "Weights",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "expected_context_version": {
+      "minimum": 0,
+      "title": "Expected Context Version",
+      "type": "integer"
+    },
+    "planning_intent": {
+      "$ref": "#/$defs/Intent"
+    },
+    "quote_revision_ids": {
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "maxItems": 30,
+      "minItems": 1,
+      "title": "Quote Revision Ids",
+      "type": "array"
+    },
+    "route_template_revision_ids": {
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "maxItems": 20,
+      "minItems": 1,
+      "title": "Route Template Revision Ids",
+      "type": "array"
+    },
+    "cost_assumption_revision_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Cost Assumption Revision Id"
+    },
+    "objective": {
+      "default": "LOWEST_COMPARABLE_COST",
+      "enum": [
+        "LOWEST_COMPARABLE_COST",
+        "EARLIEST_ESTIMATED_ARRIVAL",
+        "BALANCED"
+      ],
+      "title": "Objective",
+      "type": "string"
+    },
+    "balanced_weights": {
+      "$ref": "#/$defs/Weights"
+    },
+    "comparison_policy": {
+      "default": "QUOTED_AMOUNTS_ONLY",
+      "enum": [
+        "QUOTED_AMOUNTS_ONLY",
+        "ALLOW_DECLARED_ESTIMATES"
+      ],
+      "title": "Comparison Policy",
+      "type": "string"
+    },
+    "scenarios": {
+      "items": {
+        "$ref": "#/$defs/Scenario"
+      },
+      "maxItems": 5,
+      "title": "Scenarios",
+      "type": "array"
+    },
+    "parent_run_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Parent Run Id"
+    }
+  },
+  "required": [
+    "expected_context_version",
+    "planning_intent",
+    "quote_revision_ids",
+    "route_template_revision_ids"
+  ],
+  "title": "RunInput",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Phase 5 command fields. Server-derived identity, execution mode and hashes are never client overrides."
+}

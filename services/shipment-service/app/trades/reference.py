@@ -304,3 +304,45 @@ ROLE_PERMISSIONS["CARRIER_DISPATCHER"] |= {
     "document.original.download",
 }
 ROLE_PERMISSIONS["DRIVER"] |= {"document.read"}
+
+ROLE_PERMISSIONS.update(
+    {
+        "TRADE_PLANNER": _READ
+        | {
+            "tradetwin.read",
+            "tradetwin.plan.prepare",
+            "freight.rfq.prepare",
+            "freight.rfq.publish",
+            "tradetwin.run",
+            "tradetwin.selection.prepare",
+        },
+        "TRANSPORT_PLAN_APPROVER": _READ | {"tradetwin.read", "tradetwin.plan.apply"},
+        "FREIGHT_COST_PREPARER": _READ
+        | {"tradetwin.read", "freight.price.read", "tradetwin.cost_assumptions.prepare"},
+        "FREIGHT_PROCUREMENT_APPROVER": _READ
+        | {
+            "tradetwin.read",
+            "freight.price.read",
+            "tradetwin.cost_assumptions.review",
+            "freight.commit.approve",
+        },
+        "ROUTING_DATA_PREPARER": {
+            "organization.read",
+            "routing.dataset.prepare",
+            "routing.dataset.read",
+        },
+        "ROUTING_DATA_STEWARD": {
+            "organization.read",
+            "routing.dataset.read",
+            "routing.dataset.review",
+            "routing.dataset.publish",
+        },
+    }
+)
+ROLE_PERMISSIONS["CARRIER_DISPATCHER"] |= {
+    "freight.rfq.invited.read",
+    "freight.quote.prepare",
+    "freight.quote.submit",
+    "freight.offer.accept",
+}
+ROLE_PERMISSIONS["INTEGRATION_ADMINISTRATOR"] |= {"routing.provider.read"}

@@ -169,6 +169,7 @@ def seed_demo(db, subjects=None, namespace="phase2", production=False):
                 ),
             )
             vehicle = db.get(transport.Vehicle, result["id"])
+        vehicle.execution_mode = "PRODUCTION" if production else "SIMULATION"
         vehicles.append(vehicle.id)
     reference = f"TT-OPS-{namespace.upper()}"
     trade = db.scalar(select(Trade).where(Trade.reference == reference))

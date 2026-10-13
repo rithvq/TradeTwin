@@ -49,6 +49,41 @@ const graph: Operations["graph"] = {
 };
 
 describe("Operational graph isolation", () => {
+  it("starts freight decisions in a compact overview and retains inspectable sources", () => {
+    render(
+      <OperationalGraph
+        graph={{
+          nodes: [
+            { id: "rfq", type: "RFQ", label: "Published request" },
+            { id: "run", type: "TradeTwinRun", label: "Stored comparison" },
+            {
+              id: "candidate",
+              type: "Candidate",
+              label: "Offer A",
+              details: { measurement_basis: "Confirmed height record" },
+            },
+            { id: "quote", type: "Quote", label: "Exact offered revision" },
+          ],
+          edges: [
+            { source: "rfq", target: "run", type: "OFFERS_COMPARED_BY" },
+            { source: "run", target: "candidate", type: "EVALUATED" },
+            { source: "candidate", target: "quote", type: "USES_QUOTE" },
+          ],
+        }}
+      />,
+    );
+    expect(screen.getByLabelText("Relationship scope")).toHaveValue("overview");
+    expect(screen.queryByTestId("rf__node-quote")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("rf__node-candidate"));
+    expect(screen.getByText("Confirmed height record")).toBeVisible();
+    expect(
+      screen.getByRole("button", { name: "Quote: Exact offered revision" }),
+    ).toBeVisible();
+    fireEvent.change(screen.getByLabelText("Relationship scope"), {
+      target: { value: "all" },
+    });
+    expect(screen.getByTestId("rf__node-quote")).toBeVisible();
+  });
   it("filters and inspects the operational node when another graph contains the same ID", () => {
     render(
       <>

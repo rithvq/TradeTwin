@@ -1,0 +1,72 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "format": "uuid",
+      "title": "Run Id",
+      "type": "string"
+    },
+    "candidate_id": {
+      "format": "uuid",
+      "title": "Candidate Id",
+      "type": "string"
+    },
+    "candidate_hash": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Candidate Hash",
+      "type": "string"
+    },
+    "quote_revision_id": {
+      "format": "uuid",
+      "title": "Quote Revision Id",
+      "type": "string"
+    },
+    "quote_hash": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Quote Hash",
+      "type": "string"
+    },
+    "scenario_code": {
+      "const": "BASE",
+      "title": "Scenario Code",
+      "type": "string"
+    },
+    "expected_existing_assignment_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Expected Existing Assignment Id"
+    },
+    "expected_consignment_row_version": {
+      "minimum": 1,
+      "title": "Expected Consignment Row Version",
+      "type": "integer"
+    },
+    "expected_context_version": {
+      "minimum": 0,
+      "title": "Expected Context Version",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "run_id",
+    "candidate_id",
+    "candidate_hash",
+    "quote_revision_id",
+    "quote_hash",
+    "scenario_code",
+    "expected_existing_assignment_id",
+    "expected_consignment_row_version",
+    "expected_context_version"
+  ],
+  "title": "SelectionInput",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Phase 5 command fields. Server-derived identity, execution mode and hashes are never client overrides."
+}

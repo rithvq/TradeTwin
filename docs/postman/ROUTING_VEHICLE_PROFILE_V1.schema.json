@@ -1,0 +1,174 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "combined_tare_weight_kg": {
+      "anyOf": [
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,14}|(?=[\\d.]{1,21}0*$)\\d{0,14}\\.\\d{0,6}0*$)",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Combined Tare Weight Kg"
+    },
+    "maximum_authorised_combined_weight_kg": {
+      "anyOf": [
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,14}|(?=[\\d.]{1,21}0*$)\\d{0,14}\\.\\d{0,6}0*$)",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Maximum Authorised Combined Weight Kg"
+    },
+    "overall_height_mm": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Overall Height Mm"
+    },
+    "overall_width_mm": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Overall Width Mm"
+    },
+    "overall_length_mm": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Overall Length Mm"
+    },
+    "axle_count": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Axle Count"
+    },
+    "maximum_actual_axle_load_kg": {
+      "anyOf": [
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,14}|(?=[\\d.]{1,21}0*$)\\d{0,14}\\.\\d{0,6}0*$)",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Maximum Actual Axle Load Kg"
+    },
+    "trailer_count": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Trailer Count",
+      "type": "integer"
+    },
+    "toll_vehicle_class_code": {
+      "anyOf": [
+        {
+          "maxLength": 50,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Toll Vehicle Class Code"
+    },
+    "speed_cap_kph": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0,
+          "maximum": 150,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Speed Cap Kph"
+    },
+    "supported_cargo_profile_codes": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 30,
+      "title": "Supported Cargo Profile Codes",
+      "type": "array"
+    },
+    "source_document_version_ids": {
+      "default": [],
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "maxItems": 30,
+      "title": "Source Document Version Ids",
+      "type": "array"
+    },
+    "transport_evidence_revision_ids": {
+      "default": [],
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "maxItems": 30,
+      "title": "Transport Evidence Revision Ids",
+      "type": "array"
+    },
+    "field_provenance": {
+      "additionalProperties": true,
+      "title": "Field Provenance",
+      "type": "object"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 20,
+      "title": "Limitations",
+      "type": "array"
+    }
+  },
+  "title": "ProfileInput",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Phase 5 command fields. Server-derived identity, execution mode and hashes are never client overrides."
+}

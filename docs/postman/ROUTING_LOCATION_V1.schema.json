@@ -1,0 +1,108 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "address_role": {
+      "enum": [
+        "PICKUP",
+        "DROP"
+      ],
+      "title": "Address Role",
+      "type": "string"
+    },
+    "accepted_address_hash": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Accepted Address Hash",
+      "type": "string"
+    },
+    "latitude": {
+      "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,3}|(?=[\\d.]{1,11}0*$)\\d{0,3}\\.\\d{0,7}0*$)",
+      "title": "Latitude",
+      "type": "string"
+    },
+    "longitude": {
+      "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,3}|(?=[\\d.]{1,11}0*$)\\d{0,3}\\.\\d{0,7}0*$)",
+      "title": "Longitude",
+      "type": "string"
+    },
+    "position_source": {
+      "enum": [
+        "USER_PIN",
+        "LICENSED_GEOCODER",
+        "SIMULATION"
+      ],
+      "title": "Position Source",
+      "type": "string"
+    },
+    "precision": {
+      "enum": [
+        "CONFIRMED_LOADING_GATE",
+        "PREMISES",
+        "AREA_CENTROID",
+        "UNKNOWN"
+      ],
+      "title": "Precision",
+      "type": "string"
+    },
+    "accuracy_meters": {
+      "anyOf": [
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,14}|(?=[\\d.]{1,21}0*$)\\d{0,14}\\.\\d{0,6}0*$)",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Accuracy Meters"
+    },
+    "state_code": {
+      "title": "State Code",
+      "type": "string"
+    },
+    "provider_reference": {
+      "anyOf": [
+        {
+          "maxLength": 200,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Provider Reference"
+    },
+    "note": {
+      "anyOf": [
+        {
+          "maxLength": 1000,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Note"
+    },
+    "state_coordinate_conflict_resolved": {
+      "default": false,
+      "title": "State Coordinate Conflict Resolved",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "address_role",
+    "accepted_address_hash",
+    "latitude",
+    "longitude",
+    "position_source",
+    "precision",
+    "state_code"
+  ],
+  "title": "LocationInput",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Phase 5 command fields. Server-derived identity, execution mode and hashes are never client overrides."
+}

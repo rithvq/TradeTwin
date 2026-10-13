@@ -10,6 +10,18 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { title, type Operations } from "@/lib/operations";
+import { Facts } from "./shared";
+
+const overviewLevels: Record<string, number> = {
+  RFQ: 0,
+  TradeTwinRun: 1,
+  Candidate: 2,
+  SelectionProposal: 3,
+  FreightCommitment: 4,
+  OperationalRoutePlan: 5,
+  CommittedAssignment: 5,
+  ActualDispatchEvaluation: 6,
+};
 
 const levels: Record<string, number> = {
   Trade: 0,
@@ -27,13 +39,38 @@ const levels: Record<string, number> = {
   driver_user_id: 4,
   ReceiptLine: 4,
   Inspection: 5,
+  RFQ: 0,
+  CostAssumptions: 1,
+  TradeTwinRun: 2,
+  Candidate: 3,
+  Quote: 4,
+  Route: 4,
+  PlanningConstraint: 4,
+  RouteDataset: 5,
+  VehicleProfile: 5,
+  SelectionProposal: 5,
+  FreightCommitment: 6,
+  OperationalRoutePlan: 7,
+  CommittedAssignment: 7,
+  ActualDispatchEvaluation: 8,
 };
 export function OperationalGraph({ graph }: { graph: Operations["graph"] }) {
   const scopeId = useId();
-  const [scope, setScope] = useState("all");
+  const freight = graph.nodes.some((n) => n.type === "TradeTwinRun");
+  const [scope, setScope] = useState(freight ? "overview" : "all");
   const [selected, setSelected] = useState<string | null>(null);
   const focused = useMemo(() => {
     if (scope === "all") return graph;
+    if (scope === "overview") {
+      const nodes = graph.nodes.filter((n) => n.type in overviewLevels);
+      const visible = new Set(nodes.map((n) => n.id));
+      return {
+        nodes,
+        edges: graph.edges.filter(
+          (e) => visible.has(e.source) && visible.has(e.target),
+        ),
+      };
+    }
     const roots =
       scope === "settlement"
         ? graph.nodes
@@ -73,7 +110,8 @@ export function OperationalGraph({ graph }: { graph: Operations["graph"] }) {
   const elements = useMemo(() => {
     const rows: Record<number, number> = {};
     const nodes: Node[] = focused.nodes.map((n) => {
-      const level = levels[n.type] ?? 3;
+      const level =
+        scope === "overview" ? overviewLevels[n.type] : (levels[n.type] ?? 3);
       const row = rows[level] ?? 0;
       rows[level] = row + 1;
       return {
@@ -101,7 +139,7 @@ export function OperationalGraph({ graph }: { graph: Operations["graph"] }) {
       style: { stroke: "#6e9097", strokeWidth: 1.3 },
     }));
     return { nodes, edges };
-  }, [focused]);
+  }, [focused, scope]);
   const chosen = graph.nodes.find((n) => n.id === selected);
   const connections = graph.edges.filter(
     (e) => e.source === selected || e.target === selected,
@@ -123,9 +161,10 @@ export function OperationalGraph({ graph }: { graph: Operations["graph"] }) {
               setSelected(null);
             }}
           >
+            {freight && <option value="overview">Decision overview</option>}
             <option value="all">All relationships</option>
             {graph.nodes
-              .filter((n) => n.type === "Consignment")
+              .filter((n) => ["Consignment", "Candidate"].includes(n.type))
               .map((n) => (
                 <option key={n.id} value={n.id}>
                   {n.label}
@@ -183,6 +222,14 @@ export function OperationalGraph({ graph }: { graph: Operations["graph"] }) {
               );
             })}
           </ul>
+          {chosen.details && (
+            <details open>
+              <summary className="cursor-pointer font-medium">
+                Record facts and sources
+              </summary>
+              <Facts values={chosen.details} />
+            </details>
+          )}
         </div>
       )}
     </section>

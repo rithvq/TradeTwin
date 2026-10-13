@@ -89,9 +89,17 @@
       "type": "string"
     },
     "assignment_id": {
-      "format": "uuid",
-      "title": "Assignment Id",
-      "type": "string"
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Assignment Id"
     },
     "evidence_type": {
       "enum": [
@@ -345,7 +353,6 @@
   "required": [
     "subject_type",
     "subject_id",
-    "assignment_id",
     "evidence_type",
     "source_mode"
   ],

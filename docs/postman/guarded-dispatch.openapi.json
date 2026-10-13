@@ -6623,6 +6623,40 @@
         ],
         "title": "AssignmentProposal"
       },
+      "AssumptionsInput": {
+        "properties": {
+          "comparison_policy": {
+            "type": "string",
+            "enum": [
+              "QUOTED_AMOUNTS_ONLY",
+              "ALLOW_DECLARED_ESTIMATES"
+            ],
+            "title": "Comparison Policy"
+          },
+          "external_cost_components": {
+            "items": {
+              "$ref": "#/components/schemas/ExternalCost"
+            },
+            "type": "array",
+            "maxItems": 30,
+            "title": "External Cost Components"
+          },
+          "recipient_tax_cash_estimates": {
+            "items": {
+              "$ref": "#/components/schemas/RecipientTax"
+            },
+            "type": "array",
+            "maxItems": 30,
+            "title": "Recipient Tax Cash Estimates"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "comparison_policy"
+        ],
+        "title": "AssumptionsInput"
+      },
       "AttachmentCompletion": {
         "properties": {
           "expected_sha256": {
@@ -6825,6 +6859,91 @@
         ],
         "title": "BoundingBox"
       },
+      "CancellationDecisionInput": {
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Reason"
+          },
+          "proposal_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Proposal Hash"
+          },
+          "decision_role": {
+            "type": "string",
+            "enum": [
+              "PAYER",
+              "COORDINATOR",
+              "CARRIER"
+            ],
+            "title": "Decision Role"
+          },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "APPROVE",
+              "REJECT"
+            ],
+            "title": "Decision"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "reason",
+          "proposal_hash",
+          "decision_role",
+          "decision"
+        ],
+        "title": "CancellationDecisionInput"
+      },
+      "CancellationInput": {
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Reason"
+          },
+          "commitment_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Commitment Hash"
+          },
+          "proposed_fee_position": {
+            "type": "string",
+            "enum": [
+              "NO_FEE",
+              "AGREED_AMOUNT"
+            ],
+            "title": "Proposed Fee Position"
+          },
+          "proposed_fee_minor": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,17})$",
+            "title": "Proposed Fee Minor"
+          },
+          "proposed_fee_note": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Proposed Fee Note"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "reason",
+          "commitment_hash",
+          "proposed_fee_position",
+          "proposed_fee_minor",
+          "proposed_fee_note"
+        ],
+        "title": "CancellationInput"
+      },
       "CanonicalDocument": {
         "additionalProperties": false,
         "properties": {
@@ -6869,6 +6988,49 @@
         },
         "title": "CanonicalDocument",
         "type": "object"
+      },
+      "CarrierDecision": {
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Reason"
+          },
+          "proposal_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Proposal Hash"
+          },
+          "quote_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Quote Hash"
+          },
+          "proposed_assignment_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Proposed Assignment Id"
+          },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "ACCEPT",
+              "DECLINE"
+            ],
+            "title": "Decision"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "reason",
+          "proposal_hash",
+          "quote_hash",
+          "proposed_assignment_id",
+          "decision"
+        ],
+        "title": "CarrierDecision"
       },
       "CarrierProfileInput": {
         "properties": {
@@ -7055,6 +7217,49 @@
           "reason"
         ],
         "title": "CaseActionInput"
+      },
+      "Charge": {
+        "properties": {
+          "component_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Component Id"
+          },
+          "component_code": {
+            "type": "string",
+            "enum": [
+              "BASE_FREIGHT",
+              "TOLL",
+              "FUEL_SURCHARGE",
+              "LOADING",
+              "UNLOADING",
+              "HANDLING",
+              "INSURANCE",
+              "OTHER"
+            ],
+            "title": "Component Code"
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Label"
+          },
+          "amount_minor": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,17})$",
+            "title": "Amount Minor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "component_id",
+          "component_code",
+          "label",
+          "amount_minor"
+        ],
+        "title": "Charge"
       },
       "Comment": {
         "properties": {
@@ -8109,6 +8314,201 @@
         ],
         "title": "ConstraintView"
       },
+      "Coverage": {
+        "properties": {
+          "category_code": {
+            "type": "string",
+            "enum": [
+              "TOLL",
+              "FUEL_SURCHARGE",
+              "LOADING",
+              "UNLOADING",
+              "HANDLING",
+              "CARGO_INSURANCE",
+              "OTHER"
+            ],
+            "title": "Category Code"
+          },
+          "coverage": {
+            "type": "string",
+            "enum": [
+              "INCLUDED_IN_QUOTED_PRICE",
+              "EXCLUDED_PAYER_COST",
+              "NOT_APPLICABLE",
+              "UNKNOWN"
+            ],
+            "title": "Coverage"
+          },
+          "explanation": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Explanation"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "category_code",
+          "coverage",
+          "explanation"
+        ],
+        "title": "Coverage"
+      },
+      "DatasetInput": {
+        "properties": {
+          "dataset_code": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Dataset Code"
+          },
+          "version": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Version"
+          },
+          "source_kind": {
+            "type": "string",
+            "enum": [
+              "SIMULATION_FIXTURE",
+              "LICENSED_PROVIDER",
+              "MANUAL_OPERATIONAL_RECORD"
+            ],
+            "title": "Source Kind"
+          },
+          "source_reference": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Source Reference"
+          },
+          "supported_state_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Supported State Codes"
+          },
+          "supported_vehicle_profile_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Supported Vehicle Profile Codes"
+          },
+          "observed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed At"
+          },
+          "valid_from": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Valid From"
+          },
+          "valid_until": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid Until"
+          },
+          "attribution_text": {
+            "type": "string",
+            "title": "Attribution Text"
+          },
+          "license_reference": {
+            "type": "string",
+            "title": "License Reference"
+          },
+          "retention_policy": {
+            "type": "string",
+            "enum": [
+              "PERMITTED_ARCHIVE",
+              "UNTIL_DATE",
+              "NO_CONTENT_STORAGE"
+            ],
+            "title": "Retention Policy"
+          },
+          "retention_until": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retention Until"
+          },
+          "export_allowed": {
+            "type": "boolean",
+            "title": "Export Allowed"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations"
+          },
+          "nodes": {
+            "items": {
+              "$ref": "#/components/schemas/Node"
+            },
+            "type": "array",
+            "maxItems": 200,
+            "minItems": 2,
+            "title": "Nodes"
+          },
+          "edges": {
+            "items": {
+              "$ref": "#/components/schemas/Edge"
+            },
+            "type": "array",
+            "maxItems": 500,
+            "minItems": 1,
+            "title": "Edges"
+          },
+          "planning_policy": {
+            "$ref": "#/components/schemas/PlanningPolicy"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "dataset_code",
+          "version",
+          "source_kind",
+          "source_reference",
+          "supported_state_codes",
+          "supported_vehicle_profile_codes",
+          "valid_from",
+          "attribution_text",
+          "license_reference",
+          "retention_policy",
+          "export_allowed",
+          "limitations",
+          "nodes",
+          "edges"
+        ],
+        "title": "DatasetInput"
+      },
       "DeclarationReview": {
         "properties": {
           "decision": {
@@ -9139,6 +9539,179 @@
         ],
         "title": "DraftPatch"
       },
+      "Edge": {
+        "properties": {
+          "edge_key": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Edge Key"
+          },
+          "from_node_key": {
+            "type": "string",
+            "title": "From Node Key"
+          },
+          "to_node_key": {
+            "type": "string",
+            "title": "To Node Key"
+          },
+          "directed": {
+            "type": "boolean",
+            "title": "Directed",
+            "default": true
+          },
+          "distance_meters": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Distance Meters"
+          },
+          "estimated_driving_seconds": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Estimated Driving Seconds"
+          },
+          "ordered_state_sequence": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ordered State Sequence"
+          },
+          "allowed_vehicle_profile_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Allowed Vehicle Profile Codes"
+          },
+          "maximum_height_mm": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maximum Height Mm"
+          },
+          "maximum_width_mm": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maximum Width Mm"
+          },
+          "maximum_length_mm": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maximum Length Mm"
+          },
+          "maximum_loaded_weight_kg": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,14}|(?=[\\d.]{1,21}0*$)\\d{0,14}\\.\\d{0,6}0*$)"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maximum Loaded Weight Kg"
+          },
+          "maximum_axle_load_kg": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,14}|(?=[\\d.]{1,21}0*$)\\d{0,14}\\.\\d{0,6}0*$)"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maximum Axle Load Kg"
+          },
+          "restriction_refs": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Restriction Refs",
+            "default": []
+          },
+          "toll_record_refs": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Toll Record Refs",
+            "default": []
+          },
+          "assessment_coverage": {
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "ASSESSED_UNRESTRICTED",
+                "ASSESSED_LIMIT",
+                "UNKNOWN"
+              ]
+            },
+            "type": "object",
+            "title": "Assessment Coverage"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "edge_key",
+          "from_node_key",
+          "to_node_key",
+          "distance_meters",
+          "estimated_driving_seconds",
+          "ordered_state_sequence",
+          "allowed_vehicle_profile_codes",
+          "assessment_coverage"
+        ],
+        "title": "Edge"
+      },
       "ErrorField": {
         "additionalProperties": false,
         "properties": {
@@ -9486,6 +10059,176 @@
           "graph"
         ],
         "title": "EvidenceManifestView"
+      },
+      "ExternalCost": {
+        "properties": {
+          "component_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Component Id"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "TOLL",
+              "FUEL_SURCHARGE",
+              "LOADING",
+              "UNLOADING",
+              "HANDLING",
+              "CARGO_INSURANCE",
+              "OTHER"
+            ],
+            "title": "Category"
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Label"
+          },
+          "applies_to_quote_revision_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "maxItems": 30,
+            "title": "Applies To Quote Revision Ids"
+          },
+          "basis": {
+            "type": "string",
+            "enum": [
+              "FIXED",
+              "PER_KM",
+              "PER_KG",
+              "PER_PACKAGE"
+            ],
+            "title": "Basis"
+          },
+          "fixed_amount_minor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]{0,17})$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fixed Amount Minor"
+          },
+          "rate_minor_per_unit": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,14}|(?=[\\d.]{1,21}0*$)\\d{0,14}\\.\\d{0,6}0*$)"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rate Minor Per Unit"
+          },
+          "quantity_source": {
+            "type": "string",
+            "enum": [
+              "ROUTE_DISTANCE_KM",
+              "CARGO_GROSS_KG",
+              "PACKAGE_COUNT",
+              "FIXED"
+            ],
+            "title": "Quantity Source"
+          },
+          "fixed_quantity": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,14}|(?=[\\d.]{1,21}0*$)\\d{0,14}\\.\\d{0,6}0*$)"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fixed Quantity"
+          },
+          "amount_includes_applicable_tax": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount Includes Applicable Tax"
+          },
+          "source_kind": {
+            "type": "string",
+            "enum": [
+              "REVIEWED_EXTERNAL_OFFER",
+              "USER_ESTIMATE",
+              "LICENSED_DATA",
+              "SIMULATION"
+            ],
+            "title": "Source Kind"
+          },
+          "source_reference": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Reference"
+          },
+          "valid_until": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid Until"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "component_id",
+          "category",
+          "label",
+          "applies_to_quote_revision_ids",
+          "basis",
+          "quantity_source",
+          "source_kind"
+        ],
+        "title": "ExternalCost"
       },
       "FactPrepare": {
         "properties": {
@@ -9916,6 +10659,61 @@
           "provenance"
         ],
         "title": "FieldDecision"
+      },
+      "GenerateInput": {
+        "properties": {
+          "pickup_location_revision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Pickup Location Revision Id"
+          },
+          "drop_location_revision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Drop Location Revision Id"
+          },
+          "vehicle_profile_revision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Vehicle Profile Revision Id"
+          },
+          "departure_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Departure At"
+          },
+          "dataset_revision_id_or_provider_connection_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Dataset Revision Id Or Provider Connection Id"
+          },
+          "objective": {
+            "type": "string",
+            "enum": [
+              "DISTANCE",
+              "TIME"
+            ],
+            "title": "Objective",
+            "default": "TIME"
+          },
+          "maximum_alternatives": {
+            "type": "integer",
+            "maximum": 3.0,
+            "minimum": 1.0,
+            "title": "Maximum Alternatives",
+            "default": 3
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "pickup_location_revision_id",
+          "drop_location_revision_id",
+          "vehicle_profile_revision_id",
+          "departure_at",
+          "dataset_revision_id_or_provider_connection_id"
+        ],
+        "title": "GenerateInput"
       },
       "GoodsDraft": {
         "properties": {
@@ -10566,6 +11364,28 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
+      "HashCommand": {
+        "properties": {
+          "content_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Content Hash"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Reason",
+            "default": "Exact revision accepted"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "content_hash"
+        ],
+        "title": "HashCommand"
+      },
       "HoldEvidence": {
         "properties": {
           "document_version_id": {
@@ -10866,6 +11686,75 @@
         ],
         "title": "InspectionInput"
       },
+      "Intent": {
+        "properties": {
+          "intended_pickup_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Intended Pickup At"
+          },
+          "intended_departure_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Intended Departure At"
+          },
+          "required_arrival_by": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Required Arrival By"
+          },
+          "planned_stop_seconds": {
+            "type": "integer",
+            "maximum": 86400.0,
+            "minimum": 0.0,
+            "title": "Planned Stop Seconds",
+            "default": 0
+          },
+          "planned_stops": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Planned Stops"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "intended_pickup_at",
+          "intended_departure_at"
+        ],
+        "title": "Intent"
+      },
+      "InvitationInput": {
+        "properties": {
+          "carrier_organisation_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "maxItems": 30,
+            "minItems": 1,
+            "title": "Carrier Organisation Ids"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "carrier_organisation_ids"
+        ],
+        "title": "InvitationInput"
+      },
       "LineMapping": {
         "properties": {
           "document_line_ref": {
@@ -11126,6 +12015,131 @@
         ],
         "title": "LocationCreate"
       },
+      "LocationInput": {
+        "properties": {
+          "address_role": {
+            "type": "string",
+            "enum": [
+              "PICKUP",
+              "DROP"
+            ],
+            "title": "Address Role"
+          },
+          "accepted_address_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Accepted Address Hash"
+          },
+          "latitude": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 90.0,
+                "minimum": -90.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,3}|(?=[\\d.]{1,11}0*$)\\d{0,3}\\.\\d{0,7}0*$)"
+              }
+            ],
+            "title": "Latitude"
+          },
+          "longitude": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 180.0,
+                "minimum": -180.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,3}|(?=[\\d.]{1,11}0*$)\\d{0,3}\\.\\d{0,7}0*$)"
+              }
+            ],
+            "title": "Longitude"
+          },
+          "position_source": {
+            "type": "string",
+            "enum": [
+              "USER_PIN",
+              "LICENSED_GEOCODER",
+              "SIMULATION"
+            ],
+            "title": "Position Source"
+          },
+          "precision": {
+            "type": "string",
+            "enum": [
+              "CONFIRMED_LOADING_GATE",
+              "PREMISES",
+              "AREA_CENTROID",
+              "UNKNOWN"
+            ],
+            "title": "Precision"
+          },
+          "accuracy_meters": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,14}|(?=[\\d.]{1,21}0*$)\\d{0,14}\\.\\d{0,6}0*$)"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accuracy Meters"
+          },
+          "state_code": {
+            "type": "string",
+            "title": "State Code"
+          },
+          "provider_reference": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Reference"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "state_coordinate_conflict_resolved": {
+            "type": "boolean",
+            "title": "State Coordinate Conflict Resolved",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "address_role",
+          "accepted_address_hash",
+          "latitude",
+          "longitude",
+          "position_source",
+          "precision",
+          "state_code"
+        ],
+        "title": "LocationInput"
+      },
       "ManifestItem": {
         "properties": {
           "consignment_item_id": {
@@ -11362,6 +12376,68 @@
           "capabilities"
         ],
         "title": "MembershipChange"
+      },
+      "Node": {
+        "properties": {
+          "node_key": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Node Key"
+          },
+          "latitude": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 90.0,
+                "minimum": -90.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Latitude"
+          },
+          "longitude": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 180.0,
+                "minimum": -180.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Longitude"
+          },
+          "state_code": {
+            "type": "string",
+            "title": "State Code"
+          },
+          "node_kind": {
+            "type": "string",
+            "enum": [
+              "PICKUP_ACCESS",
+              "DROP_ACCESS",
+              "JUNCTION",
+              "APPROVED_STOP"
+            ],
+            "title": "Node Kind"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "node_key",
+          "latitude",
+          "longitude",
+          "state_code",
+          "node_kind"
+        ],
+        "title": "Node"
       },
       "Notes": {
         "properties": {
@@ -12921,6 +13997,50 @@
         ],
         "title": "PickupPayload"
       },
+      "PlanningPolicy": {
+        "properties": {
+          "policy_code": {
+            "type": "string",
+            "const": "BASELINE_ROAD_V1",
+            "title": "Policy Code",
+            "default": "BASELINE_ROAD_V1"
+          },
+          "accepted_location_precisions": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "CONFIRMED_LOADING_GATE",
+                "PREMISES"
+              ]
+            },
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 1,
+            "title": "Accepted Location Precisions"
+          },
+          "cost_assumption_independent_review_required": {
+            "type": "boolean",
+            "const": true,
+            "title": "Cost Assumption Independent Review Required",
+            "default": true
+          },
+          "missing_restrictions_block_ranking": {
+            "type": "boolean",
+            "const": true,
+            "title": "Missing Restrictions Block Ranking",
+            "default": true
+          },
+          "hard_constraints_not_weightable": {
+            "type": "boolean",
+            "const": true,
+            "title": "Hard Constraints Not Weightable",
+            "default": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "PlanningPolicy"
+      },
       "PrintedEwayBill": {
         "additionalProperties": false,
         "properties": {
@@ -13350,6 +14470,181 @@
         "type": "object",
         "title": "Processing"
       },
+      "ProfileInput": {
+        "properties": {
+          "combined_tare_weight_kg": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,14}|(?=[\\d.]{1,21}0*$)\\d{0,14}\\.\\d{0,6}0*$)"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Combined Tare Weight Kg"
+          },
+          "maximum_authorised_combined_weight_kg": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,14}|(?=[\\d.]{1,21}0*$)\\d{0,14}\\.\\d{0,6}0*$)"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maximum Authorised Combined Weight Kg"
+          },
+          "overall_height_mm": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Overall Height Mm"
+          },
+          "overall_width_mm": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Overall Width Mm"
+          },
+          "overall_length_mm": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Overall Length Mm"
+          },
+          "axle_count": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Axle Count"
+          },
+          "maximum_actual_axle_load_kg": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,14}|(?=[\\d.]{1,21}0*$)\\d{0,14}\\.\\d{0,6}0*$)"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maximum Actual Axle Load Kg"
+          },
+          "trailer_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Trailer Count",
+            "default": 0
+          },
+          "toll_vehicle_class_code": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 50
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Toll Vehicle Class Code"
+          },
+          "speed_cap_kph": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 150.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Speed Cap Kph"
+          },
+          "supported_cargo_profile_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 30,
+            "title": "Supported Cargo Profile Codes"
+          },
+          "source_document_version_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "maxItems": 30,
+            "title": "Source Document Version Ids",
+            "default": []
+          },
+          "transport_evidence_revision_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "maxItems": 30,
+            "title": "Transport Evidence Revision Ids",
+            "default": []
+          },
+          "field_provenance": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Field Provenance"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Limitations"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ProfileInput"
+      },
       "ProofPolicy": {
         "properties": {
           "policy": {
@@ -13533,6 +14828,437 @@
           "review_approval_event_id"
         ],
         "title": "PublishInput"
+      },
+      "QuoteHashCommand": {
+        "properties": {
+          "quote_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Quote Hash"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Reason",
+            "default": "Exact offer accepted"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "quote_hash"
+        ],
+        "title": "QuoteHashCommand"
+      },
+      "QuoteInput": {
+        "properties": {
+          "quote_head_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quote Head Id"
+          },
+          "route_template_revision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Route Template Revision Id"
+          },
+          "vehicle_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Vehicle Id"
+          },
+          "routing_vehicle_profile_revision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Routing Vehicle Profile Revision Id"
+          },
+          "driver_user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Driver User Id"
+          },
+          "transport_evidence_revision_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "maxItems": 30,
+            "title": "Transport Evidence Revision Ids",
+            "default": []
+          },
+          "offered_pickup_window_start": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Offered Pickup Window Start"
+          },
+          "offered_pickup_window_end": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Offered Pickup Window End"
+          },
+          "offered_delivery_window_start": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Offered Delivery Window Start"
+          },
+          "offered_delivery_window_end": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Offered Delivery Window End"
+          },
+          "booking_window_start": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Booking Window Start"
+          },
+          "booking_window_end": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Booking Window End"
+          },
+          "delivery_commitment_kind": {
+            "type": "string",
+            "enum": [
+              "TARGET_ONLY",
+              "CONTRACTUAL_DEADLINE"
+            ],
+            "title": "Delivery Commitment Kind",
+            "default": "TARGET_ONLY"
+          },
+          "delivery_terms": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Delivery Terms"
+          },
+          "currency": {
+            "type": "string",
+            "const": "INR",
+            "title": "Currency",
+            "default": "INR"
+          },
+          "offer_kind": {
+            "type": "string",
+            "enum": [
+              "FIRM_OFFER",
+              "INDICATIVE"
+            ],
+            "title": "Offer Kind"
+          },
+          "pricing_basis": {
+            "type": "string",
+            "const": "FIXED_FOR_CONSIGNMENT_AND_ROUTE",
+            "title": "Pricing Basis",
+            "default": "FIXED_FOR_CONSIGNMENT_AND_ROUTE"
+          },
+          "charge_components": {
+            "items": {
+              "$ref": "#/components/schemas/Charge"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "minItems": 1,
+            "title": "Charge Components"
+          },
+          "discount_minor": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,17})$",
+            "title": "Discount Minor",
+            "default": "0"
+          },
+          "carrier_charged_tax_minor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]{0,17})$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Carrier Charged Tax Minor"
+          },
+          "tax_treatment": {
+            "type": "string",
+            "enum": [
+              "DECLARED_SUPPLIER_CHARGED",
+              "DECLARED_RECIPIENT_ACCOUNTED",
+              "DECLARED_NO_TAX",
+              "UNRESOLVED"
+            ],
+            "title": "Tax Treatment"
+          },
+          "tax_note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tax Note"
+          },
+          "service_coverage": {
+            "items": {
+              "$ref": "#/components/schemas/Coverage"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "title": "Service Coverage"
+          },
+          "unpriced_carrier_extras_allowed": {
+            "type": "boolean",
+            "const": false,
+            "title": "Unpriced Carrier Extras Allowed",
+            "default": false
+          },
+          "contingent_charge_terms": {
+            "items": {
+              "$ref": "#/components/schemas/WaitTerm"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "title": "Contingent Charge Terms"
+          },
+          "cancellation_terms": {
+            "type": "string",
+            "maxLength": 4000,
+            "minLength": 1,
+            "title": "Cancellation Terms"
+          },
+          "exclusions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Exclusions"
+          },
+          "price_limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Price Limitations"
+          },
+          "valid_from": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Valid From"
+          },
+          "accept_by": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Accept By"
+          },
+          "source_mode": {
+            "type": "string",
+            "enum": [
+              "PORTAL_ENTRY",
+              "REVIEWED_QUOTE_DOCUMENT",
+              "SIMULATION"
+            ],
+            "title": "Source Mode",
+            "default": "PORTAL_ENTRY"
+          },
+          "quote_document_version_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quote Document Version Id"
+          },
+          "quote_document_fact_revision_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quote Document Fact Revision Id"
+          },
+          "carrier_offer_reference": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Carrier Offer Reference"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "route_template_revision_id",
+          "vehicle_id",
+          "routing_vehicle_profile_revision_id",
+          "driver_user_id",
+          "offered_pickup_window_start",
+          "offered_pickup_window_end",
+          "offered_delivery_window_start",
+          "offered_delivery_window_end",
+          "booking_window_start",
+          "booking_window_end",
+          "delivery_terms",
+          "offer_kind",
+          "charge_components",
+          "carrier_charged_tax_minor",
+          "tax_treatment",
+          "service_coverage",
+          "cancellation_terms",
+          "valid_from",
+          "accept_by"
+        ],
+        "title": "QuoteInput"
+      },
+      "RFQInput": {
+        "properties": {
+          "pickup_location_revision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Pickup Location Revision Id"
+          },
+          "drop_location_revision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Drop Location Revision Id"
+          },
+          "requested_route_template_revision_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "minItems": 1,
+            "title": "Requested Route Template Revision Ids"
+          },
+          "requested_pickup_window_start": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Requested Pickup Window Start"
+          },
+          "requested_pickup_window_end": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Requested Pickup Window End"
+          },
+          "required_arrival_by": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Required Arrival By"
+          },
+          "service_requirement_codes": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "TOLL",
+                "FUEL_SURCHARGE",
+                "LOADING",
+                "UNLOADING",
+                "HANDLING",
+                "CARGO_INSURANCE",
+                "OTHER"
+              ]
+            },
+            "type": "array",
+            "title": "Service Requirement Codes"
+          },
+          "invited_carrier_organisation_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "maxItems": 30,
+            "minItems": 1,
+            "title": "Invited Carrier Organisation Ids"
+          },
+          "response_deadline": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Response Deadline"
+          },
+          "supersedes_rfq_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supersedes Rfq Id"
+          },
+          "request_note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Request Note"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "pickup_location_revision_id",
+          "drop_location_revision_id",
+          "requested_route_template_revision_ids",
+          "requested_pickup_window_start",
+          "requested_pickup_window_end",
+          "invited_carrier_organisation_ids",
+          "response_deadline"
+        ],
+        "title": "RFQInput"
       },
       "ReadinessView": {
         "properties": {
@@ -13921,11 +15647,57 @@
         ],
         "title": "RecipientInput"
       },
+      "RecipientTax": {
+        "properties": {
+          "quote_revision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Quote Revision Id"
+          },
+          "amount_minor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]{0,17})$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount Minor"
+          },
+          "basis_document_version_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "maxItems": 30,
+            "title": "Basis Document Version Ids",
+            "default": []
+          },
+          "declaration_note": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Declaration Note"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "quote_revision_id",
+          "amount_minor",
+          "declaration_note"
+        ],
+        "title": "RecipientTax"
+      },
       "Registration": {
         "properties": {
           "document_type": {
             "type": "string",
             "enum": [
+              "FREIGHT_QUOTE",
               "TAX_INVOICE",
               "BILL_OF_SUPPLY",
               "DELIVERY_CHALLAN",
@@ -14193,6 +15965,28 @@
         ],
         "title": "ReleaseDecision"
       },
+      "RequestHashCommand": {
+        "properties": {
+          "request_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Request Hash"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Reason",
+            "default": "Exact request accepted"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "request_hash"
+        ],
+        "title": "RequestHashCommand"
+      },
       "ResolutionDecision": {
         "properties": {
           "decision": {
@@ -14256,6 +16050,31 @@
           "resolution_text"
         ],
         "title": "ResolutionProposal"
+      },
+      "ReviewInput": {
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Reason"
+          },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "APPROVE_DECLARATION",
+              "RETURN_FOR_CORRECTION"
+            ],
+            "title": "Decision"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "reason",
+          "decision"
+        ],
+        "title": "ReviewInput"
       },
       "RevisionView": {
         "properties": {
@@ -14482,6 +16301,199 @@
         ],
         "title": "RuleInput"
       },
+      "RunInput": {
+        "properties": {
+          "expected_context_version": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Context Version"
+          },
+          "planning_intent": {
+            "$ref": "#/components/schemas/Intent"
+          },
+          "quote_revision_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "maxItems": 30,
+            "minItems": 1,
+            "title": "Quote Revision Ids"
+          },
+          "route_template_revision_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "minItems": 1,
+            "title": "Route Template Revision Ids"
+          },
+          "cost_assumption_revision_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cost Assumption Revision Id"
+          },
+          "objective": {
+            "type": "string",
+            "enum": [
+              "LOWEST_COMPARABLE_COST",
+              "EARLIEST_ESTIMATED_ARRIVAL",
+              "BALANCED"
+            ],
+            "title": "Objective",
+            "default": "LOWEST_COMPARABLE_COST"
+          },
+          "balanced_weights": {
+            "$ref": "#/components/schemas/Weights"
+          },
+          "comparison_policy": {
+            "type": "string",
+            "enum": [
+              "QUOTED_AMOUNTS_ONLY",
+              "ALLOW_DECLARED_ESTIMATES"
+            ],
+            "title": "Comparison Policy",
+            "default": "QUOTED_AMOUNTS_ONLY"
+          },
+          "scenarios": {
+            "items": {
+              "$ref": "#/components/schemas/Scenario"
+            },
+            "type": "array",
+            "maxItems": 5,
+            "title": "Scenarios"
+          },
+          "parent_run_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Run Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_context_version",
+          "planning_intent",
+          "quote_revision_ids",
+          "route_template_revision_ids"
+        ],
+        "title": "RunInput"
+      },
+      "Scenario": {
+        "properties": {
+          "scenario_code": {
+            "type": "string",
+            "enum": [
+              "BASE",
+              "EXTRA_WAIT",
+              "EXTRA_STOP"
+            ],
+            "title": "Scenario Code"
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Label"
+          },
+          "delay_placement": {
+            "type": "string",
+            "enum": [
+              "ORIGIN_BEFORE_DEPARTURE",
+              "IN_TRANSIT",
+              "DESTINATION_UNLOADING"
+            ],
+            "title": "Delay Placement"
+          },
+          "additional_wait_minutes": {
+            "type": "integer",
+            "maximum": 43200.0,
+            "minimum": 0.0,
+            "title": "Additional Wait Minutes",
+            "default": 0
+          },
+          "additional_stop_minutes": {
+            "type": "integer",
+            "maximum": 43200.0,
+            "minimum": 0.0,
+            "title": "Additional Stop Minutes",
+            "default": 0
+          },
+          "assumption_origin": {
+            "type": "string",
+            "enum": [
+              "USER_INPUT",
+              "PUBLISHED_QUOTE_TERM",
+              "SIMULATION"
+            ],
+            "title": "Assumption Origin"
+          },
+          "assumption_note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assumption Note"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "scenario_code",
+          "label",
+          "delay_placement",
+          "assumption_origin"
+        ],
+        "title": "Scenario"
+      },
+      "ScenarioRun": {
+        "properties": {
+          "scenario": {
+            "$ref": "#/components/schemas/Scenario"
+          },
+          "objective": {
+            "type": "string",
+            "enum": [
+              "LOWEST_COMPARABLE_COST",
+              "EARLIEST_ESTIMATED_ARRIVAL",
+              "BALANCED"
+            ],
+            "title": "Objective"
+          },
+          "balanced_weights": {
+            "$ref": "#/components/schemas/Weights"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "scenario",
+          "objective"
+        ],
+        "title": "ScenarioRun"
+      },
       "ScheduleApproval": {
         "properties": {
           "decision": {
@@ -14633,6 +16645,121 @@
           "carry_method"
         ],
         "title": "SelectedRepresentation"
+      },
+      "SelectionDecision": {
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Reason"
+          },
+          "proposal_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Proposal Hash"
+          },
+          "quote_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Quote Hash"
+          },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "APPROVE",
+              "REJECT"
+            ],
+            "title": "Decision"
+          },
+          "acknowledged_limitation_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Acknowledged Limitation Codes",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "reason",
+          "proposal_hash",
+          "quote_hash",
+          "decision"
+        ],
+        "title": "SelectionDecision"
+      },
+      "SelectionInput": {
+        "properties": {
+          "run_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Run Id"
+          },
+          "candidate_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Candidate Id"
+          },
+          "candidate_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Candidate Hash"
+          },
+          "quote_revision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Quote Revision Id"
+          },
+          "quote_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Quote Hash"
+          },
+          "scenario_code": {
+            "type": "string",
+            "const": "BASE",
+            "title": "Scenario Code"
+          },
+          "expected_existing_assignment_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Existing Assignment Id"
+          },
+          "expected_consignment_row_version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Expected Consignment Row Version"
+          },
+          "expected_context_version": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Context Version"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "run_id",
+          "candidate_id",
+          "candidate_hash",
+          "quote_revision_id",
+          "quote_hash",
+          "scenario_code",
+          "expected_existing_assignment_id",
+          "expected_consignment_row_version",
+          "expected_context_version"
+        ],
+        "title": "SelectionInput"
       },
       "ShareInput": {
         "properties": {
@@ -16006,8 +18133,15 @@
             "title": "Subject Id"
           },
           "assignment_id": {
-            "type": "string",
-            "format": "uuid",
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Assignment Id"
           },
           "evidence_type": {
@@ -16251,7 +18385,6 @@
         "required": [
           "subject_type",
           "subject_id",
-          "assignment_id",
           "evidence_type",
           "source_mode"
         ],
@@ -16830,6 +18963,82 @@
         ],
         "title": "VoidDecision"
       },
+      "WaitTerm": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "ORIGIN_WAIT",
+              "DESTINATION_WAIT"
+            ],
+            "title": "Code"
+          },
+          "free_minutes": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Free Minutes"
+          },
+          "billing_increment_minutes": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Billing Increment Minutes"
+          },
+          "charge_per_increment_gross_minor": {
+            "type": "string",
+            "pattern": "^(0|[1-9][0-9]{0,17})$",
+            "title": "Charge Per Increment Gross Minor"
+          },
+          "maximum_charge_gross_minor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]{0,17})$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maximum Charge Gross Minor"
+          },
+          "applicability_note": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Applicability Note"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "free_minutes",
+          "billing_increment_minutes",
+          "charge_per_increment_gross_minor",
+          "applicability_note"
+        ],
+        "title": "WaitTerm"
+      },
+      "Weights": {
+        "properties": {
+          "cost_basis_points": {
+            "type": "integer",
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Cost Basis Points",
+            "default": 5000
+          },
+          "time_basis_points": {
+            "type": "integer",
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Time Basis Points",
+            "default": 5000
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "Weights"
+      },
       "app__compliance__schemas_dispatch__Reason": {
         "properties": {
           "reason": {
@@ -16847,6 +19056,22 @@
         "title": "Reason"
       },
       "app__document_desk__schemas__Reason": {
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "reason"
+        ],
+        "title": "Reason"
+      },
+      "app__freight__schemas__Reason": {
         "properties": {
           "reason": {
             "type": "string",
@@ -17662,6 +19887,24 @@
           "active": {
             "type": "boolean"
           },
+          "current_routing_profile_revision_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "execution_mode": {
+            "type": "string",
+            "enum": [
+              "PRODUCTION",
+              "SIMULATION"
+            ]
+          },
           "created_by": {
             "anyOf": [
               {
@@ -17688,13 +19931,6 @@
             "type": "string",
             "format": "date-time"
           },
-          "execution_mode": {
-            "type": "string",
-            "enum": [
-              "PRODUCTION",
-              "SIMULATION"
-            ]
-          },
           "request_id": {
             "type": "string",
             "format": "uuid"
@@ -17711,6 +19947,8 @@
           "registration_number",
           "vehicle_json",
           "active",
+          "current_routing_profile_revision_id",
+          "execution_mode",
           "created_by",
           "updated_at",
           "row_version",
