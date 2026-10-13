@@ -1,5 +1,8 @@
 # Shipment Service
 
+Commercial guarded dispatch Phase 4 lives in `app/compliance`, sharing the agreement,
+operation and document metadata transaction. See the [gate, scope and migration guide](../../docs/guarded-dispatch-phase4.md).
+
 Commercial operational Phase 2 is implemented in `app/operations`, using the
 existing OAuth, organisation permissions, commercial revisions and audit ledger.
 See [states, invariants, simulation accounts and commands](../../docs/operations-phase2.md).

@@ -407,3 +407,7 @@ router.include_router(operations_router)
 from app.document_desk.router import router as document_router  # noqa: E402
 
 router.include_router(document_router)
+
+from app.compliance.router import router as compliance_router  # noqa: E402
+
+router.include_router(compliance_router)

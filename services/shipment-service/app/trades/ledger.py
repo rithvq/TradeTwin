@@ -39,6 +39,10 @@ def audit(
     document=None,
     document_version=None,
 ):
+    from .context_locks import invalidate
+
+    invalidate(db, trade, action, summary or {})
+
     def redact(value):
         if isinstance(value, dict):
             return {key: redact(item) for key, item in value.items()}
@@ -157,6 +161,7 @@ def resolve_parties(db, trade, facts, actor_org, complete=False):
                 "registration_position": org.registration_position,
                 "gstin": reg.gstin if reg else None,
                 "declared_taxpayer_scheme": reg.declared_taxpayer_scheme if reg else None,
+                "declared_establishment_kind": reg.declared_establishment_kind if reg else None,
                 "billing_address": address,
                 "snapshot_source": "ORGANISATION_PROFILE"
                 if org_id == actor_org

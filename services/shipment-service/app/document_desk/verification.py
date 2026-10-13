@@ -153,14 +153,17 @@ def check_view(db, ctx, row):
         select(VerificationResult).where(VerificationResult.verification_check_id == row.id)
     ):
         data = observation.result_json
-        current = freshness(db, doc, row.request_configuration_json["input_context"])
+        inputs = row.request_configuration_json.get("input_context")
+        current = freshness(db, doc, inputs) if inputs else "STALE"
         if data.get("fresh_until") and aware(datetime.fromisoformat(data["fresh_until"])) <= now():
             current = "STALE"
         body = result(observation, doc)
         if not access.full_capture(db, ctx, doc):
             body["result_json"] = {**data, "normalised_result": {}, "response_artifact_id": None}
         values.append({**body, "freshness": current})
-    return {**result(row, doc), "results": values, "dispatch_readiness": "NOT_ASSESSED"}
+    body = result(row, doc)
+    body.pop("request_configuration_json", None)
+    return {**body, "results": values, "dispatch_readiness": "NOT_ASSESSED"}
 
 
 def manual(db, ctx, ident, payload):
@@ -184,12 +187,23 @@ def manual(db, ctx, ident, payload):
     row = ManualAttestation(
         document_version_id=version.id,
         fact_revision_id=doc.effective_fact_revision_id,
-        **payload.model_dump(exclude={"evidence_attachment_ids"}),
+        **payload.model_dump(exclude={"evidence_attachment_ids", "observed_fields"}),
         actor_user_id=ctx.user.id,
         actor_organization_id=ctx.org_id,
     )
     db.add(row)
     attachments.link(db, ctx, trade, None, row, payload.evidence_attachment_ids)
+    if payload.observed_fields:
+        from app.compliance.models import ManualEvidence
+
+        db.add(
+            ManualEvidence(
+                attestation_id=row.id,
+                observed_fields_json=payload.observed_fields,
+                supporting_attachment_ids=[str(i) for i in payload.evidence_attachment_ids],
+                created_by_user_id=ctx.user.id,
+            )
+        )
     record(
         db,
         ctx,

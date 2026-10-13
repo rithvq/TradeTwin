@@ -1,0 +1,341 @@
+{
+  "$defs": {
+    "Provenance": {
+      "additionalProperties": false,
+      "properties": {
+        "origin": {
+          "enum": [
+            "USER_DECLARATION",
+            "REVIEWED_DOCUMENT"
+          ],
+          "title": "Origin",
+          "type": "string"
+        },
+        "source_entity_type": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Entity Type"
+        },
+        "source_entity_id": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Entity Id"
+        },
+        "source_field_path": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Field Path"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        }
+      },
+      "required": [
+        "origin"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "scope_profile_code": {
+      "anyOf": [
+        {
+          "maxLength": 100,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Scope Profile Code"
+    },
+    "declared_transit_state_codes": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Declared Transit State Codes"
+    },
+    "corridor_declaration_basis": {
+      "default": "UNKNOWN",
+      "enum": [
+        "CARRIER_DECLARATION",
+        "SUPPORTED_ROUTE_RECORD",
+        "UNKNOWN"
+      ],
+      "title": "Corridor Declaration Basis",
+      "type": "string"
+    },
+    "corridor_basis_document_version_ids": {
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "maxItems": 100,
+      "title": "Corridor Basis Document Version Ids",
+      "type": "array"
+    },
+    "requested_pickup_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Requested Pickup At"
+    },
+    "requested_departure_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Requested Departure At"
+    },
+    "expected_arrival_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Expected Arrival At"
+    },
+    "seller_taxpayer_category_code": {
+      "anyOf": [
+        {
+          "maxLength": 100,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Seller Taxpayer Category Code"
+    },
+    "recipient_category_code": {
+      "anyOf": [
+        {
+          "maxLength": 100,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Recipient Category Code"
+    },
+    "supply_taxability": {
+      "default": "UNKNOWN",
+      "enum": [
+        "TAXABLE",
+        "EXEMPT",
+        "NON_GST",
+        "MIXED",
+        "UNKNOWN"
+      ],
+      "title": "Supply Taxability",
+      "type": "string"
+    },
+    "taxability_basis_document_version_ids": {
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "maxItems": 100,
+      "title": "Taxability Basis Document Version Ids",
+      "type": "array"
+    },
+    "commodity_scope_codes": {
+      "items": {
+        "maxLength": 100,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 20,
+      "title": "Commodity Scope Codes",
+      "type": "array"
+    },
+    "classification_basis_document_version_ids": {
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "maxItems": 100,
+      "title": "Classification Basis Document Version Ids",
+      "type": "array"
+    },
+    "over_dimensional_cargo_declared": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Over Dimensional Cargo Declared"
+    },
+    "special_valuation_profile": {
+      "default": "UNKNOWN",
+      "enum": [
+        "NONE_DECLARED",
+        "IDENTIFIED_SPECIAL_PROFILE",
+        "UNKNOWN"
+      ],
+      "title": "Special Valuation Profile",
+      "type": "string"
+    },
+    "reverse_charge_position": {
+      "default": "UNKNOWN",
+      "enum": [
+        "YES",
+        "NO",
+        "UNKNOWN"
+      ],
+      "title": "Reverse Charge Position",
+      "type": "string"
+    },
+    "document_issue_scenario": {
+      "default": "UNKNOWN",
+      "enum": [
+        "ONE_INVOICE_PER_CONSIGNMENT",
+        "ONE_INVOICE_MULTIPLE_DISPATCHES",
+        "OTHER",
+        "UNKNOWN"
+      ],
+      "title": "Document Issue Scenario",
+      "type": "string"
+    },
+    "seller_turnover_declaration_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Seller Turnover Declaration Id"
+    },
+    "claimed_exception_code": {
+      "anyOf": [
+        {
+          "maxLength": 100,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Claimed Exception Code"
+    },
+    "claimed_exception_basis_document_version_ids": {
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "maxItems": 100,
+      "title": "Claimed Exception Basis Document Version Ids",
+      "type": "array"
+    },
+    "declaration_note": {
+      "anyOf": [
+        {
+          "maxLength": 2000,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Declaration Note"
+    },
+    "field_provenance": {
+      "additionalProperties": {
+        "$ref": "#/$defs/Provenance"
+      },
+      "title": "Field Provenance",
+      "type": "object"
+    }
+  },
+  "title": "Facts",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

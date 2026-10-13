@@ -248,7 +248,7 @@ function ReceiptForm({
           {action.error.code}: {action.error.message}
         </p>
       )}
-      <Button disabled={action.pending || cn.execution_mode !== "SIMULATION"}>
+      <Button disabled={action.pending}>
         <Check className="size-4" />
         {original ? "Append receipt correction" : "Record physical receipt"}
       </Button>

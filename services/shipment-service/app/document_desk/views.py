@@ -97,9 +97,9 @@ def document_view(db, ctx, doc, selected_version=None):
         r for check in verifications for r in check["results"] if r["freshness"] == "CURRENT"
     ]
     signatures = [
-        r["result_json"]["signature_integrity"]
+        r["result_json"].get("signature_integrity", "NOT_CHECKED")
         for r in latest_results
-        if r["result_json"]["signature_integrity"] != "NOT_CHECKED"
+        if r["result_json"].get("signature_integrity", "NOT_CHECKED") != "NOT_CHECKED"
     ]
     identity_id = doc.effective_fact_revision_id or (
         doc.latest_draft_fact_revision_id if capture else None
@@ -109,9 +109,9 @@ def document_view(db, ctx, doc, selected_version=None):
         identity_fact = None
     captured = identity_fact.canonical_document_json if identity_fact else {}
     lookups = [
-        r["result_json"]["lookup_outcome"]
+        r["result_json"].get("lookup_outcome", "NOT_CHECKED")
         for r in latest_results
-        if r["result_json"]["lookup_outcome"] != "NOT_CHECKED"
+        if r["result_json"].get("lookup_outcome", "NOT_CHECKED") != "NOT_CHECKED"
     ]
     return {
         **result(doc),
@@ -145,7 +145,7 @@ def document_view(db, ctx, doc, selected_version=None):
             else "UNREVIEWED",
             "data_consistency": current["consistency"] if current else "NOT_ASSESSED",
             "signature_integrity": signatures[-1] if signatures else "NOT_CHECKED",
-            "issuer_trust": latest_results[-1]["result_json"]["issuer_trust"]
+            "issuer_trust": latest_results[-1]["result_json"].get("issuer_trust", "NOT_CHECKED")
             if latest_results
             else "NOT_CHECKED",
             "authority_lookup": lookups[-1] if lookups else "NOT_CHECKED",

@@ -1,0 +1,138 @@
+{
+  "$defs": {
+    "DocumentReference": {
+      "additionalProperties": false,
+      "properties": {
+        "document_id": {
+          "format": "uuid",
+          "title": "Document Id",
+          "type": "string"
+        },
+        "document_version_id": {
+          "format": "uuid",
+          "title": "Document Version Id",
+          "type": "string"
+        },
+        "reviewed_fact_revision_id": {
+          "format": "uuid",
+          "title": "Reviewed Fact Revision Id",
+          "type": "string"
+        },
+        "mapping_revision_id": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mapping Revision Id"
+        },
+        "canonical_document_id": {
+          "format": "uuid",
+          "title": "Canonical Document Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "document_id",
+        "document_version_id",
+        "reviewed_fact_revision_id",
+        "canonical_document_id"
+      ],
+      "title": "DocumentReference",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "compliance_fact_revision_id": {
+      "format": "uuid",
+      "title": "Compliance Fact Revision Id",
+      "type": "string"
+    },
+    "loading_manifest_revision_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Loading Manifest Revision Id"
+    },
+    "seller_turnover_declaration_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Seller Turnover Declaration Id"
+    },
+    "movement_document": {
+      "$ref": "#/$defs/DocumentReference"
+    },
+    "supporting_documents": {
+      "items": {
+        "$ref": "#/$defs/DocumentReference"
+      },
+      "maxItems": 40,
+      "title": "Supporting Documents",
+      "type": "array"
+    },
+    "verification_result_ids": {
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "maxItems": 100,
+      "title": "Verification Result Ids",
+      "type": "array"
+    },
+    "manual_attestation_ids": {
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "maxItems": 100,
+      "title": "Manual Attestation Ids",
+      "type": "array"
+    },
+    "transport_evidence_revision_ids": {
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "maxItems": 100,
+      "title": "Transport Evidence Revision Ids",
+      "type": "array"
+    },
+    "phase3_assessment_run_ids": {
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "maxItems": 100,
+      "title": "Phase3 Assessment Run Ids",
+      "type": "array"
+    }
+  },
+  "required": [
+    "compliance_fact_revision_id",
+    "movement_document"
+  ],
+  "title": "EvidenceBindings",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

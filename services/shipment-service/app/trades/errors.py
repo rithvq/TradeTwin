@@ -1,3 +1,4 @@
+import logging
 from uuid import uuid4
 
 from fastapi import Request
@@ -7,9 +8,10 @@ from sqlalchemy.exc import SQLAlchemyError
 
 
 class TradeError(Exception):
-    def __init__(self, code, message, status=422, fields=None):
+    def __init__(self, code, message, status=422, fields=None, details=None):
         self.code, self.message, self.status = code, message, status
         self.fields = fields or []
+        self.details = details or {}
 
 
 def field(path, message, code="INVALID"):
@@ -27,7 +29,7 @@ def pydantic_fields(errors):
     ]
 
 
-def error_response(request, code, message, status, fields=None):
+def error_response(request, code, message, status, fields=None, details=None):
     return JSONResponse(
         {
             "error": {
@@ -36,6 +38,9 @@ def error_response(request, code, message, status, fields=None):
                 "request_id": str(getattr(request.state, "request_id", uuid4())),
                 "field_errors": fields or [],
                 "retryable": status in {412, 503},
+                "blocker_requirement_ids": (details or {}).get("blocker_requirement_ids", []),
+                "current_context_version": (details or {}).get("current_context_version"),
+                "permitted_next_actions": (details or {}).get("permitted_next_actions", []),
             }
         },
         status_code=status,
@@ -45,6 +50,14 @@ def error_response(request, code, message, status, fields=None):
 def install_handlers(app):
     @app.exception_handler(SQLAlchemyError)
     async def database_error(request: Request, exc: SQLAlchemyError):
+        original = getattr(exc, "orig", None)
+        diagnostic = getattr(original, "diag", None)
+        logging.getLogger(__name__).warning(
+            "Storage failure: type=%s sqlstate=%s constraint=%s",
+            type(exc).__name__,
+            getattr(original, "sqlstate", None),
+            getattr(diagnostic, "constraint_name", None),
+        )
         if request.url.path.startswith("/api/v1/"):
             return error_response(
                 request,
@@ -56,7 +69,7 @@ def install_handlers(app):
 
     @app.exception_handler(TradeError)
     async def trade_error(request: Request, exc: TradeError):
-        return error_response(request, exc.code, exc.message, exc.status, exc.fields)
+        return error_response(request, exc.code, exc.message, exc.status, exc.fields, exc.details)
 
     @app.exception_handler(RequestValidationError)
     async def validation_error(request: Request, exc: RequestValidationError):
@@ -64,7 +77,8 @@ def install_handlers(app):
             return error_response(
                 request,
                 "VALIDATION_ERROR"
-                if "Trade operations - Phase 2" in getattr(request.scope.get("route"), "tags", [])
+                if set(getattr(request.scope.get("route"), "tags", []))
+                & {"Trade operations - Phase 2", "Compliance and guarded dispatch - Phase 4"}
                 else "VALIDATION_FAILED",
                 "Check the marked fields.",
                 422,

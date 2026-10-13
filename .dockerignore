@@ -1,6 +1,7 @@
 .git
 .env
 .secrets
+.backups
 **/.secrets
 .env.*
 **/.env

@@ -182,7 +182,7 @@ def build(db, ctx, documents):
                 node(
                     observation.id,
                     "VERIFICATION_RESULT",
-                    f"{check.check_type}: {result['signature_integrity']} / "
+                    f"{check.check_type}: {result.get('signature_integrity', 'NOT_CHECKED')} / "
                     f"{result['lookup_outcome']}",
                     path + "/verification",
                 )

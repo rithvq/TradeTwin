@@ -11,6 +11,14 @@ export const documentTypes = [
   "SIGNED_EINVOICE_JSON",
   "POD",
   "PAYMENT_EVIDENCE",
+  "VEHICLE_RC",
+  "VEHICLE_INSURANCE",
+  "FITNESS_CERTIFICATE",
+  "PUC_CERTIFICATE",
+  "GOODS_PERMIT",
+  "PERMIT_AUTHORISATION",
+  "DRIVER_LICENCE",
+  "CARGO_INSURANCE",
   "OTHER",
 ] as const;
 export type DocumentRecord = {

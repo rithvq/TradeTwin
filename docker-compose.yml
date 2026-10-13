@@ -64,9 +64,16 @@ services:
     ports:
       - "127.0.0.1:${SHIPMENT_SERVICE_PORT:-8011}:8000"
     environment:
+      DOCUMENT_ENCRYPTION_KEY_FILE: /run/secrets/document-keyring.json
       DOCUMENT_WORKER_TOKEN_FILE: /run/secrets/document-worker-token
       DOCUMENT_FIXTURE_DIRECTORY: /app/data/fixtures/document-desk
     volumes:
+      - type: bind
+        source: ./.secrets/document-keyring.json
+        target: /run/secrets/document-keyring.json
+        read_only: true
+        bind:
+          create_host_path: false
       - type: bind
         source: ./.secrets/document-worker-token
         target: /run/secrets/document-worker-token
@@ -147,7 +154,14 @@ services:
         required: false
     environment:
       DOCUMENT_WORKER_TOKEN_FILE: /run/secrets/document-worker-token
+      DOCUMENT_ENCRYPTION_KEY_FILE: /run/secrets/document-keyring.json
     volumes:
+      - type: bind
+        source: ./.secrets/document-keyring.json
+        target: /run/secrets/document-keyring.json
+        read_only: true
+        bind:
+          create_host_path: false
       - type: bind
         source: ./.secrets/document-worker-token
         target: /run/secrets/document-worker-token

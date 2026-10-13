@@ -1,0 +1,467 @@
+{
+  "$defs": {
+    "ProofPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "policy": {
+          "enum": [
+            "AUTHORISED_LIVE_ONLY",
+            "AUTHORISED_LIVE_OR_REVIEWED_MANUAL",
+            "SIMULATED_ONLY"
+          ],
+          "title": "Policy",
+          "type": "string"
+        },
+        "maximum_age_seconds": {
+          "exclusiveMinimum": 0,
+          "maximum": 86400,
+          "title": "Maximum Age Seconds",
+          "type": "integer"
+        },
+        "required_target_identifiers": {
+          "items": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 10,
+          "minItems": 1,
+          "title": "Required Target Identifiers",
+          "type": "array"
+        },
+        "required_observed_fields": {
+          "items": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 40,
+          "minItems": 1,
+          "title": "Required Observed Fields",
+          "type": "array"
+        },
+        "supporting_evidence_required": {
+          "default": true,
+          "title": "Supporting Evidence Required",
+          "type": "boolean"
+        },
+        "manual_review_permission": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manual Review Permission"
+        },
+        "limitations": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Limitations",
+          "type": "array"
+        }
+      },
+      "required": [
+        "policy",
+        "maximum_age_seconds",
+        "required_target_identifiers",
+        "required_observed_fields"
+      ],
+      "title": "ProofPolicy",
+      "type": "object"
+    },
+    "RuleInput": {
+      "additionalProperties": false,
+      "properties": {
+        "rule_code": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Rule Code",
+          "type": "string"
+        },
+        "rule_version": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Rule Version",
+          "type": "string"
+        },
+        "requirement_code": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Requirement Code",
+          "type": "string"
+        },
+        "class": {
+          "enum": [
+            "LEGAL_REQUIREMENT",
+            "PORTAL_CONTROL",
+            "APPLICATION_POLICY"
+          ],
+          "title": "Class",
+          "type": "string"
+        },
+        "date_basis": {
+          "enum": [
+            "ACTION_TIME",
+            "INVOICE_DATE",
+            "OBSERVATION_TIME",
+            "PLANNED_ARRIVAL_TIME"
+          ],
+          "title": "Date Basis",
+          "type": "string"
+        },
+        "observation_check_type": {
+          "anyOf": [
+            {
+              "enum": [
+                "GSTIN_AUTHORITY_LOOKUP",
+                "IRN_LIVE_STATUS",
+                "EWB_AUTHORITY_LOOKUP"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observation Check Type"
+        },
+        "effective_from": {
+          "format": "date-time",
+          "title": "Effective From",
+          "type": "string"
+        },
+        "effective_until": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effective Until"
+        },
+        "applicability_expression": {
+          "additionalProperties": true,
+          "title": "Applicability Expression",
+          "type": "object"
+        },
+        "satisfaction_expression": {
+          "additionalProperties": true,
+          "title": "Satisfaction Expression",
+          "type": "object"
+        },
+        "dependency_paths": {
+          "items": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "title": "Dependency Paths",
+          "type": "array"
+        },
+        "required_evidence_types": {
+          "items": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 40,
+          "title": "Required Evidence Types",
+          "type": "array"
+        },
+        "allowed_proof_methods": {
+          "items": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Allowed Proof Methods",
+          "type": "array"
+        },
+        "mandatory": {
+          "title": "Mandatory",
+          "type": "boolean"
+        },
+        "severity": {
+          "enum": [
+            "BLOCKER",
+            "WARNING",
+            "INFO"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "waivable_warning": {
+          "default": false,
+          "title": "Waivable Warning",
+          "type": "boolean"
+        },
+        "source_ids": {
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "maxItems": 100,
+          "minItems": 1,
+          "title": "Source Ids",
+          "type": "array"
+        },
+        "explanation_template": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Explanation Template",
+          "type": "string"
+        },
+        "remedy_codes": {
+          "items": {
+            "maxLength": 100,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Remedy Codes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "rule_code",
+        "rule_version",
+        "requirement_code",
+        "class",
+        "date_basis",
+        "effective_from",
+        "applicability_expression",
+        "satisfaction_expression",
+        "dependency_paths",
+        "mandatory",
+        "severity",
+        "source_ids",
+        "explanation_template"
+      ],
+      "title": "RuleInput",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "family_code": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Family Code",
+      "type": "string"
+    },
+    "version": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Version",
+      "type": "string"
+    },
+    "environment": {
+      "enum": [
+        "SIMULATION",
+        "PRODUCTION"
+      ],
+      "title": "Environment",
+      "type": "string"
+    },
+    "title": {
+      "maxLength": 300,
+      "minLength": 1,
+      "title": "Title",
+      "type": "string"
+    },
+    "input_schema_version": {
+      "const": "COMPLIANCE_FACTS_V1",
+      "title": "Input Schema Version",
+      "type": "string"
+    },
+    "rule_schema_version": {
+      "const": "PH4_TYPED_RULES_V1",
+      "title": "Rule Schema Version",
+      "type": "string"
+    },
+    "supported_scope_predicate": {
+      "additionalProperties": true,
+      "title": "Supported Scope Predicate",
+      "type": "object"
+    },
+    "excluded_scope_predicate": {
+      "additionalProperties": true,
+      "title": "Excluded Scope Predicate",
+      "type": "object"
+    },
+    "coverage_dimensions": {
+      "additionalProperties": {
+        "enum": [
+          "COVERED",
+          "NOT_ASSESSED",
+          "UNSUPPORTED"
+        ],
+        "type": "string"
+      },
+      "title": "Coverage Dimensions",
+      "type": "object"
+    },
+    "effective_from": {
+      "format": "date-time",
+      "title": "Effective From",
+      "type": "string"
+    },
+    "effective_until": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Effective Until"
+    },
+    "source_ids": {
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "maxItems": 100,
+      "minItems": 1,
+      "title": "Source Ids",
+      "type": "array"
+    },
+    "limitations": {
+      "items": {
+        "maxLength": 1000,
+        "type": "string"
+      },
+      "maxItems": 40,
+      "minItems": 1,
+      "title": "Limitations",
+      "type": "array"
+    },
+    "default_authorisation_ttl_seconds": {
+      "default": 900,
+      "exclusiveMinimum": 0,
+      "maximum": 900,
+      "title": "Default Authorisation Ttl Seconds",
+      "type": "integer"
+    },
+    "proof_policy": {
+      "additionalProperties": {
+        "$ref": "#/$defs/ProofPolicy"
+      },
+      "title": "Proof Policy",
+      "type": "object"
+    },
+    "separation_of_duties_policy": {
+      "additionalProperties": {
+        "const": true,
+        "type": "boolean"
+      },
+      "title": "Separation Of Duties Policy",
+      "type": "object"
+    },
+    "supported_scope_codes": {
+      "items": {
+        "maxLength": 100,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 40,
+      "minItems": 1,
+      "title": "Supported Scope Codes",
+      "type": "array"
+    },
+    "supported_commodity_codes": {
+      "items": {
+        "maxLength": 100,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 40,
+      "minItems": 1,
+      "title": "Supported Commodity Codes",
+      "type": "array"
+    },
+    "supported_corridors": {
+      "items": {
+        "items": {
+          "type": "string"
+        },
+        "maxItems": 22,
+        "minItems": 2,
+        "type": "array"
+      },
+      "maxItems": 100,
+      "minItems": 1,
+      "title": "Supported Corridors",
+      "type": "array"
+    },
+    "supplier_exclusion_codes": {
+      "items": {
+        "maxLength": 100,
+        "minLength": 1,
+        "type": "string"
+      },
+      "title": "Supplier Exclusion Codes",
+      "type": "array"
+    },
+    "exception_codes": {
+      "items": {
+        "maxLength": 100,
+        "minLength": 1,
+        "type": "string"
+      },
+      "title": "Exception Codes",
+      "type": "array"
+    },
+    "rules": {
+      "items": {
+        "$ref": "#/$defs/RuleInput"
+      },
+      "maxItems": 100,
+      "minItems": 1,
+      "title": "Rules",
+      "type": "array"
+    }
+  },
+  "required": [
+    "family_code",
+    "version",
+    "environment",
+    "title",
+    "input_schema_version",
+    "rule_schema_version",
+    "supported_scope_predicate",
+    "excluded_scope_predicate",
+    "coverage_dimensions",
+    "effective_from",
+    "source_ids",
+    "limitations",
+    "proof_policy",
+    "separation_of_duties_policy",
+    "supported_scope_codes",
+    "supported_commodity_codes",
+    "supported_corridors",
+    "rules"
+  ],
+  "title": "PackInput",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

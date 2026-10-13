@@ -7,7 +7,7 @@ from sqlalchemy import select
 from app.trades.models import now, uid
 from app.trades.terms import digest
 
-from .access import consignment, exists, fail, match, simulated
+from .access import consignment, exists, fail, match
 from .ledger import record, touch, view
 from .models import Booking, Closure, Inspection, Receipt, ReceiptHead, ReceiptLine, Reopening
 from .quantities import effective_lines, inspection_totals, items, summary
@@ -47,7 +47,6 @@ def receive(db, ctx, ident, payload, correcting=None):
     trade, row, _ = consignment(
         db, ctx, ident, "receipt.correct" if correcting else "receipt.record", "BUYER", True
     )
-    simulated(trade)
     fingerprint = digest(payload.model_dump(mode="json"))
     duplicate = db.scalar(
         select(Receipt).where(
@@ -169,7 +168,6 @@ def receive(db, ctx, ident, payload, correcting=None):
 def inspect_goods(db, ctx, ident, payload):
     receipt = exists(db, Receipt, ident)
     trade, row, _ = consignment(db, ctx, receipt.consignment_id, "goods.accept", "BUYER", True)
-    simulated(trade)
     head = db.scalar(
         select(ReceiptHead).where(ReceiptHead.effective_receipt_id == receipt.id).with_for_update()
     )
@@ -228,7 +226,6 @@ def reverse(db, ctx, ident, payload):
     trade, row, _ = consignment(
         db, ctx, receipt.consignment_id, "goods.acceptance.reverse", "BUYER", True
     )
-    simulated(trade)
     if original.entry_type != "DECISION" or db.scalar(
         select(Inspection.id).where(Inspection.reverses_decision_id == original.id)
     ):
@@ -266,7 +263,6 @@ def reverse(db, ctx, ident, payload):
 
 def close(db, ctx, ident, payload):
     trade, row, _ = consignment(db, ctx, ident, "receipt.close", "BUYER", True)
-    simulated(trade)
     match(ctx, row)
     if row.movement_status != "ARRIVED" or row.current_delivery_closure_id:
         fail("INVALID_MOVEMENT_TRANSITION", "Close only an arrived, open delivery recording.")
@@ -300,7 +296,6 @@ def close(db, ctx, ident, payload):
 def reopen(db, ctx, ident, payload):
     closure = exists(db, Closure, ident)
     trade, row, _ = consignment(db, ctx, closure.consignment_id, "receipt.reopen", "BUYER", True)
-    simulated(trade)
     match(ctx, row)
     if row.current_delivery_closure_id != closure.id or db.scalar(
         select(Reopening.id).where(Reopening.closure_id == closure.id)

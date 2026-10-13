@@ -169,6 +169,8 @@ class ShipmentEventInput(Schema):
     ]
     occurred_at: datetime
     assignment_id: UUID
+    dispatch_authorization_id: UUID | None = None
+    loading_manifest_revision_id: UUID | None = None
     latitude: Annotated[DecimalString, Field(ge=-90, le=90)] | None = None
     longitude: Annotated[DecimalString, Field(ge=-180, le=180)] | None = None
     notes: str | None = Field(default=None, max_length=2000)

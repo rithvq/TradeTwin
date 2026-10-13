@@ -213,6 +213,88 @@ for _role in ("SELLER_FINANCE", "BUYER_FINANCE"):
             "document.payment_evidence.read",
         }
     )
+
+ROLE_PERMISSIONS.update(
+    {
+        "SELLER_COMPLIANCE_PREPARER": _READ
+        | _DOCUMENT_READ
+        | _DOCUMENT_OPERATOR
+        | {
+            "document.review.submit",
+            "attachment.upload",
+            "compliance.read",
+            "compliance.facts.prepare",
+            "transport.evidence.prepare",
+            "compliance.evaluate",
+            "compliance.evidence.link",
+            "compliance.case.comment",
+            "shipment.loading_manifest.prepare",
+            "dispatch.packet.prepare",
+            "dispatch.packet.read",
+            "dispatch.authorisation.request",
+            "turnover.prepare",
+            "turnover.read",
+        },
+        "SELLER_COMPLIANCE_REVIEWER": _READ
+        | _DOCUMENT_READ
+        | {
+            "document.manual_observation.review",
+            "compliance.read",
+            "compliance.facts.review",
+            "compliance.case.resolve",
+            "dispatch.release.approve",
+            "compliance.case.comment",
+            "compliance.hold.create",
+            "compliance.hold.release.request",
+            "compliance.hold.release.approve",
+            "compliance.hold.review",
+            "compliance.hold.raise",
+            "dispatch.authorisation.revoke",
+            "transport.evidence.review",
+            "turnover.read",
+            "turnover.review",
+            "dispatch.packet.read",
+        },
+        "BUYER_COMPLIANCE_REVIEWER": _READ
+        | {"compliance.read", "compliance.case.comment", "compliance.recipient.confirm"},
+        "CARRIER_EVIDENCE_REVIEWER": {
+            "document.read",
+            "document.original.download",
+            "organization.read",
+            "consignment.read",
+            "compliance.read",
+            "transport.evidence.review",
+        },
+        "RULE_AUTHOR": {
+            "organization.read",
+            "regulation.read",
+            "regulation.source.register",
+            "regulation.pack.prepare",
+            "regulation.pack.test",
+        },
+        "RULE_PUBLISHER": {
+            "organization.read",
+            "regulation.read",
+            "regulation.pack.review",
+            "regulation.pack.publish",
+            "regulation.pack.suspend",
+        },
+    }
+)
+ROLE_PERMISSIONS["CARRIER_DISPATCHER"] |= {
+    "compliance.read",
+    "transport.evidence.prepare",
+    "dispatch.packet.prepare",
+    "dispatch.packet.read",
+    "dispatch.authorisation.request",
+    "document.review",
+    "document.review.submit",
+}
+ROLE_PERMISSIONS["DRIVER"] |= {
+    "compliance.read",
+    "dispatch.packet.read",
+    "dispatch.packet.acknowledge",
+}
 ROLE_PERMISSIONS["CARRIER_DISPATCHER"] |= {
     "document.read",
     "document.register",

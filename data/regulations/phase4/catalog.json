@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "retrieved_on": "2026-10-13",
+  "publication_state": "UNPUBLISHED_CANDIDATE",
+  "limitations": [
+    "This catalog is not an exhaustive current-law compilation.",
+    "The 2021 CGST compilation is historical. Review subsequent amendments before approving production.",
+    "Review current IRP advisory, provider contract, transport-law interpretations and commodity/corridor coverage before publication.",
+    "No live authority connections or production issuer keys are seeded."
+  ],
+  "sources": [
+    {
+      "file": "notification-10-2023.pdf",
+      "source_status": "ACTIVE",
+      "sha256": "7bfff4c6a0e1be844212280b2b3b397217eed2909d3dca564563c35cc02418a2",
+      "kind": "NOTIFICATION",
+      "issuer": "Ministry of Finance, Department of Revenue, CBIC",
+      "title": "Notification 10/2023-Central Tax",
+      "document_number": "10/2023-Central Tax",
+      "url": "https://gstcouncil.gov.in/sites/default/files/2024-05/10ct_eng.pdf",
+      "interpretation_note": "Effective 1 August 2023: five-crore threshold amendment. Apply with the base notification and published exclusion predicates. GSTIN-only turnover is not PAN history. Independently review applicability and later amendments."
+    },
+    {
+      "file": "notification-78-2020.pdf",
+      "source_status": "ACTIVE",
+      "sha256": "9288e8420ee91fbf08d98147e62b1a825fec634c3ed416af1604378893e84157",
+      "kind": "NOTIFICATION",
+      "issuer": "Ministry of Finance, Department of Revenue, CBIC",
+      "title": "Notification 78/2020-Central Tax",
+      "document_number": "78/2020-Central Tax",
+      "url": "https://gstcouncil.gov.in/sites/default/files/2024-05/notfctn-78-central-tax-english-2020.pdf",
+      "interpretation_note": "HSN digit basis is immediately preceding financial-year aggregate turnover, independent of the historical e-invoice predicate. This implementation does not classify goods or determine tax rates."
+    },
+    {
+      "file": "ewb-controls-2024.pdf",
+      "source_status": "ACTIVE",
+      "sha256": "5c8e4159e2102ec17bae158ca2441907a163c43914b7650e5e70ea7fe892d589",
+      "kind": "PORTAL_ADVISORY",
+      "issuer": "National Informatics Centre, E-Way Bill System",
+      "title": "Additional E-Way Bill API validations, December 2024",
+      "url": "https://docs.ewaybillgst.gov.in/apidocs/downloads/Additional_Validations_20241217.pdf",
+      "interpretation_note": "Treat 180-day generation and 360-day extension bounds as versioned portal controls, not statutory EWB applicability or authority-returned validity. Review active, held and superseding notices before publication."
+    },
+    {
+      "file": "cgst-rules-compilation-2021.pdf",
+      "source_status": "UNKNOWN",
+      "sha256": "5c9739664b2a304ae54e1a824fdb4ad1a44ec1bf60b0db26b0edc72268f43735",
+      "kind": "RULE",
+      "issuer": "CBIC, dated compilation hosted by the GST Council",
+      "title": "CGST Rules 2017, compilation dated 1 June 2021",
+      "url": "https://gstcouncil.gov.in/sites/default/files/2024-04/01062021-cgst-rules-2017-part-a-rules.pdf",
+      "interpretation_note": "HISTORICAL COMPILATION, not a current-law certificate. Review Rule 46, 138, 138A, relevant dates, issuance exceptions and all subsequent amendments. No universal PDF-signature requirement or 100-km/day inference is made."
+    }
+  ]
+}

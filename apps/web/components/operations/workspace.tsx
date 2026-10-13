@@ -19,6 +19,8 @@ import {
 import { EvidenceUpload } from "./evidence-upload";
 import { OperationalGraph } from "./graph";
 import { DocumentModulePanel } from "@/components/document-desk/module-panel";
+import { ReleaseDesk } from "@/components/compliance/release-desk";
+import { RegulationsDesk } from "@/components/compliance/regulations";
 
 const modules = [
   "Shipments",
@@ -329,7 +331,9 @@ export function OperationsWorkspace({ tradeId }: { tradeId: string }) {
             )}
           </Section>
           <Section name="Dispatch readiness">
-            <strong>Not assessed</strong>
+            {data.consignments.map((cn) => (
+              <ReadinessBadge key={cn.id} cn={cn} />
+            ))}
           </Section>
         </>
       )}
@@ -343,16 +347,16 @@ export function OperationsWorkspace({ tradeId }: { tradeId: string }) {
           />
         </Section>
       )}
-      {module === "Compliance" && (
-        <Section name="Operational preparation">
-          <Facts values={{ dispatch_readiness: "Not assessed" }} />
-          {data.consignments.map((c) => (
-            <p key={c.id}>
-              {c.reference}: {c.planning_status} / {c.revision_alignment}
-            </p>
-          ))}
-        </Section>
-      )}
+      {["Compliance", "Risk", "Optimizer", "Evidence", "Graph"].includes(
+        module,
+      ) &&
+        data.consignments.map((cn) => (
+          <ComplianceAccess
+            key={`${cn.id}:${module}`}
+            cn={cn}
+            module={module}
+          />
+        ))}
       {module === "Graph" && <OperationalGraph graph={data.graph} />}
       {module === "Risk" && (
         <Section name="Operational exceptions">
@@ -402,6 +406,11 @@ export function OperationsWorkspace({ tradeId }: { tradeId: string }) {
       )}
       {module === "Regulations" && (
         <Section name="Regulatory context">
+          <RegulationsDesk
+            attachments={data.documents}
+            tradeId={tradeId}
+            reload={resource.reload}
+          />
           {data.consignments.map((c) => (
             <RegulatoryContext key={c.id} consignment={c} />
           ))}
@@ -413,6 +422,51 @@ export function OperationsWorkspace({ tradeId }: { tradeId: string }) {
       {module === "Evidence" && <EvidenceTimeline tradeId={tradeId} />}
       <DocumentModulePanel tradeId={tradeId} module={module} />
     </div>
+  );
+}
+
+function ComplianceAccess({
+  cn,
+  module,
+}: {
+  cn: Operations["consignments"][number];
+  module: string;
+}) {
+  const { me, org } = useTradeContext();
+  const granted = me.memberships
+    .find((m) => m.organization_id === org)
+    ?.permissions.some(
+      (p) =>
+        p.permission_code === "compliance.read" &&
+        (!p.trade_id || p.trade_id === cn.trade_id),
+    );
+  return granted ? <ReleaseDesk cn={cn} module={module} /> : null;
+}
+function ReadinessBadge({ cn }: { cn: Operations["consignments"][number] }) {
+  const { me, org } = useTradeContext();
+  const granted = me.memberships
+    .find((m) => m.organization_id === org)
+    ?.permissions.some(
+      (p) =>
+        p.permission_code === "compliance.read" &&
+        (!p.trade_id || p.trade_id === cn.trade_id),
+    );
+  return granted ? (
+    <ReadinessData cn={cn} />
+  ) : (
+    <p className="text-sm">{cn.reference}: compliance access required</p>
+  );
+}
+function ReadinessData({ cn }: { cn: Operations["consignments"][number] }) {
+  const { org } = useTradeContext();
+  const resource = useOperationsResource<{ state: string }>(
+    `/consignments/${cn.id}/dispatch-readiness?action=${cn.movement_status === "PICKED_UP" ? "DEPARTED" : "PICKUP_CONFIRMED"}`,
+    org,
+  );
+  return (
+    <p className="text-sm font-medium">
+      {cn.reference}: {resource.data?.state ?? "NOT_ASSESSED"}
+    </p>
   );
 }
 

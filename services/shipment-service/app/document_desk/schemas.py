@@ -6,7 +6,7 @@ from uuid import UUID
 from pydantic import AfterValidator, Field, create_model, field_validator, model_validator
 
 from app.trades.reference import UQC
-from app.trades.schemas import Minor, NonnegativeDecimal, PositiveDecimal, Schema, utc
+from app.trades.schemas import Minor, NonnegativeDecimal, PositiveDecimal, Schema, state, utc
 
 DocumentType = Literal[
     "TAX_INVOICE",
@@ -19,6 +19,14 @@ DocumentType = Literal[
     "SIGNED_EINVOICE_JSON",
     "POD",
     "PAYMENT_EVIDENCE",
+    "VEHICLE_RC",
+    "VEHICLE_INSURANCE",
+    "FITNESS_CERTIFICATE",
+    "PUC_CERTIFICATE",
+    "GOODS_PERMIT",
+    "PERMIT_AUTHORISATION",
+    "DRIVER_LICENCE",
+    "CARGO_INSURANCE",
     "OTHER",
 ]
 CheckType = Literal[
@@ -95,6 +103,12 @@ Header = nullable_model(
         ],
         "irn": Annotated[str, Field(max_length=64)],
         "acknowledgment_at": Timestamp,
+        "place_of_supply_state_code": Annotated[str, AfterValidator(state)],
+        "reverse_charge_position": Literal["YES", "NO", "UNKNOWN"],
+        "issuance_form": Literal["PAPER_WITH_SIGNATURE", "ELECTRONIC_IT_ACT_DECLARED", "UNKNOWN"],
+        "signature_presence": Literal["OBSERVED", "NOT_OBSERVED", "NOT_ASSESSED"],
+        "invoice_series_fy": Annotated[int, Field(ge=2017, le=2100)],
+        "invoice_profile_code": Annotated[str, Field(max_length=100)],
     },
 )
 
@@ -234,7 +248,7 @@ Payment = nullable_model(
 
 
 class CanonicalDocument(Schema):
-    schema_version: Literal["PH3_CANONICAL_V1"] = "PH3_CANONICAL_V1"
+    schema_version: Literal["PH3_CANONICAL_V1", "PH4_CANONICAL_V2"] = "PH3_CANONICAL_V1"
     header: Header = Field(default_factory=Header)
     parties: Parties = Field(default_factory=Parties)
     lines: list[GoodsLine] = Field(default_factory=list, max_length=1000)
@@ -441,6 +455,9 @@ class ManualAttestation(Schema):
     observed_status: str = Field(min_length=1, max_length=200)
     notes: str | None = Field(None, max_length=2000)
     evidence_attachment_ids: list[UUID] = Field(default_factory=list)
+    observed_fields: dict[str, Annotated[str, Field(max_length=500)]] = Field(
+        default_factory=dict, max_length=40
+    )
     _utc = field_validator("observed_at")(utc)
 
 

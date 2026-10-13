@@ -63,6 +63,9 @@ class Consignment(Mutable, TradeBase):
     planning_status: Mapped[str] = mapped_column(String(20), default="DRAFT")
     movement_status: Mapped[str] = mapped_column(String(30), default="NOT_STARTED", index=True)
     revision_alignment: Mapped[str] = mapped_column(String(30), default="CURRENT")
+    phase4_legacy_movement: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=text("false")
+    )
     plan_json: Mapped[dict] = mapped_column(JSON_TYPE)
     pickup_address_snapshot: Mapped[dict] = mapped_column(JSON_TYPE)
     delivery_address_snapshot: Mapped[dict] = mapped_column(JSON_TYPE)

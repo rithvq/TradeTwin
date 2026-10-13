@@ -1,5 +1,6 @@
 param(
-    [int]$TimeoutSeconds = 30
+    [int]$TimeoutSeconds = 30,
+    [switch]$GuardedDispatch
 )
 
 $ErrorActionPreference = "Stop"
@@ -71,6 +72,31 @@ foreach ($check in $checks) {
 
 if ($failed.Count -gt 0) {
     throw "Health checks failed: $($failed -join ', ')"
+}
+
+if ($GuardedDispatch) {
+    $schema = Invoke-RestMethod -Uri "http://localhost:$shipmentPort/openapi.json" -TimeoutSec 10
+    $paths = @(
+        '/api/v1/consignments/{ident}/compliance-evaluations',
+        '/api/v1/consignments/{ident}/dispatch-readiness',
+        '/api/v1/consignments/{ident}/dispatch-authorizations',
+        '/api/v1/regulations/rule-pack-revisions',
+        '/api/v1/compliance-evaluations/{ident}/evidence-manifest'
+    )
+    foreach ($path in $paths) {
+        if ($null -eq $schema.paths.PSObject.Properties[$path]) {
+            throw "Phase 4 endpoint missing: $path"
+        }
+        Write-Host "[PASS] Phase 4 endpoint $path" -ForegroundColor Green
+    }
+    try {
+        Invoke-WebRequest -UseBasicParsing -Uri "http://localhost:$shipmentPort/api/v1/regulations/rule-pack-revisions" -TimeoutSec 10 | Out-Null
+        throw 'Unauthenticated access to the Phase 4 registry was permitted.'
+    }
+    catch {
+        if ([int]$_.Exception.Response.StatusCode -ne 401) { throw }
+        Write-Host '[PASS] Phase 4 registry requires authentication' -ForegroundColor Green
+    }
 }
 
 Write-Host "All TradeTwin health checks passed." -ForegroundColor Green

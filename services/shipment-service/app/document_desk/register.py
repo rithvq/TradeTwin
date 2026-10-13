@@ -135,19 +135,18 @@ def create(db, ctx, trade_id, payload):
         )
     )
     if payload.initial_consignment_id:
-        link_subject(
-            db,
-            ctx,
-            version.id,
-            type(
-                "Subject",
-                (),
-                {
-                    "subject_type": "CONSIGNMENT",
-                    "subject_id": payload.initial_consignment_id,
-                },
-            )(),
+        selected_trade, _, _ = consignment(db, ctx, payload.initial_consignment_id)
+        if selected_trade.id != trade.id:
+            fail("NOT_FOUND", "Consignment not found.", status=404)
+        db.add(
+            SubjectLink(
+                document_version_id=version.id,
+                subject_type="CONSIGNMENT",
+                subject_id=str(payload.initial_consignment_id),
+                created_by_user_id=ctx.user.id,
+            )
         )
+        db.flush()
     from .views import document_view
 
     return document_view(db, ctx, doc)
@@ -263,6 +262,16 @@ def link_subject(db, ctx, ident, payload):
 
 def share(db, ctx, ident, payload):
     version, doc, _ = access.version(db, ctx, ident, "document.share", True)
+    from app.compliance.models import PrivateSource
+
+    if doc.document_type == "DRIVER_LICENCE" or db.scalar(
+        select(PrivateSource).where(PrivateSource.document_id == doc.id)
+    ):
+        fail(
+            "FORBIDDEN",
+            "Private identity and turnover sources cannot be shared as general documents.",
+            status=403,
+        )
     assignment = db.get(Assignment, str(payload.assignment_id)) if payload.assignment_id else None
     if payload.access_type == "OPERATIONAL_PROJECTION":
         if doc.document_type not in access.OPERATIONAL or not assignment:

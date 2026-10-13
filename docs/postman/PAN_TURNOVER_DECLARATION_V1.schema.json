@@ -1,0 +1,150 @@
+{
+  "$defs": {
+    "TurnoverYear": {
+      "additionalProperties": false,
+      "properties": {
+        "financial_year_start": {
+          "maximum": 2100,
+          "minimum": 2017,
+          "title": "Financial Year Start",
+          "type": "integer"
+        },
+        "existence_status": {
+          "enum": [
+            "IN_EXISTENCE",
+            "NOT_IN_EXISTENCE",
+            "UNKNOWN"
+          ],
+          "title": "Existence Status",
+          "type": "string"
+        },
+        "pan_aggregate_turnover_minor": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{1,18}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pan Aggregate Turnover Minor"
+        },
+        "source_document_version_ids": {
+          "items": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "maxItems": 100,
+          "title": "Source Document Version Ids",
+          "type": "array"
+        },
+        "provenance": {
+          "enum": [
+            "SELF_DECLARED",
+            "REVIEWED_RECORD"
+          ],
+          "title": "Provenance",
+          "type": "string"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note"
+        }
+      },
+      "required": [
+        "financial_year_start",
+        "existence_status",
+        "provenance"
+      ],
+      "title": "TurnoverYear",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "pan_identity_reference": {
+      "format": "uuid",
+      "title": "Pan Identity Reference",
+      "type": "string"
+    },
+    "declared_business_commencement_date": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Declared Business Commencement Date"
+    },
+    "assessment_invoice_date": {
+      "format": "date",
+      "title": "Assessment Invoice Date",
+      "type": "string"
+    },
+    "relevant_financial_years": {
+      "items": {
+        "$ref": "#/$defs/TurnoverYear"
+      },
+      "maxItems": 84,
+      "title": "Relevant Financial Years",
+      "type": "array"
+    },
+    "history_completeness_declared": {
+      "title": "History Completeness Declared",
+      "type": "boolean"
+    },
+    "supplier_exclusion_code": {
+      "default": "UNKNOWN",
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Supplier Exclusion Code",
+      "type": "string"
+    },
+    "exclusion_basis_document_version_ids": {
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "maxItems": 100,
+      "title": "Exclusion Basis Document Version Ids",
+      "type": "array"
+    },
+    "declaration_note": {
+      "maxLength": 2000,
+      "minLength": 1,
+      "title": "Declaration Note",
+      "type": "string"
+    }
+  },
+  "required": [
+    "pan_identity_reference",
+    "assessment_invoice_date",
+    "relevant_financial_years",
+    "history_completeness_declared",
+    "declaration_note"
+  ],
+  "title": "TurnoverInput",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

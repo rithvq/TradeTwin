@@ -1,5 +1,6 @@
 """Authenticated Phase 2 lifecycle; sessions exist only in disposable test databases."""
 
+import base64
 import hashlib
 import importlib.util
 import json
@@ -30,7 +31,7 @@ spec.loader.exec_module(commercial)
 smoke = commercial.smoke
 
 
-def run_browser(fixtures, tokens):
+def run_browser(fixtures, tokens, fixture_env):
     OUTPUT.mkdir(parents=True, exist_ok=True)
     trade_id = fixtures["trade_id"]
     operations = f"/shipments/trades/{trade_id}/operations"
@@ -101,7 +102,7 @@ def run_browser(fixtures, tokens):
             expect(page.get_by_text(name, exact=True)).to_be_visible()
             article = page.locator("article").filter(has=page.get_by_text(name, exact=True))
             expect(article.get_by_text("Download blocked.", exact=False)).to_be_visible()
-            expect(page.get_by_role("button", name="Download", exact=True)).to_have_count(0)
+            expect(article.get_by_role("button", name="Download", exact=True)).to_have_count(0)
             return completed
 
         consignments = []
@@ -157,6 +158,23 @@ def run_browser(fixtures, tokens):
             )
             submit("Accept vehicle and driver assignment")
             current = read(f"/consignments/{cn['id']}")
+
+            def prepare_gate(action, consignment_id=cn["id"]):
+                result = subprocess.run(
+                    [
+                        sys.executable,
+                        str(ROOT / "scripts/operational-dispatch-fixture.py"),
+                        consignment_id,
+                        action,
+                    ],
+                    env=fixture_env,
+                    input=json.dumps(fixtures),
+                    capture_output=True,
+                    text=True,
+                )
+                assert result.returncode == 0, result.stderr
+
+            prepare_gate("PICKUP_CONFIRMED")
             signin(
                 "driver-one" if index == 0 else "driver-two",
                 f"/shipments/tasks/{current['active_assignment_id']}",
@@ -166,6 +184,12 @@ def run_browser(fixtures, tokens):
                 page, {"actual_gross_weight_kg": "400", "actual_package_count": 4}
             )
             for name in ("Record Pickup Confirmed", "Record Departed", "Record Arrived"):
+                if name == "Record Departed":
+                    prepare_gate("DEPARTED")
+                    page.reload()
+                    expect(page.get_by_role("button", name=name, exact=True)).to_be_enabled(
+                        timeout=20000
+                    )
                 submit(name)
                 expect(page.get_by_role("button", name=name, exact=True)).to_have_count(0)
             assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
@@ -294,6 +318,7 @@ def main():
         folder = Path(
             stack.enter_context(tempfile.TemporaryDirectory(prefix="tradetwin-operations-"))
         )
+        document_key = base64.b64encode(secrets.token_bytes(32)).decode()
         smoke.start_local(
             stack,
             folder,
@@ -302,6 +327,7 @@ def main():
                 "API_SERVICE_URL": f"http://127.0.0.1:{smoke.SERVICES['api']}",
                 "APP_PUBLIC_URL": ORIGIN,
                 "EVIDENCE_CLAMAV_HOST": "",
+                "DOCUMENT_ENCRYPTION_KEY": document_key,
             },
         )
         env = {
@@ -309,6 +335,8 @@ def main():
             "DATABASE_URL": f"sqlite+pysqlite:///{folder / 'shipment.db'}",
             "NEO4J_ENABLED": "false",
             "OPERATIONAL_DEMO_ENABLED": "true",
+            "DOCUMENT_ENCRYPTION_KEY": document_key,
+            "OPERATIONS_BROWSER_DATABASE_ROOT": str(folder),
         }
         seeded = subprocess.run(
             [sys.executable, "-m", "app.operations.cli"],
@@ -362,7 +390,7 @@ def main():
             except httpx.HTTPError:
                 pass
             time.sleep(0.25)
-        run_browser(fixtures, tokens)
+        run_browser(fixtures, tokens, env)
 
 
 if __name__ == "__main__":

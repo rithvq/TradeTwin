@@ -11,6 +11,16 @@ from .models import AccessGrant, Asset, Document, SubjectLink, Version
 FINANCIAL = {"TAX_INVOICE", "BILL_OF_SUPPLY", "PURCHASE_ORDER", "SIGNED_EINVOICE_JSON"}
 INVOICE_PRESENTATIONS = {"TAX_INVOICE", "SIGNED_EINVOICE_JSON"}
 OPERATIONAL = {"LR_GR", "POD", "PACKING_LIST", "EWAY_BILL_COPY", "DELIVERY_CHALLAN"}
+TRANSPORT = {
+    "VEHICLE_RC",
+    "VEHICLE_INSURANCE",
+    "FITNESS_CERTIFICATE",
+    "PUC_CERTIFICATE",
+    "GOODS_PERMIT",
+    "PERMIT_AUTHORISATION",
+    "DRIVER_LICENCE",
+    "CARGO_INSURANCE",
+}
 OPERATIONAL_PATHS = {
     "header.document_number",
     "header.issue_date",
@@ -44,6 +54,15 @@ def active_assignment(db, ctx, assignment):
 
 def document(db, ctx, ident, permission="document.read", lock=False, projection=False):
     row = exists(db, Document, ident)
+    from app.compliance.models import PrivateSource
+
+    protected = db.scalar(select(PrivateSource).where(PrivateSource.document_id == row.id))
+    if protected and protected.seller_organisation_id != ctx.org_id:
+        fail("NOT_FOUND", "Document not found.", status=404)
+    if protected:
+        require(db, ctx.user, ctx.org_id, "turnover.read")
+    if row.document_type == "DRIVER_LICENCE" and row.owner_organization_id != ctx.org_id:
+        fail("NOT_FOUND", "Document not found.", status=404)
     trade = lock_trade(db, row.trade_id) if lock else exists(db, Trade, row.trade_id)
     if lock:
         db.refresh(row)
@@ -76,6 +95,11 @@ def document(db, ctx, ident, permission="document.read", lock=False, projection=
         or any(g.access_type in {"READ_REVIEWED", "DOWNLOAD_ORIGINAL"} for g in grants)
     )
     if not side:
+        if row.document_type in TRANSPORT and not (
+            has(db, ctx, "transport.evidence.prepare", trade.id)
+            or has(db, ctx, "transport.evidence.review", trade.id)
+        ):
+            fail("NOT_FOUND", "Document not found.", status=404)
         if row.document_type in FINANCIAL | {"PAYMENT_EVIDENCE", "OTHER"} or sensitive_assets:
             fail("NOT_FOUND", "Document not found.", status=404)
         own_links = list(
@@ -106,12 +130,23 @@ def document(db, ctx, ident, permission="document.read", lock=False, projection=
                 for link in own_links
             )
         )
-        if not historical_owner and not valid:
+        current_transport_owner = (
+            owner
+            and row.document_type in TRANSPORT
+            and any(
+                active_assignment(db, ctx, assignment)
+                for link in own_links
+                for assignment in db.scalars(
+                    select(Assignment).where(Assignment.consignment_id == link.subject_id)
+                )
+            )
+        )
+        if not historical_owner and not current_transport_owner and not valid:
             fail("NOT_FOUND", "Document not found.", status=404)
         if not owner and not projection:
             fail("FORBIDDEN", "Only the approved operational projection is available.", status=403)
         if permission not in {"document.read", "document.original.download"}:
-            if not owner or row.document_type not in {"LR_GR", "POD"}:
+            if not owner or row.document_type not in {"LR_GR", "POD"} | TRANSPORT:
                 fail("FORBIDDEN", "Operational document authority is required.", status=403)
             for link in own_links:
                 consignment(db, ctx, link.subject_id)
@@ -209,7 +244,22 @@ def registration_access(db, ctx, trade_id, document_type, consignment_id=None):
             require(db, ctx.user, ctx.org_id, "document.financial.read", trade.id, side)
         if document_type == "PAYMENT_EVIDENCE":
             require(db, ctx.user, ctx.org_id, "document.payment_evidence.read", trade.id, side)
-    elif document_type in {"LR_GR", "POD"} and consignment_id:
+    elif (
+        document_type
+        in {
+            "LR_GR",
+            "POD",
+            "VEHICLE_RC",
+            "VEHICLE_INSURANCE",
+            "FITNESS_CERTIFICATE",
+            "PUC_CERTIFICATE",
+            "GOODS_PERMIT",
+            "PERMIT_AUTHORISATION",
+            "DRIVER_LICENCE",
+            "CARGO_INSURANCE",
+        }
+        and consignment_id
+    ):
         _, cn, _ = consignment(db, ctx, consignment_id, "attachment.upload")
         if cn.trade_id != trade.id:
             fail("NOT_FOUND", "Trade not found.", status=404)

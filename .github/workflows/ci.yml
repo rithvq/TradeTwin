@@ -57,6 +57,12 @@ jobs:
           services/shipment-service/tests/test_commercial_agreements.py
           services/shipment-service/tests/test_operations.py
           services/shipment-service/tests/test_document_desk.py
+          services/shipment-service/tests/test_dispatch_policy.py
+
+      - name: Guarded dispatch contract drift
+        run: |
+          python scripts/export-dispatch-contracts.py
+          git diff --exit-code -- docs/postman
 
       - name: Service integration walkthrough
         run: python scripts/smoke-test.py --local
@@ -124,3 +130,8 @@ jobs:
         env:
           PLAYWRIGHT_CHANNEL: chromium
         run: python scripts/document-browser-check.py
+
+      - name: Guarded dispatch browser acceptance
+        env:
+          PLAYWRIGHT_CHANNEL: chromium
+        run: python scripts/dispatch-browser-check.py

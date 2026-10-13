@@ -56,6 +56,22 @@ def publish_outbox(sessions):
 def complete(db, lease, output):
     job, attempt = jobs.leased(db, *lease)
     ctx = jobs.job_context(db, job)
+    if job.stage == "PROJECT_MOVEMENT":
+        from app.compliance.projection import deliver
+
+        deliver(db, ctx, job)
+        job.status, job.finished_at = "SUCCEEDED", now()
+        attempt.status, attempt.finished_at = "SUCCEEDED", now()
+        db.commit()
+        return
+    if job.stage == "EVAL_COMPLIANCE":
+        from app.compliance.evaluations import complete as evaluate_compliance
+
+        evaluate_compliance(db, ctx, job.request_json["evaluation_id"])
+        job.status, job.finished_at = "SUCCEEDED", now()
+        attempt.status, attempt.finished_at = "SUCCEEDED", now()
+        db.commit()
+        return
     permission = "document.check" if job.stage == "COMPARE" else "document.verify.request"
     version, doc, _ = access.version(db, ctx, job.document_version_id, permission, True)
     if job.stage == "COMPARE":
@@ -133,7 +149,7 @@ def run_one(sessions=SessionLocal, job_id=None, processor=None):
         with sessions() as db:
             row = db.get(Job, lease[0])
             stage = row.stage
-        if stage == "COMPARE":
+        if stage in {"COMPARE", "EVAL_COMPLIANCE", "PROJECT_MOVEMENT"}:
             output = {}
         elif processor:
             output = processor(lease)

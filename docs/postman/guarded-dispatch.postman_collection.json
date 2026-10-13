@@ -1,0 +1,1584 @@
+{
+  "info": {
+    "name": "TradeTwin Guarded Dispatch Phase 4",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Local only. Use distinct authenticated actors. Fill JSON bodies from named schemas and reviewed current records. Reload context after every factual write. Poll 202 jobs before review. Preserve request keys manually for retries. Never share populated environments, credentials or private records."
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8011"
+    },
+    {
+      "key": "context_version",
+      "value": "0"
+    },
+    {
+      "key": "consignment_id",
+      "value": ""
+    },
+    {
+      "key": "trade_id",
+      "value": ""
+    },
+    {
+      "key": "context_etag",
+      "value": ""
+    },
+    {
+      "key": "fact_id",
+      "value": ""
+    },
+    {
+      "key": "evaluation_id",
+      "value": ""
+    },
+    {
+      "key": "evaluation_hash",
+      "value": ""
+    },
+    {
+      "key": "approval_id",
+      "value": ""
+    },
+    {
+      "key": "packet_id",
+      "value": ""
+    },
+    {
+      "key": "packet_hash",
+      "value": ""
+    },
+    {
+      "key": "assignment_id",
+      "value": ""
+    },
+    {
+      "key": "acknowledgment_id",
+      "value": ""
+    },
+    {
+      "key": "authorisation_id",
+      "value": ""
+    },
+    {
+      "key": "loading_manifest_revision_id",
+      "value": ""
+    },
+    {
+      "key": "turnover_id",
+      "value": ""
+    },
+    {
+      "key": "transport_id",
+      "value": ""
+    },
+    {
+      "key": "facts_json",
+      "value": "{}"
+    },
+    {
+      "key": "turnover_json",
+      "value": "{}"
+    },
+    {
+      "key": "manifest_json",
+      "value": "{}"
+    },
+    {
+      "key": "bindings_json",
+      "value": "{}"
+    },
+    {
+      "key": "transport_json",
+      "value": "{}"
+    },
+    {
+      "key": "representations_json",
+      "value": "[]"
+    },
+    {
+      "key": "event_json",
+      "value": "{}"
+    },
+    {
+      "key": "source_json",
+      "value": "{}"
+    },
+    {
+      "key": "pack_json",
+      "value": "{}"
+    },
+    {
+      "key": "pack_id",
+      "value": ""
+    },
+    {
+      "key": "pack_hash",
+      "value": ""
+    },
+    {
+      "key": "passed_test_run_id",
+      "value": ""
+    },
+    {
+      "key": "review_approval_event_id",
+      "value": ""
+    },
+    {
+      "key": "action",
+      "value": "PICKUP_CONFIRMED"
+    },
+    {
+      "key": "preparer_token",
+      "value": ""
+    },
+    {
+      "key": "preparer_org",
+      "value": ""
+    },
+    {
+      "key": "reviewer_token",
+      "value": ""
+    },
+    {
+      "key": "reviewer_org",
+      "value": ""
+    },
+    {
+      "key": "driver_token",
+      "value": ""
+    },
+    {
+      "key": "driver_org",
+      "value": ""
+    },
+    {
+      "key": "dispatcher_token",
+      "value": ""
+    },
+    {
+      "key": "dispatcher_org",
+      "value": ""
+    },
+    {
+      "key": "author_token",
+      "value": ""
+    },
+    {
+      "key": "author_org",
+      "value": ""
+    },
+    {
+      "key": "publisher_token",
+      "value": ""
+    },
+    {
+      "key": "publisher_org",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Read-only smoke",
+      "item": [
+        {
+          "name": "Role-filtered current context",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/consignments/{{consignment_id}}/compliance-context",
+            "header": [
+              {
+                "key": "X-Organization-Id",
+                "value": "{{preparer_org}}"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{preparer_token}}"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();const v=pm.collectionVariables;",
+                  "v.set('context_version',r.context_version);v.set('context_etag',r.etag);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Live readiness, never cached READY",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/consignments/{{consignment_id}}/dispatch-readiness?action={{action}}",
+            "header": [
+              {
+                "key": "X-Organization-Id",
+                "value": "{{preparer_org}}"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{preparer_token}}"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();const v=pm.collectionVariables;"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Constraint snapshot without private history",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/consignments/{{consignment_id}}/compliance-constraints?action={{action}}",
+            "header": [
+              {
+                "key": "X-Organization-Id",
+                "value": "{{preparer_org}}"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{preparer_token}}"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();const v=pm.collectionVariables;",
+                  "pm.test('No private PAN history',()=>pm.expect(JSON.stringify(r)).not.to.include('pan_aggregate_turnover_minor'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Supported scope registry",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/regulations/supported-scope",
+            "header": [
+              {
+                "key": "X-Organization-Id",
+                "value": "{{preparer_org}}"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{preparer_token}}"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();const v=pm.collectionVariables;"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Preparation",
+      "item": [
+        {
+          "name": "Prepare and submit exact facts",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/consignments/{{consignment_id}}/compliance-fact-revisions",
+            "header": [
+              {
+                "key": "X-Organization-Id",
+                "value": "{{preparer_org}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "If-Match",
+                "value": "{{context_etag}}"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{preparer_token}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"expected_context_version\":{{context_version}},\"facts\":{{facts_json}},\"submit_for_review\":true}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201',()=>pm.response.to.have.status(201));",
+                  "const r=pm.response.json();const v=pm.collectionVariables;",
+                  "v.set('fact_id',r.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Independently review facts",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/compliance-fact-revisions/{{fact_id}}/reviews",
+            "header": [
+              {
+                "key": "X-Organization-Id",
+                "value": "{{reviewer_org}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{reviewer_token}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"decision\":\"APPROVE_DECLARATION\",\"reason\":\"Independent declaration review\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201',()=>pm.response.to.have.status(201));",
+                  "const r=pm.response.json();const v=pm.collectionVariables;"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Private seller declaration",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/organisations/{{preparer_org}}/pan-turnover-declarations",
+            "header": [
+              {
+                "key": "X-Organization-Id",
+                "value": "{{preparer_org}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{preparer_token}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{{turnover_json}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201',()=>pm.response.to.have.status(201));",
+                  "const r=pm.response.json();const v=pm.collectionVariables;",
+                  "v.set('turnover_id',r.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Independent private turnover review",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/pan-turnover-declarations/{{turnover_id}}/reviews",
+            "header": [
+              {
+                "key": "X-Organization-Id",
+                "value": "{{reviewer_org}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{reviewer_token}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"decision\":\"APPROVE_DECLARATION\",\"reason\":\"Independent private record review\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201',()=>pm.response.to.have.status(201));",
+                  "const r=pm.response.json();const v=pm.collectionVariables;"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Pin loading manifest",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/consignments/{{consignment_id}}/loading-manifest-revisions",
+            "header": [
+              {
+                "key": "X-Organization-Id",
+                "value": "{{preparer_org}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "If-Match",
+                "value": "{{context_etag}}"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{preparer_token}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"expected_context_version\":{{context_version}},\"manifest\":{{manifest_json}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201',()=>pm.response.to.have.status(201));",
+                  "const r=pm.response.json();const v=pm.collectionVariables;",
+                  "v.set('loading_manifest_revision_id',r.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Transport evidence",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/consignments/{{consignment_id}}/transport-evidence-revisions",
+            "header": [
+              {
+                "key": "X-Organization-Id",
+                "value": "{{preparer_org}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{preparer_token}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{{transport_json}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201',()=>pm.response.to.have.status(201));",
+                  "const r=pm.response.json();const v=pm.collectionVariables;",
+                  "v.set('transport_id',r.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Independent transport review",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/transport-evidence-revisions/{{transport_id}}/reviews",
+            "header": [
+              {
+                "key": "X-Organization-Id",
+                "value": "{{reviewer_org}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{reviewer_token}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"decision\":\"APPROVE_DECLARATION\",\"reason\":\"Independent source/assignment review\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201',()=>pm.response.to.have.status(201));",
+                  "const r=pm.response.json();const v=pm.collectionVariables;"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Bind exact reviewed evidence",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/consignments/{{consignment_id}}/compliance-evidence-binding-revisions",
+            "header": [
+              {
+                "key": "X-Organization-Id",
+                "value": "{{preparer_org}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "If-Match",
+                "value": "{{context_etag}}"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{preparer_token}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"expected_context_version\":{{context_version}},\"bindings\":{{bindings_json}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201',()=>pm.response.to.have.status(201));",
+                  "const r=pm.response.json();const v=pm.collectionVariables;"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Release chain",
+      "item": [
+        {
+          "name": "Queue action-specific evaluation",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/consignments/{{consignment_id}}/compliance-evaluations",
+            "header": [
+              {
+                "key": "X-Organization-Id",
+                "value": "{{preparer_org}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "If-Match",
+                "value": "{{context_etag}}"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{preparer_token}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"action\":\"{{action}}\",\"expected_context_version\":{{context_version}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 202',()=>pm.response.to.have.status(202));",
+                  "const r=pm.response.json();const v=pm.collectionVariables;",
+                  "v.set('evaluation_id',r.evaluation_id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Poll immutable evaluation until completed",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/compliance-evaluations/{{evaluation_id}}",
+            "header": [
+              {
+                "key": "X-Organization-Id",
+                "value": "{{preparer_org}}"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{preparer_token}}"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();const v=pm.collectionVariables;",
+                  "if(r.evaluation_hash)v.set('evaluation_hash',r.evaluation_hash);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Independent release decision",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/compliance-evaluations/{{evaluation_id}}/review-decisions",
+            "header": [
+              {
+                "key": "X-Organization-Id",
+                "value": "{{reviewer_org}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{reviewer_token}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"decision\":\"APPROVE_RELEASE\",\"evaluation_hash\":\"{{evaluation_hash}}\",\"acknowledged_warning_action_ids\":[],\"reason\":\"Independent exact evaluation review\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201',()=>pm.response.to.have.status(201));",
+                  "const r=pm.response.json();const v=pm.collectionVariables;",
+                  "v.set('approval_id',r.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Prepare assignment-bound packet",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/consignments/{{consignment_id}}/dispatch-packets",
+            "header": [
+              {
+                "key": "X-Organization-Id",
+                "value": "{{dispatcher_org}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{dispatcher_token}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"action\":\"{{action}}\",\"evaluation_id\":\"{{evaluation_id}}\",\"evaluation_hash\":\"{{evaluation_hash}}\",\"approval_id\":\"{{approval_id}}\",\"selected_representations\":{{representations_json}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201',()=>pm.response.to.have.status(201));",
+                  "const r=pm.response.json();const v=pm.collectionVariables;",
+                  "v.set('packet_id',r.id);v.set('packet_hash',r.packet_hash);v.set('assignment_id',r.assignment_id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Assigned driver possession ACK",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/dispatch-packets/{{packet_id}}/acknowledgments",
+            "header": [
+              {
+                "key": "X-Organization-Id",
+                "value": "{{driver_org}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{driver_token}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"packet_hash\":\"{{packet_hash}}\",\"assignment_id\":\"{{assignment_id}}\",\"possession_confirmed\":true,\"carry_methods\":[\"PAPER_COPY\",\"EWB_NUMBER_AVAILABLE\"]}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201',()=>pm.response.to.have.status(201));",
+                  "const r=pm.response.json();const v=pm.collectionVariables;",
+                  "v.set('acknowledgment_id',r.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Issue guarded platform authorisation",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/consignments/{{consignment_id}}/dispatch-authorizations",
+            "header": [
+              {
+                "key": "X-Organization-Id",
+                "value": "{{dispatcher_org}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "If-Match",
+                "value": "{{context_etag}}"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{dispatcher_token}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"action\":\"{{action}}\",\"evaluation_id\":\"{{evaluation_id}}\",\"evaluation_hash\":\"{{evaluation_hash}}\",\"approval_id\":\"{{approval_id}}\",\"packet_id\":\"{{packet_id}}\",\"packet_hash\":\"{{packet_hash}}\",\"acknowledgment_id\":\"{{acknowledgment_id}}\",\"expected_context_version\":{{context_version}}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201',()=>pm.response.to.have.status(201));",
+                  "const r=pm.response.json();const v=pm.collectionVariables;",
+                  "v.set('authorisation_id',r.authorisation_id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Execute existing atomic movement command",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/consignments/{{consignment_id}}/events",
+            "header": [
+              {
+                "key": "X-Organization-Id",
+                "value": "{{driver_org}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{driver_token}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{{event_json}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201',()=>pm.response.to.have.status(201));",
+                  "const r=pm.response.json();const v=pm.collectionVariables;"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Evidence-grounded authorisation export",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/dispatch-authorizations/{{authorisation_id}}/evidence-manifest",
+            "header": [
+              {
+                "key": "X-Organization-Id",
+                "value": "{{preparer_org}}"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{preparer_token}}"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();const v=pm.collectionVariables;"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Governance",
+      "item": [
+        {
+          "name": "Register exact clean official source",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/regulations/sources",
+            "header": [
+              {
+                "key": "X-Organization-Id",
+                "value": "{{author_org}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{author_token}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{{source_json}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201',()=>pm.response.to.have.status(201));",
+                  "const r=pm.response.json();const v=pm.collectionVariables;"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create immutable unpublished pack",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/regulations/rule-pack-revisions",
+            "header": [
+              {
+                "key": "X-Organization-Id",
+                "value": "{{author_org}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{author_token}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{{pack_json}}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201',()=>pm.response.to.have.status(201));",
+                  "const r=pm.response.json();const v=pm.collectionVariables;",
+                  "v.set('pack_id',r.id);v.set('pack_hash',r.content_hash);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Run immutable registered tests",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/regulations/rule-pack-revisions/{{pack_id}}/test-runs",
+            "header": [
+              {
+                "key": "X-Organization-Id",
+                "value": "{{author_org}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{author_token}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"pack_hash\":\"{{pack_hash}}\",\"test_suite_id\":\"PH4_REQUIRED_BOUNDARIES_V1\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201',()=>pm.response.to.have.status(201));",
+                  "const r=pm.response.json();const v=pm.collectionVariables;",
+                  "if(r.status==='PASSED')v.set('passed_test_run_id',r.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Independently approve tested hash",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/regulations/rule-pack-revisions/{{pack_id}}/review-approvals",
+            "header": [
+              {
+                "key": "X-Organization-Id",
+                "value": "{{publisher_org}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{publisher_token}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"pack_hash\":\"{{pack_hash}}\",\"passed_test_run_id\":\"{{passed_test_run_id}}\",\"reason\":\"Independent source and coverage review\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201',()=>pm.response.to.have.status(201));",
+                  "const r=pm.response.json();const v=pm.collectionVariables;",
+                  "v.set('review_approval_event_id',r.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Publish reviewed version",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/regulations/rule-pack-revisions/{{pack_id}}/publications",
+            "header": [
+              {
+                "key": "X-Organization-Id",
+                "value": "{{publisher_org}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{publisher_token}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"pack_hash\":\"{{pack_hash}}\",\"review_approval_event_id\":\"{{review_approval_event_id}}\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 201',()=>pm.response.to.have.status(201));",
+                  "const r=pm.response.json();const v=pm.collectionVariables;"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Failure checks",
+      "item": [
+        {
+          "name": "Preparer self-review is denied",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/compliance-evaluations/{{evaluation_id}}/review-decisions",
+            "header": [
+              {
+                "key": "X-Organization-Id",
+                "value": "{{preparer_org}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{preparer_token}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"decision\":\"APPROVE_RELEASE\",\"evaluation_hash\":\"{{evaluation_hash}}\",\"reason\":\"Expect independent reviewer requirement\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 403',()=>pm.response.to.have.status(403));",
+                  "const r=pm.response.json();const v=pm.collectionVariables;"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Stale context is rejected",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/v1/consignments/{{consignment_id}}/compliance-evaluations",
+            "header": [
+              {
+                "key": "X-Organization-Id",
+                "value": "{{preparer_org}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "If-Match",
+                "value": "{{context_etag}}"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{preparer_token}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"action\":\"{{action}}\",\"expected_context_version\":999999999}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 412',()=>pm.response.to.have.status(412));",
+                  "const r=pm.response.json();const v=pm.collectionVariables;"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Read expired/stale/consumed token state",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/dispatch-authorizations/{{authorisation_id}}",
+            "header": [
+              {
+                "key": "X-Organization-Id",
+                "value": "{{preparer_org}}"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{preparer_token}}"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();const v=pm.collectionVariables;"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

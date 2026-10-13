@@ -1,0 +1,1627 @@
+{
+  "$defs": {
+    "DocumentHeader": {
+      "additionalProperties": false,
+      "properties": {
+        "document_number": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Document Number"
+        },
+        "purchase_order_reference": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Purchase Order Reference"
+        },
+        "acknowledgment_number": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Acknowledgment Number"
+        },
+        "issue_date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Issue Date"
+        },
+        "currency": {
+          "anyOf": [
+            {
+              "const": "INR",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Currency"
+        },
+        "movement_reason_declared": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Movement Reason Declared"
+        },
+        "document_profile": {
+          "anyOf": [
+            {
+              "enum": [
+                "SIMPLE_DECLARED_TOTALS",
+                "SUPPORTED_STRUCTURED_PROFILE",
+                "UNRESOLVED"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Document Profile"
+        },
+        "irn": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Irn"
+        },
+        "acknowledgment_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Acknowledgment At"
+        },
+        "place_of_supply_state_code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Place Of Supply State Code"
+        },
+        "reverse_charge_position": {
+          "anyOf": [
+            {
+              "enum": [
+                "YES",
+                "NO",
+                "UNKNOWN"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reverse Charge Position"
+        },
+        "issuance_form": {
+          "anyOf": [
+            {
+              "enum": [
+                "PAPER_WITH_SIGNATURE",
+                "ELECTRONIC_IT_ACT_DECLARED",
+                "UNKNOWN"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Issuance Form"
+        },
+        "signature_presence": {
+          "anyOf": [
+            {
+              "enum": [
+                "OBSERVED",
+                "NOT_OBSERVED",
+                "NOT_ASSESSED"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Signature Presence"
+        },
+        "invoice_series_fy": {
+          "anyOf": [
+            {
+              "maximum": 2100,
+              "minimum": 2017,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Invoice Series Fy"
+        },
+        "invoice_profile_code": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Invoice Profile Code"
+        }
+      },
+      "title": "DocumentHeader",
+      "type": "object"
+    },
+    "DocumentPackingTransport": {
+      "additionalProperties": false,
+      "properties": {
+        "gross_weight_kg": {
+          "anyOf": [
+            {
+              "ge": 0,
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gross Weight Kg"
+        },
+        "net_weight_kg": {
+          "anyOf": [
+            {
+              "ge": 0,
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Net Weight Kg"
+        },
+        "volume_m3": {
+          "anyOf": [
+            {
+              "ge": 0,
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Volume M3"
+        },
+        "package_count": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Package Count"
+        },
+        "package_type": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Package Type"
+        },
+        "lr_gr_number": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lr Gr Number"
+        },
+        "carrier_name": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Carrier Name"
+        },
+        "transporter_identifier": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Transporter Identifier"
+        },
+        "vehicle_registration_number": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Vehicle Registration Number"
+        },
+        "un_number": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Un Number"
+        },
+        "marks_and_numbers": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Marks And Numbers"
+        },
+        "lr_gr_date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lr Gr Date"
+        },
+        "transport_mode_declared": {
+          "anyOf": [
+            {
+              "enum": [
+                "ROAD",
+                "RAIL",
+                "AIR",
+                "SHIP",
+                "UNKNOWN"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Transport Mode Declared"
+        },
+        "temperature_min_c": {
+          "anyOf": [
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Temperature Min C"
+        },
+        "temperature_max_c": {
+          "anyOf": [
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Temperature Max C"
+        },
+        "hazardous_description": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Hazardous Description"
+        }
+      },
+      "title": "DocumentPackingTransport",
+      "type": "object"
+    },
+    "DocumentParties": {
+      "additionalProperties": false,
+      "properties": {
+        "supplier": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Party"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "recipient": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Party"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "bill_from": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Party"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "bill_to": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Party"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "dispatch_from": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Party"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "ship_to": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Party"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "DocumentParties",
+      "type": "object"
+    },
+    "DocumentTotals": {
+      "additionalProperties": false,
+      "properties": {
+        "taxable_subtotal_minor": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{1,18}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Taxable Subtotal Minor"
+        },
+        "discount_total_minor": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{1,18}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Discount Total Minor"
+        },
+        "cgst_total_minor": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{1,18}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cgst Total Minor"
+        },
+        "sgst_total_minor": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{1,18}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sgst Total Minor"
+        },
+        "igst_total_minor": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{1,18}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Igst Total Minor"
+        },
+        "cess_total_minor": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{1,18}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cess Total Minor"
+        },
+        "state_cess_total_minor": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{1,18}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "State Cess Total Minor"
+        },
+        "grand_total_minor": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{1,18}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Grand Total Minor"
+        },
+        "other_charges_minor": {
+          "anyOf": [
+            {
+              "pattern": "^-?\\d{1,18}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Other Charges Minor"
+        },
+        "round_off_minor": {
+          "anyOf": [
+            {
+              "pattern": "^-?\\d{1,18}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Round Off Minor"
+        },
+        "discount_treatment": {
+          "anyOf": [
+            {
+              "enum": [
+                "INCLUDED_IN_TAXABLE_SUBTOTAL",
+                "SUBTRACT_AFTER_SUBTOTAL",
+                "UNRESOLVED"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Discount Treatment"
+        }
+      },
+      "title": "DocumentTotals",
+      "type": "object"
+    },
+    "GoodsLine": {
+      "additionalProperties": false,
+      "properties": {
+        "document_line_ref": {
+          "format": "uuid",
+          "title": "Document Line Ref",
+          "type": "string"
+        },
+        "line_number_printed": {
+          "anyOf": [
+            {
+              "maxLength": 30,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Line Number Printed"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "hsn_code": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{2,8}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Hsn Code"
+        },
+        "quantity": {
+          "anyOf": [
+            {
+              "ge": 0,
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quantity"
+        },
+        "uqc": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Uqc"
+        },
+        "unit_price_minor": {
+          "anyOf": [
+            {
+              "ge": 0,
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit Price Minor"
+        },
+        "line_discount_minor": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{1,18}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Line Discount Minor"
+        },
+        "taxable_value_minor": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{1,18}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Taxable Value Minor"
+        },
+        "declared_cgst_rate_percent": {
+          "anyOf": [
+            {
+              "ge": 0,
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Declared Cgst Rate Percent"
+        },
+        "declared_sgst_rate_percent": {
+          "anyOf": [
+            {
+              "ge": 0,
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Declared Sgst Rate Percent"
+        },
+        "declared_igst_rate_percent": {
+          "anyOf": [
+            {
+              "ge": 0,
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Declared Igst Rate Percent"
+        },
+        "cgst_amount_minor": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{1,18}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cgst Amount Minor"
+        },
+        "sgst_amount_minor": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{1,18}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sgst Amount Minor"
+        },
+        "igst_amount_minor": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{1,18}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Igst Amount Minor"
+        },
+        "cess_amount_minor": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{1,18}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cess Amount Minor"
+        },
+        "state_cess_amount_minor": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{1,18}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "State Cess Amount Minor"
+        },
+        "line_total_minor": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{1,18}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Line Total Minor"
+        },
+        "batch_number": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Batch Number"
+        },
+        "serial_numbers": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Serial Numbers"
+        },
+        "manufactured_on": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Manufactured On"
+        },
+        "expires_on": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expires On"
+        }
+      },
+      "required": [
+        "document_line_ref"
+      ],
+      "title": "GoodsLine",
+      "type": "object"
+    },
+    "PartialDocumentAddress": {
+      "additionalProperties": false,
+      "properties": {
+        "address_line1": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Address Line1"
+        },
+        "address_line2": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Address Line2"
+        },
+        "locality": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Locality"
+        },
+        "city": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "City"
+        },
+        "district": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "District"
+        },
+        "state_code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "State Code"
+        },
+        "postal_code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Postal Code"
+        },
+        "country_code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Country Code"
+        },
+        "contact_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Contact Name"
+        },
+        "timezone": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Timezone"
+        }
+      },
+      "title": "PartialDocumentAddress",
+      "type": "object"
+    },
+    "Party": {
+      "additionalProperties": false,
+      "properties": {
+        "legal_name": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Legal Name"
+        },
+        "trade_name": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Trade Name"
+        },
+        "registration_identifier_kind": {
+          "anyOf": [
+            {
+              "enum": [
+                "GSTIN",
+                "UNREGISTERED_DECLARATION",
+                "UNKNOWN"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Registration Identifier Kind"
+        },
+        "gstin": {
+          "anyOf": [
+            {
+              "maxLength": 30,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gstin"
+        },
+        "registration_identifier_raw": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Registration Identifier Raw"
+        },
+        "address": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PartialDocumentAddress"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "declared_organization_id": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Declared Organization Id"
+        }
+      },
+      "title": "Party",
+      "type": "object"
+    },
+    "PrintedEwayBill": {
+      "additionalProperties": false,
+      "properties": {
+        "eway_bill_number": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Eway Bill Number"
+        },
+        "printed_status": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Printed Status"
+        },
+        "referenced_document_type": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Referenced Document Type"
+        },
+        "referenced_document_number": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Referenced Document Number"
+        },
+        "transporter_identifier": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Transporter Identifier"
+        },
+        "vehicle_registration_number": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Vehicle Registration Number"
+        },
+        "generated_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Generated At"
+        },
+        "valid_from_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Valid From At"
+        },
+        "valid_until_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Valid Until At"
+        },
+        "part_information": {
+          "anyOf": [
+            {
+              "enum": [
+                "FULL_COPY",
+                "PART_A_ONLY",
+                "UNKNOWN"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Part Information"
+        },
+        "referenced_document_date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Referenced Document Date"
+        },
+        "declared_invoice_value_minor": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{1,18}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Declared Invoice Value Minor"
+        },
+        "declared_distance_km": {
+          "anyOf": [
+            {
+              "ge": 0,
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Declared Distance Km"
+        }
+      },
+      "title": "PrintedEwayBill",
+      "type": "object"
+    },
+    "PrintedPOD": {
+      "additionalProperties": false,
+      "properties": {
+        "delivery_reference": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Delivery Reference"
+        },
+        "receiver_name_printed": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Receiver Name Printed"
+        },
+        "delivery_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Delivery At"
+        },
+        "package_count_received": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Package Count Received"
+        },
+        "condition_notes": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Condition Notes"
+        },
+        "signature_present_visual": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Signature Present Visual"
+        }
+      },
+      "title": "PrintedPOD",
+      "type": "object"
+    },
+    "PrintedPaymentEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "amount_minor": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{1,18}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Amount Minor"
+        },
+        "currency": {
+          "anyOf": [
+            {
+              "const": "INR",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Currency"
+        },
+        "transaction_date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Transaction Date"
+        },
+        "transaction_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Transaction At"
+        },
+        "transaction_reference": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Transaction Reference"
+        },
+        "payer_name": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Payer Name"
+        },
+        "payee_name": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Payee Name"
+        },
+        "payment_method_declared": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Payment Method Declared"
+        },
+        "printed_transaction_status": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Printed Transaction Status"
+        }
+      },
+      "title": "PrintedPaymentEvidence",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "default": "PH3_CANONICAL_V1",
+      "enum": [
+        "PH3_CANONICAL_V1",
+        "PH4_CANONICAL_V2"
+      ],
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "header": {
+      "$ref": "#/$defs/DocumentHeader"
+    },
+    "parties": {
+      "$ref": "#/$defs/DocumentParties"
+    },
+    "lines": {
+      "items": {
+        "$ref": "#/$defs/GoodsLine"
+      },
+      "maxItems": 1000,
+      "title": "Lines",
+      "type": "array"
+    },
+    "totals": {
+      "$ref": "#/$defs/DocumentTotals"
+    },
+    "packing_transport": {
+      "$ref": "#/$defs/DocumentPackingTransport"
+    },
+    "eway_bill": {
+      "$ref": "#/$defs/PrintedEwayBill"
+    },
+    "pod": {
+      "$ref": "#/$defs/PrintedPOD"
+    },
+    "payment_evidence": {
+      "$ref": "#/$defs/PrintedPaymentEvidence"
+    }
+  },
+  "title": "CanonicalDocument",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

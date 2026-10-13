@@ -53,9 +53,17 @@ app = FastAPI(title="TradeTwin Document Service", version="0.3.0", lifespan=life
 from app.operational_evidence import router as operational_evidence_router  # noqa: E402
 
 app.include_router(operational_evidence_router)
+from app.dispatch_packet_evidence import router as dispatch_packet_router  # noqa: E402
+
+app.include_router(dispatch_packet_router)
 from app.document_processing.router import router as document_processing_router  # noqa: E402
 
 app.include_router(document_processing_router)
+from app.document_processing.generated_fixtures import (  # noqa: E402
+    router as generated_fixture_router,
+)
+
+app.include_router(generated_fixture_router)
 
 app.add_middleware(ProfileMiddleware)
 app.add_middleware(UploadBodyLimit, limit=settings.max_upload_bytes + 65536)

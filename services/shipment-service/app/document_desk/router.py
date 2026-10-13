@@ -88,6 +88,17 @@ def authorize(db, ctx, resource, ident, permission, payload=None):
         "link": SubjectLink,
     }[resource]
     row = exists(db, model, ident)
+    if resource == "job" and row.stage == "PROJECT_MOVEMENT":
+        from app.compliance.context import access as compliance_access
+
+        compliance_access(db, ctx, row.request_json["consignment_id"])
+        fail("FORBIDDEN", "Committed movement projections cannot be cancelled.", status=403)
+    if resource == "job" and row.stage == "EVAL_COMPLIANCE":
+        from app.compliance.context import access as compliance_access
+
+        return compliance_access(
+            db, ctx, row.request_json["consignment_id"], "compliance.evaluate", True, True
+        )
     if resource == "finding":
         row = exists(db, Assessment, row.assessment_run_id)
     return access.version(db, ctx, row.document_version_id, permission, True)
@@ -578,6 +589,29 @@ def worker_input(payload: LeaseInput, db: Session = Depends(get_db)):
             else None,
             connection=None,
         )
+        if check.signed_payload_artifact_id:
+            signed = db.get(Artifact, check.signed_payload_artifact_id)
+            number = signed.transformation_metadata_json.get("page_number")
+            candidates = (
+                list(
+                    db.scalars(
+                        select(Page).where(
+                            Page.document_version_id == version.id, Page.page_number == number
+                        )
+                    )
+                )
+                if number
+                else []
+            )
+            body["signed_page_artifact"] = next(
+                (
+                    result(a)
+                    for page in candidates
+                    if (a := db.get(Artifact, page.page_image_artifact_id)).source_attachment_id
+                    == signed.source_attachment_id
+                ),
+                None,
+            )
         if check.connection_id:
             connection = db.get(Connection, check.connection_id)
             if connection.organization_id != ctx.org_id:

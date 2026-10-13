@@ -9,8 +9,8 @@ from app.trades.models import Trade
 from .models import Assignment, Consignment
 
 
-def fail(code, message, path=None, status=409):
-    raise TradeError(code, message, status, [field(path, message)] if path else [])
+def fail(code, message, path=None, status=409, details=None):
+    raise TradeError(code, message, status, [field(path, message)] if path else [], details)
 
 
 def exists(db, model, ident):
@@ -21,6 +21,9 @@ def exists(db, model, ident):
 
 
 def lock_trade(db, trade_id):
+    from app.trades.context_locks import registry_lock
+
+    registry_lock(db)
     row = db.scalar(
         select(Trade)
         .where(Trade.id == str(trade_id))
@@ -58,6 +61,13 @@ def consignment(db, ctx, ident, permission="consignment.read", side=None, lock=F
             "attachment.upload",
             "evidence.read",
             "assignment.respond",
+            "compliance.read",
+            "transport.evidence.prepare",
+            "transport.evidence.review",
+            "dispatch.packet.prepare",
+            "dispatch.packet.read",
+            "dispatch.packet.acknowledge",
+            "dispatch.authorisation.request",
         }:
             fail("FORBIDDEN", "Buyer/seller authority is required.", status=403)
         require(db, ctx.user, ctx.org_id, permission, trade.id)
@@ -75,7 +85,7 @@ def consignment(db, ctx, ident, permission="consignment.read", side=None, lock=F
             for g in grants(db, membership(db, ctx.user, ctx.org_id), trade.id)
             if g.permission_code == permission
         }
-        dispatcher = "CARRIER_DISPATCHER" in capabilities
+        dispatcher = bool({"CARRIER_DISPATCHER", "CARRIER_EVIDENCE_REVIEWER"} & capabilities)
         current_driver = any(
             a.id == row.active_assignment_id
             and a.driver_user_id == ctx.user.id
@@ -100,14 +110,6 @@ def has(db, ctx, permission, trade_id=None, side=None):
 def match(ctx, row):
     if ctx.if_match != f'"{row.row_version}"':
         fail("STALE_VERSION", "Record changed. Reload before retrying.", status=412)
-
-
-def simulated(trade):
-    if trade.execution_mode != "SIMULATION":
-        fail(
-            "DISPATCH_GATE_NOT_IMPLEMENTED",
-            "Production dispatch is unavailable until the Phase 4 dispatch gate.",
-        )
 
 
 def before_pickup(row):

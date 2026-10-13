@@ -48,7 +48,7 @@ def signature(content, mime):
 
             data = lossless_json(content)
             return isinstance(data, dict) and (
-                data.get("schema_version") == "PH3_CANONICAL_V1"
+                data.get("schema_version") in {"PH3_CANONICAL_V1", "PH4_CANONICAL_V2"}
                 or any(isinstance(data.get(k), str) for k in ("SignedInvoice", "SignedQRCode"))
                 or (
                     isinstance(data.get("DocDtls"), dict) and isinstance(data.get("ItemList"), list)

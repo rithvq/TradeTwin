@@ -1,0 +1,60 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "expected_context_version": {
+      "minimum": 0,
+      "title": "Expected Context Version",
+      "type": "integer"
+    },
+    "confirmation": {
+      "enum": [
+        "MATCHES_ACCEPTED_SNAPSHOT",
+        "REQUEST_CORRECTION"
+      ],
+      "title": "Confirmation",
+      "type": "string"
+    },
+    "gstin": {
+      "pattern": "^[0-9A-Z]{15}$",
+      "title": "Gstin",
+      "type": "string"
+    },
+    "destination_state_code": {
+      "title": "Destination State Code",
+      "type": "string"
+    },
+    "address_line1": {
+      "maxLength": 500,
+      "minLength": 1,
+      "title": "Address Line1",
+      "type": "string"
+    },
+    "recipient_category_code": {
+      "enum": [
+        "REGISTERED_REGULAR",
+        "SEZ",
+        "UNKNOWN"
+      ],
+      "title": "Recipient Category Code",
+      "type": "string"
+    },
+    "note": {
+      "maxLength": 2000,
+      "minLength": 1,
+      "title": "Note",
+      "type": "string"
+    }
+  },
+  "required": [
+    "expected_context_version",
+    "confirmation",
+    "gstin",
+    "destination_state_code",
+    "address_line1",
+    "recipient_category_code",
+    "note"
+  ],
+  "title": "RecipientInput",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

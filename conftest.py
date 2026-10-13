@@ -1,9 +1,11 @@
 """Legacy unit scenarios use an isolated demo context; security tests enable auth explicitly."""
 
 import base64
+import inspect
 import os
 import secrets
 import sys
+from types import ModuleType
 
 import pytest
 
@@ -13,9 +15,15 @@ os.environ["DOCUMENT_ENCRYPTION_KEY"] = base64.b64encode(secrets.token_bytes(32)
 _namespaces = {}
 
 
-def pytest_collectreport(report):
-    if report.result and any(isinstance(item, pytest.Function) for item in report.result):
-        _namespaces[report.nodeid] = (
+@pytest.hookimpl(tryfirst=True)
+def pytest_pycollect_makeitem(collector, name, obj):
+    if isinstance(collector, pytest.Module) and (
+        (name.startswith("test_") and inspect.isfunction(obj))
+        or (name.startswith("Test") and inspect.isclass(obj))
+    ):
+        # Collect reports can be delivered after another service's module was imported.
+        # Capture while this module's test items are being made instead.
+        _namespaces[collector.nodeid] = (
             {
                 name: module
                 for name, module in sys.modules.items()
@@ -35,4 +43,17 @@ def service_namespace(request):
                 del sys.modules[name]
         modules, paths = snapshot
         sys.modules.update(modules)
+        # Package attributes also retain lazy imports between tests. Restore them along
+        # with sys.modules so exception/model classes cannot cross service namespaces.
+        for module in modules.values():
+            if not hasattr(module, "__path__"):
+                continue
+            for key, value in list(vars(module).items()):
+                if isinstance(value, ModuleType) and value.__name__.startswith("app."):
+                    if value.__name__ not in modules:
+                        delattr(module, key)
+            for name, child in modules.items():
+                parent, _, attribute = name.rpartition(".")
+                if parent == module.__name__:
+                    setattr(module, attribute, child)
         sys.path[:] = paths

@@ -1,0 +1,355 @@
+{
+  "$defs": {
+    "Provenance": {
+      "additionalProperties": false,
+      "properties": {
+        "origin": {
+          "enum": [
+            "USER_DECLARATION",
+            "REVIEWED_DOCUMENT"
+          ],
+          "title": "Origin",
+          "type": "string"
+        },
+        "source_entity_type": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Entity Type"
+        },
+        "source_entity_id": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Entity Id"
+        },
+        "source_field_path": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Field Path"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        }
+      },
+      "required": [
+        "origin"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "subject_type": {
+      "enum": [
+        "VEHICLE",
+        "DRIVER",
+        "CARRIER",
+        "CONSIGNMENT"
+      ],
+      "title": "Subject Type",
+      "type": "string"
+    },
+    "subject_id": {
+      "format": "uuid",
+      "title": "Subject Id",
+      "type": "string"
+    },
+    "assignment_id": {
+      "format": "uuid",
+      "title": "Assignment Id",
+      "type": "string"
+    },
+    "evidence_type": {
+      "enum": [
+        "VEHICLE_RC",
+        "VEHICLE_INSURANCE",
+        "FITNESS_CERTIFICATE",
+        "PUC_CERTIFICATE",
+        "GOODS_PERMIT",
+        "PERMIT_AUTHORISATION",
+        "DRIVER_LICENCE",
+        "CARGO_INSURANCE"
+      ],
+      "title": "Evidence Type",
+      "type": "string"
+    },
+    "document_version_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Document Version Id"
+    },
+    "reviewed_fact_revision_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reviewed Fact Revision Id"
+    },
+    "verification_result_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Verification Result Id"
+    },
+    "document_number": {
+      "anyOf": [
+        {
+          "maxLength": 100,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Document Number"
+    },
+    "issuing_authority": {
+      "anyOf": [
+        {
+          "maxLength": 200,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Issuing Authority"
+    },
+    "issued_on": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Issued On"
+    },
+    "valid_from": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Valid From"
+    },
+    "valid_until": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Valid Until"
+    },
+    "covered_vehicle_number": {
+      "anyOf": [
+        {
+          "maxLength": 30,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Covered Vehicle Number"
+    },
+    "covered_driver_reference": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Covered Driver Reference"
+    },
+    "covered_vehicle_classes": {
+      "items": {
+        "maxLength": 100,
+        "minLength": 1,
+        "type": "string"
+      },
+      "maxItems": 20,
+      "title": "Covered Vehicle Classes",
+      "type": "array"
+    },
+    "covered_states": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 40,
+      "title": "Covered States",
+      "type": "array"
+    },
+    "route_restrictions": {
+      "anyOf": [
+        {
+          "maxLength": 2000,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Route Restrictions"
+    },
+    "route_restriction_position": {
+      "default": "UNKNOWN",
+      "enum": [
+        "NONE_DECLARED",
+        "SUPPORTED_RESTRICTIONS",
+        "UNKNOWN"
+      ],
+      "title": "Route Restriction Position",
+      "type": "string"
+    },
+    "permit_basis": {
+      "default": "UNKNOWN",
+      "enum": [
+        "NATIONAL",
+        "STATE_WITH_ENDORSEMENTS",
+        "TEMPORARY",
+        "OTHER",
+        "UNKNOWN"
+      ],
+      "title": "Permit Basis",
+      "type": "string"
+    },
+    "parent_permit_evidence_revision_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Parent Permit Evidence Revision Id"
+    },
+    "source_mode": {
+      "enum": [
+        "ORIGINAL_DOCUMENT",
+        "ISSUER_DIGITAL_RECORD",
+        "AUTHORISED_LOOKUP",
+        "SELF_DECLARATION"
+      ],
+      "title": "Source Mode",
+      "type": "string"
+    },
+    "observed_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Observed At"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 20,
+      "title": "Limitations",
+      "type": "array"
+    },
+    "field_provenance": {
+      "additionalProperties": {
+        "$ref": "#/$defs/Provenance"
+      },
+      "title": "Field Provenance",
+      "type": "object"
+    }
+  },
+  "required": [
+    "subject_type",
+    "subject_id",
+    "assignment_id",
+    "evidence_type",
+    "source_mode"
+  ],
+  "title": "TransportInput",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

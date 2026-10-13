@@ -1,5 +1,10 @@
 # TradeTwin API Reference
 
+The current commercial Phase 4 workflow uses OAuth organisation-scoped requests.
+The older demo tokens below cannot authorise its movement gate. See the
+[Phase 4 contracts](guarded-dispatch-phase4.md#apis-and-contracts) and
+[generated OpenAPI](postman/guarded-dispatch.openapi.json).
+
 TradeTwin exposes service-level APIs directly in the local Docker demo.
 
 ## Authentication

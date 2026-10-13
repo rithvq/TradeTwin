@@ -61,6 +61,9 @@ def directory(db, ctx, q="", cursor=None):
 
 
 def vehicle(db, ctx, payload, ident=None):
+    from app.trades.context_locks import registry_lock
+
+    registry_lock(db, exclusive=True)
     require(db, ctx.user, ctx.org_id, "vehicle.manage")
     if ident:
         row = exists(db, Vehicle, ident)

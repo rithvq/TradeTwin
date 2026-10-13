@@ -1,5 +1,6 @@
 """Internal-only simulation constructor. Never exposed through a public mutation."""
 
+import hashlib
 from datetime import timedelta
 from uuid import NAMESPACE_URL, uuid5
 
@@ -7,12 +8,13 @@ from sqlalchemy import select
 
 from app.trades import agreements, profiles
 from app.trades.demo import demo_address, demo_facts, demo_profile
-from app.trades.models import Organization, Trade, User, now, uid
+from app.trades.models import Organization, Registration, Trade, User, now, uid
 from app.trades.schemas import (
     Confirmation,
     MembershipChange,
     OrganizationDraft,
     Publish,
+    RegistrationCreate,
     TradeCreate,
 )
 from app.trades.transactions import Context
@@ -21,14 +23,30 @@ from . import transport
 from .schemas import CarrierProfileInput, VehicleInput
 
 ROLES = {
-    "seller-operations": ("seller", ["ORG_ADMIN", "SELLER_OPERATOR", "SELLER_OPERATIONS"]),
-    "seller-approver": ("seller", ["SELLER_APPROVER"]),
-    "buyer-receiver": ("buyer", ["ORG_ADMIN", "BUYER_OPERATOR", "BUYER_RECEIVER"]),
+    "seller-operations": (
+        "seller",
+        [
+            "ORG_ADMIN",
+            "SELLER_OPERATOR",
+            "SELLER_OPERATIONS",
+            "SELLER_COMPLIANCE_PREPARER",
+            "RULE_AUTHOR",
+        ],
+    ),
+    "seller-approver": (
+        "seller",
+        ["SELLER_APPROVER", "SELLER_COMPLIANCE_REVIEWER", "RULE_PUBLISHER"],
+    ),
+    "buyer-receiver": (
+        "buyer",
+        ["ORG_ADMIN", "BUYER_OPERATOR", "BUYER_RECEIVER", "BUYER_COMPLIANCE_REVIEWER"],
+    ),
     "buyer-approver": ("buyer", ["BUYER_APPROVER"]),
     "buyer-inspector": ("buyer", ["BUYER_INSPECTOR"]),
     "buyer-finance": ("buyer", ["BUYER_FINANCE"]),
     "seller-finance": ("seller", ["SELLER_FINANCE"]),
     "carrier-dispatcher": ("carrier", ["ORG_ADMIN", "CARRIER_DISPATCHER"]),
+    "carrier-reviewer": ("carrier", ["CARRIER_EVIDENCE_REVIEWER"]),
     "driver-one": ("carrier", ["DRIVER"]),
     "driver-two": ("carrier", ["DRIVER"]),
     "unrelated": ("unrelated", ["ORG_ADMIN", "CARRIER_DISPATCHER", "SELLER_OPERATIONS"]),
@@ -77,6 +95,44 @@ def seed_demo(db, subjects=None, namespace="phase2", production=False):
             orgs[org],
             MembershipChange(user_id=users[name].id, capabilities=roles),
         )
+    registrations = {}
+    for side, state in (("seller", "29"), ("buyer", "33")):
+        org = db.get(Organization, orgs[side])
+        org.registration_position = "REGISTERED"
+        org.registered_address = demo_address(
+            state,
+            "Bengaluru" if side == "seller" else "Chennai",
+            "560001" if side == "seller" else "600001",
+        )
+        registration = db.scalar(select(Registration).where(Registration.organization_id == org.id))
+        if not registration:
+            chars = hashlib.sha256(f"{namespace}:{side}".encode()).hexdigest()
+            pan = (
+                "".join(chr(65 + int(c, 16)) for c in chars[:5])
+                + f"{int(chars[5:9], 16) % 10000:04d}"
+                + "A"
+            )
+            base = state + pan + "1Z"
+            alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            total = sum(
+                (alphabet.index(c) * (1 if i % 2 == 0 else 2)) // 36
+                + (alphabet.index(c) * (1 if i % 2 == 0 else 2)) % 36
+                for i, c in enumerate(base)
+            )
+            gstin = base + alphabet[(36 - total % 36) % 36]
+            created = profiles.add_registration(
+                db,
+                Context(users[owners[side]], org.id, uid()),
+                org.id,
+                RegistrationCreate(
+                    gstin=gstin,
+                    state_code=state,
+                    declared_taxpayer_scheme="REGULAR",
+                    declared_establishment_kind="NORMAL",
+                ),
+            )
+            registration = db.get(Registration, created["id"])
+        registrations[side] = registration.id
     ctx = Context(users["carrier-dispatcher"], orgs["carrier"], uid())
     carrier = db.scalar(
         select(transport.Carrier).where(transport.Carrier.organization_id == orgs["carrier"])
@@ -118,7 +174,26 @@ def seed_demo(db, subjects=None, namespace="phase2", production=False):
     trade = db.scalar(select(Trade).where(Trade.reference == reference))
     if not trade:
         facts = demo_facts(orgs["seller"], orgs["buyer"])
-        start = now().replace(second=0, microsecond=0) + timedelta(days=2)
+        start = now().replace(second=0, microsecond=0) - timedelta(minutes=5)
+        origin, destination = (
+            demo_address("29", "Bengaluru", "560001"),
+            demo_address("33", "Chennai", "600001"),
+        )
+        facts["bill_from"] = {
+            "organization_id": orgs["seller"],
+            "registration_id": registrations["seller"],
+            "billing_address": origin,
+        }
+        facts["bill_to"] = {
+            "organization_id": orgs["buyer"],
+            "registration_id": registrations["buyer"],
+            "billing_address": destination,
+        }
+        facts["dispatch_from"], facts["ship_to"] = origin, destination
+        facts["seller_registration_id"], facts["buyer_registration_id"] = (
+            registrations["seller"],
+            registrations["buyer"],
+        )
         facts["delivery_requirements"].update(
             pickup_earliest_at=start.isoformat(),
             pickup_latest_at=(start + timedelta(hours=4)).isoformat(),
@@ -129,7 +204,7 @@ def seed_demo(db, subjects=None, namespace="phase2", production=False):
                 **facts["items"][0],
                 "quantity": "100",
                 "uqc": "NOS",
-                "unit_price_minor": "10000",
+                "unit_price_minor": "100000" if namespace.startswith("phase4") else "10000",
                 "discount_minor": "0",
             }
         ]

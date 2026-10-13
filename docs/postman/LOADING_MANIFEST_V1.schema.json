@@ -1,0 +1,118 @@
+{
+  "$defs": {
+    "ManifestItem": {
+      "additionalProperties": false,
+      "properties": {
+        "consignment_item_id": {
+          "format": "uuid",
+          "title": "Consignment Item Id",
+          "type": "string"
+        },
+        "trade_line_ref": {
+          "format": "uuid",
+          "title": "Trade Line Ref",
+          "type": "string"
+        },
+        "loaded_quantity": {
+          "gt": 0,
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "title": "Loaded Quantity",
+          "type": "string"
+        },
+        "uqc": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Uqc",
+          "type": "string"
+        }
+      },
+      "required": [
+        "consignment_item_id",
+        "trade_line_ref",
+        "loaded_quantity",
+        "uqc"
+      ],
+      "title": "ManifestItem",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "items": {
+      "items": {
+        "$ref": "#/$defs/ManifestItem"
+      },
+      "maxItems": 1000,
+      "minItems": 1,
+      "title": "Items",
+      "type": "array"
+    },
+    "actual_prepared_gross_weight_kg": {
+      "gt": 0,
+      "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+      "title": "Actual Prepared Gross Weight Kg",
+      "type": "string"
+    },
+    "actual_prepared_package_count": {
+      "exclusiveMinimum": 0,
+      "title": "Actual Prepared Package Count",
+      "type": "integer"
+    },
+    "package_type": {
+      "enum": [
+        "BOX",
+        "CARTON",
+        "BAG",
+        "PALLET",
+        "CRATE",
+        "DRUM",
+        "BUNDLE",
+        "BULK",
+        "OTHER"
+      ],
+      "title": "Package Type",
+      "type": "string"
+    },
+    "measurement_basis": {
+      "enum": [
+        "DECLARED",
+        "WEIGHBRIDGE_RECORD",
+        "OTHER_REVIEWED_RECORD"
+      ],
+      "title": "Measurement Basis",
+      "type": "string"
+    },
+    "measurement_document_version_ids": {
+      "items": {
+        "format": "uuid",
+        "type": "string"
+      },
+      "maxItems": 100,
+      "title": "Measurement Document Version Ids",
+      "type": "array"
+    },
+    "note": {
+      "anyOf": [
+        {
+          "maxLength": 2000,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Note"
+    }
+  },
+  "required": [
+    "items",
+    "actual_prepared_gross_weight_kg",
+    "actual_prepared_package_count",
+    "package_type",
+    "measurement_basis"
+  ],
+  "title": "LoadingManifest",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

@@ -260,6 +260,10 @@ def transition(db, ctx, ident, payload, cancel=False):
         row,
         {"reason": getattr(payload, "reason", None)},
     )
+    if cancel:
+        from app.compliance.bindings import release_reservations
+
+        release_reservations(db, ctx, row)
     from .views import consignment_view
 
     return consignment_view(db, ctx, trade, row)

@@ -40,8 +40,9 @@ from .schemas import (
 
 
 class Demo:
-    def __init__(self, sessions, fixtures):
+    def __init__(self, sessions, fixtures, evidence_store=None):
         self.sessions, self.fx = sessions, fixtures
+        self.evidence_store = evidence_store
         self.trade_id = fixtures["trade_id"]
 
     def run(self, role, action, model, body, ident=None, resource=None, etag=None):
@@ -133,9 +134,22 @@ class Demo:
 
     def arrive(self, cn, index=0):
         assignment = self.assignment(cn, index)
+        from app.compliance import demo as compliance_demo
+
+        with self.sessions() as db:
+            prepared = compliance_demo.prepare(db, self.fx, cn["id"], self.evidence_store)
+            db.commit()
         start = datetime.fromisoformat(cn["plan_json"]["planned_pickup_start"])
         finish = datetime.fromisoformat(cn["plan_json"]["expected_delivery_at"])
         for kind in ("PICKUP_CONFIRMED", "DEPARTED", "ARRIVED"):
+            guarded = {}
+            if kind in {"PICKUP_CONFIRMED", "DEPARTED"}:
+                with self.sessions() as db:
+                    token = compliance_demo.authorise(db, self.fx, cn["id"], kind)
+                    db.commit()
+                guarded = {"dispatch_authorization_id": token["id"]}
+                if kind == "PICKUP_CONFIRMED":
+                    guarded["loading_manifest_revision_id"] = prepared["manifest_id"]
             payload = (
                 {
                     "items": [
@@ -162,6 +176,7 @@ class Demo:
                     "event_type": kind,
                     "occurred_at": (finish if kind == "ARRIVED" else start),
                     "payload": payload,
+                    **guarded,
                 },
                 cn["id"],
             )
@@ -462,7 +477,13 @@ def main():
             raise SystemExit(
                 "This namespace already has operations. Use --reset to preserve it and start fresh."
             )
-        result = Demo(SessionLocal, fixtures).scenario(args.scenario)
+        from app.compliance.cli import real_storage
+
+        if os.getenv("DOCUMENT_DEMO_ENABLED", "false").lower() != "true":
+            raise SystemExit(
+                "Movement scenarios require DOCUMENT_DEMO_ENABLED=true and encrypted storage."
+            )
+        result = Demo(SessionLocal, fixtures, evidence_store=real_storage).scenario(args.scenario)
         fixtures["consignments"] = [c["id"] for c in result["consignments"]]
         fixtures["summary"] = {
             "availability": result["availability"],

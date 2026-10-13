@@ -68,10 +68,7 @@ function DocumentModuleData({
       </Link>
       {module === "Compliance" && (
         <>
-          <p className="text-sm">
-            Document evidence available for Phase 4 evaluation.
-          </p>
-          <strong className="text-sm">Dispatch readiness: NOT_ASSESSED</strong>
+          <p className="text-sm">Document reconciliation results</p>
         </>
       )}
       {module === "Risk" && (

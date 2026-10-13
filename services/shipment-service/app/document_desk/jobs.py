@@ -138,12 +138,20 @@ def claim(db, worker, job_id=None):
     if not row:
         return None
     requester = db.get(User, row.requested_by_user_id)
-    if not requester or not requester.active:
+    if not requester or (not requester.active and row.stage != "PROJECT_MOVEMENT"):
         row.status, row.last_error_code, row.finished_at = "FAILED", "ACCESS_REVOKED", instant
+        if row.stage == "EVAL_COMPLIANCE":
+            from app.compliance.models import Evaluation
+
+            evaluation = db.get(Evaluation, row.request_json["evaluation_id"])
+            evaluation.job_state, evaluation.decision = "FAILED", "BLOCKED"
         db.commit()
         return None
-    version = db.get(Version, row.document_version_id)
-    lock_trade(db, db.get(Document, version.document_id).trade_id)
+    if row.stage in {"EVAL_COMPLIANCE", "PROJECT_MOVEMENT"}:
+        lock_trade(db, row.trade_id)
+    else:
+        version = db.get(Version, row.document_version_id)
+        lock_trade(db, db.get(Document, version.document_id).trade_id)
     row = db.scalar(
         query.where(Job.id == row.id)
         .with_for_update(skip_locked=True)
@@ -172,22 +180,27 @@ def claim(db, worker, job_id=None):
     row.lease_expires_at = instant + timedelta(seconds=120)
     row.row_version += 1
     db.flush()
-    doc = db.get(Document, db.get(Version, row.document_version_id).document_id)
-    ctx = job_context(db, row)
-    record(
-        db,
-        ctx,
-        "DOCUMENT_ATTEMPT_STARTED",
-        doc,
-        detail={"job_id": row.id, "attempt_id": attempt.id},
-    )
+    ctx = Context(db.get(User, row.requested_by_user_id), row.requested_by_organization_id, uid())
+    if row.stage in {"EVAL_COMPLIANCE", "PROJECT_MOVEMENT"}:
+        from app.compliance.ledger import record as compliance_record
+
+        compliance_record(db, ctx, "COMPLIANCE_ATTEMPT_STARTED", row, row.trade_id)
+    else:
+        doc = db.get(Document, db.get(Version, row.document_version_id).document_id)
+        record(
+            db,
+            ctx,
+            "DOCUMENT_ATTEMPT_STARTED",
+            doc,
+            detail={"job_id": row.id, "attempt_id": attempt.id},
+        )
     db.commit()
     return row.id, attempt.id, attempt.lease_token
 
 
 def job_context(db, job):
     user = db.get(User, job.requested_by_user_id)
-    if not user or not user.active:
+    if not user or (not user.active and job.stage != "PROJECT_MOVEMENT"):
         fail("FORBIDDEN", "Requesting account is inactive.", status=403)
     return Context(user, job.requested_by_organization_id, uid())
 
@@ -198,8 +211,11 @@ def leased(db, job_id, attempt_id, token, lock=True):
         basis = db.scalar(query)
         if not basis:
             fail("JOB_ALREADY_TERMINAL", "Job no longer exists.")
-        version = db.get(Version, basis.document_version_id)
-        lock_trade(db, db.get(Document, version.document_id).trade_id)
+        if basis.stage in {"EVAL_COMPLIANCE", "PROJECT_MOVEMENT"}:
+            lock_trade(db, basis.trade_id)
+        else:
+            version = db.get(Version, basis.document_version_id)
+            lock_trade(db, db.get(Document, version.document_id).trade_id)
         query = query.with_for_update().execution_options(populate_existing=True)
     job = db.scalar(query)
     attempt = db.get(Attempt, str(attempt_id))
@@ -222,7 +238,19 @@ def heartbeat(db, job_id, attempt_id, token):
 
 def cancel(db, ctx, ident, payload):
     job = exists(db, Job, ident)
-    version, doc, _ = access.version(db, ctx, job.document_version_id, "document.process", True)
+    if job.stage == "PROJECT_MOVEMENT":
+        from app.compliance.context import access as compliance_access
+
+        compliance_access(db, ctx, job.request_json["consignment_id"])
+        fail("FORBIDDEN", "Committed movement projections cannot be cancelled.", status=403)
+    if job.stage == "EVAL_COMPLIANCE":
+        from app.compliance.context import access as compliance_access
+
+        compliance_access(
+            db, ctx, job.request_json["consignment_id"], "compliance.evaluate", True, True
+        )
+    else:
+        version, doc, _ = access.version(db, ctx, job.document_version_id, "document.process", True)
     if ctx.if_match != f'"{job.row_version}"':
         fail("REVIEW_HEAD_CHANGED", "Processing job changed. Reload its current ETag.")
     if job.status in TERMINAL:
@@ -232,18 +260,37 @@ def cancel(db, ctx, ident, payload):
     if job.current_attempt_id:
         attempt = db.get(Attempt, job.current_attempt_id)
         attempt.status, attempt.finished_at = "CANCELLED", now()
-    record(
-        db,
-        ctx,
-        "DOCUMENT_JOB_CANCELLED",
-        doc,
-        version,
-        {"job_id": job.id, "reason": payload.reason},
-    )
+    if job.stage == "EVAL_COMPLIANCE":
+        from app.compliance.ledger import record as compliance_record
+        from app.compliance.models import Evaluation
+
+        evaluation = db.get(Evaluation, job.request_json["evaluation_id"])
+        evaluation.job_state, evaluation.decision = "CANCELLED", "BLOCKED"
+        compliance_record(db, ctx, "COMPLIANCE_JOB_CANCELLED", job, job.trade_id)
+    else:
+        record(
+            db,
+            ctx,
+            "DOCUMENT_JOB_CANCELLED",
+            doc,
+            version,
+            {"job_id": job.id, "reason": payload.reason},
+        )
     return job_view(db, ctx, job)
 
 
 def job_view(db, ctx, row):
+    if row.stage in {"EVAL_COMPLIANCE", "PROJECT_MOVEMENT"}:
+        from app.compliance.context import access as compliance_access
+
+        compliance_access(db, ctx, row.request_json["consignment_id"])
+        return {
+            "id": row.id,
+            "status": row.status,
+            "evaluation_id": row.request_json.get("evaluation_id"),
+            "last_error_code": row.last_error_code,
+            "etag": f'"{row.row_version}"',
+        }
     _, doc, _ = access.version(db, ctx, row.document_version_id)
     access.capture(db, ctx, doc)
     body = result(row, doc)
@@ -277,6 +324,29 @@ def failed(db, lease, code):
     )
     if job.status == "FAILED":
         job.finished_at = now()
+    if job.stage in {"EVAL_COMPLIANCE", "PROJECT_MOVEMENT"}:
+        from app.compliance.ledger import record as compliance_record
+        from app.compliance.models import Evaluation
+
+        evaluation = (
+            db.get(Evaluation, job.request_json["evaluation_id"])
+            if job.stage == "EVAL_COMPLIANCE"
+            else None
+        )
+        if job.status == "FAILED" and evaluation:
+            evaluation.job_state = "FAILED"
+        compliance_record(
+            db,
+            Context(
+                db.get(User, job.requested_by_user_id), job.requested_by_organization_id, uid()
+            ),
+            "COMPLIANCE_ATTEMPT_FAILED",
+            job,
+            job.trade_id,
+            {"error_code": code},
+        )
+        db.commit()
+        return
     doc = db.get(Document, db.get(Version, job.document_version_id).document_id)
     record(
         db,

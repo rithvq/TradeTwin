@@ -1,0 +1,117 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "PH4_READINESS_V1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "consignment_id": {
+      "format": "uuid",
+      "title": "Consignment Id",
+      "type": "string"
+    },
+    "action": {
+      "enum": [
+        "PICKUP_CONFIRMED",
+        "DEPARTED"
+      ],
+      "title": "Action",
+      "type": "string"
+    },
+    "execution_mode": {
+      "enum": [
+        "SIMULATION",
+        "PRODUCTION"
+      ],
+      "title": "Execution Mode",
+      "type": "string"
+    },
+    "state": {
+      "title": "State",
+      "type": "string"
+    },
+    "reasons": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Reasons",
+      "type": "array"
+    },
+    "context_version": {
+      "title": "Context Version",
+      "type": "integer"
+    },
+    "evaluation": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Evaluation"
+    },
+    "authorisation": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Authorisation"
+    },
+    "checked_at": {
+      "format": "date-time",
+      "title": "Checked At",
+      "type": "string"
+    },
+    "label": {
+      "const": "Platform dispatch authorisation",
+      "title": "Label",
+      "type": "string"
+    },
+    "historical_notice": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Historical Notice"
+    },
+    "operational_alerts": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Operational Alerts",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "consignment_id",
+    "action",
+    "execution_mode",
+    "state",
+    "reasons",
+    "context_version",
+    "evaluation",
+    "authorisation",
+    "checked_at",
+    "label",
+    "historical_notice",
+    "operational_alerts"
+  ],
+  "title": "ReadinessView",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

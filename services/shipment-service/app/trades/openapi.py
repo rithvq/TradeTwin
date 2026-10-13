@@ -53,6 +53,18 @@ def install_openapi(app):
                     }
                 )
                 if method in {"post", "patch", "put"}:
+                    body = (
+                        operation.get("requestBody", {})
+                        .get("content", {})
+                        .get("application/json", {})
+                        .get("schema", {})
+                    )
+                    body_name = body.get("$ref", "").rsplit("/", 1)[-1]
+                    context_etag = "expected_context_version" in components.get(body_name, {}).get(
+                        "properties", {}
+                    ) or (
+                        path.startswith("/api/v1/compliance-cases/") and path.endswith("/actions")
+                    )
                     operation["parameters"].append(
                         {
                             "name": "Idempotency-Key",
@@ -62,7 +74,8 @@ def install_openapi(app):
                         }
                     )
                     if (
-                        method == "patch"
+                        context_etag
+                        or method == "patch"
                         or path.endswith(("/offers", "/amendments"))
                         or (path.startswith("/api/v1/offers/") and path.endswith("/withdrawals"))
                         or path.endswith(

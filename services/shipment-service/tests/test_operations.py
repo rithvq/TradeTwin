@@ -19,6 +19,7 @@ for module in list(sys.modules):
     if module == "app" or module.startswith("app."):
         del sys.modules[module]
 
+from app.compliance import context, demo  # noqa: E402
 from app.database import get_db  # noqa: E402
 from app.operations.cli import Demo  # noqa: E402
 from app.operations.demo import ROLES, seed_demo  # noqa: E402
@@ -176,6 +177,23 @@ class Flow:
         )
 
     def event(self, cn, assignment, kind, index=0, **changes):
+        guarded = {}
+        if kind in {"PICKUP_CONFIRMED", "DEPARTED"}:
+            from app.operations.models import Consignment
+
+            with self.sessions() as db:
+                row = db.get(Consignment, cn["id"])
+                head = context.heads(db, row)
+                if not head or not head.current_binding_revision_id:
+                    prepared = demo.prepare(db, self.fx, cn["id"])
+                    manifest_id = prepared["manifest_id"]
+                else:
+                    manifest_id = head.current_loading_manifest_revision_id
+                token = demo.authorise(db, self.fx, cn["id"], kind)
+                db.commit()
+            guarded = {"dispatch_authorization_id": token["id"]}
+            if kind == "PICKUP_CONFIRMED":
+                guarded["loading_manifest_revision_id"] = manifest_id
         payload = {
             "client_event_id": str(uuid4()),
             "assignment_id": assignment["id"],
@@ -198,7 +216,7 @@ class Flow:
             }
         return self.call(
             f"/consignments/{cn['id']}/events",
-            {**payload, **changes},
+            {**payload, **guarded, **changes},
             user="driver-one" if index == 0 else "driver-two",
             expected=201,
         )
@@ -407,7 +425,19 @@ def test_complete_40_60_lifecycle(flow):
         == "NOT_ASSESSED"
     )
     assert result["execution_mode"] == "SIMULATION"
+    from app.document_desk import access as document_access
+
+    evidence_endpoint = next(r.endpoint for r in flow.client.app.routes if r.name == "evidence")
+    assert (
+        evidence_endpoint.__globals__["TradeError"]
+        is document_access.fail.__globals__["TradeError"]
+    ), "Collected service namespace and document access exception types diverged"
     history = flow.call(f"/trades/{flow.trade_id}/evidence-events")
+    cursor = history["next_cursor"]
+    while cursor:
+        page = flow.call(f"/trades/{flow.trade_id}/evidence-events?cursor={cursor}")
+        history["items"].extend(page["items"])
+        cursor = page["next_cursor"]
     assert {
         "CONSIGNMENT_ALLOCATED",
         "MOVEMENT_EVENT_RECORDED",
@@ -510,6 +540,12 @@ def test_movement_event_identity_late_location_and_handover(flow):
     }
     flow.call(f"/consignments/{cn['id']}/events", body, user="driver-one", expected=409)
     flow.event(cn, assignment, "PICKUP_CONFIRMED")
+    from app.compliance import demo as compliance_demo
+
+    with flow.sessions() as db:
+        token = compliance_demo.authorise(db, flow.fx, cn["id"], "DEPARTED")
+        db.commit()
+    body["dispatch_authorization_id"] = token["id"]
     first = flow.call(f"/consignments/{cn['id']}/events", body, user="driver-one", expected=201)
     duplicate = flow.call(f"/consignments/{cn['id']}/events", body, user="driver-one", expected=201)
     assert first["id"] == duplicate["id"]
@@ -885,7 +921,9 @@ def test_production_gate_and_server_owned_fields(flow, kind):
     response = flow.call(
         f"/consignments/{cn['id']}/events", payload, user="driver-one", expected=409
     )
-    assert response["error"]["code"] == "DISPATCH_GATE_NOT_IMPLEMENTED"
+    assert response["error"]["code"] == (
+        "COMPLIANCE_NOT_READY" if kind == "PICKUP_CONFIRMED" else "INVALID_MOVEMENT_TRANSITION"
+    )
     flow.call(
         f"/consignments/{cn['id']}",
         {"execution_mode": "SIMULATION"},

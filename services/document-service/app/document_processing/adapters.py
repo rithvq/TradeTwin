@@ -23,6 +23,11 @@ PUBLIC_FIELDS = {
     "vehicle_registration_number",
     "provider_observed_at",
     "request_reference",
+    "supplier_gstin",
+    "recipient_gstin",
+    "invoice_value_minor",
+    "transport_mode",
+    "part_information",
 }
 
 

@@ -79,7 +79,21 @@ def consignment_view(db, ctx, trade, row):
             )
         ],
     }
+    from app.trades.context_locks import phase4_installed
     from app.trades.errors import TradeError
+
+    if phase4_installed(db) and has(db, ctx, "compliance.read", trade.id, side):
+        from app.compliance.handoff import readiness
+
+        try:
+            action = (
+                "DEPARTED"
+                if row.movement_status in {"PICKED_UP", "IN_TRANSIT", "ARRIVED", "DELIVERY_CLOSED"}
+                else "PICKUP_CONFIRMED"
+            )
+            result["dispatch_readiness"] = readiness(db, ctx, row.id, action)["state"]
+        except TradeError:
+            result["dispatch_readiness"] = "NOT_AVAILABLE"
 
     from .attachments import access
 
@@ -170,6 +184,17 @@ def planning_context(db, ctx, trade, row):
         document_evidence_refs=documents["linked_document_refs"],
         document_context_freshness=documents["freshness"],
     )
+    from .access import has
+
+    if has(db, ctx, "compliance.read", trade.id):
+        from app.compliance.handoff import constraints
+
+        inputs["compliance_constraints"] = constraints(
+            db,
+            ctx,
+            row.id,
+            "DEPARTED" if row.movement_status == "PICKED_UP" else "PICKUP_CONFIRMED",
+        )
     return {**inputs, "input_hash": digest(inputs), "request_id": ctx.request_id}
 
 

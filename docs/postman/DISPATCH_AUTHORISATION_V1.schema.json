@@ -1,0 +1,61 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "action": {
+      "enum": [
+        "PICKUP_CONFIRMED",
+        "DEPARTED"
+      ],
+      "title": "Action",
+      "type": "string"
+    },
+    "evaluation_id": {
+      "format": "uuid",
+      "title": "Evaluation Id",
+      "type": "string"
+    },
+    "evaluation_hash": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Evaluation Hash",
+      "type": "string"
+    },
+    "approval_id": {
+      "format": "uuid",
+      "title": "Approval Id",
+      "type": "string"
+    },
+    "packet_id": {
+      "format": "uuid",
+      "title": "Packet Id",
+      "type": "string"
+    },
+    "packet_hash": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Packet Hash",
+      "type": "string"
+    },
+    "acknowledgment_id": {
+      "format": "uuid",
+      "title": "Acknowledgment Id",
+      "type": "string"
+    },
+    "expected_context_version": {
+      "minimum": 0,
+      "title": "Expected Context Version",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "action",
+    "evaluation_id",
+    "evaluation_hash",
+    "approval_id",
+    "packet_id",
+    "packet_hash",
+    "acknowledgment_id",
+    "expected_context_version"
+  ],
+  "title": "AuthorizationInput",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

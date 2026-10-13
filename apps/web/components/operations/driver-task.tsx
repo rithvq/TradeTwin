@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTradeContext } from "@/components/trades/trade-context";
@@ -12,6 +12,8 @@ import { type Assignment, title } from "@/lib/operations";
 import { type Values } from "@/lib/trades";
 import { ConsignmentHeader, Facts, MovementTimeline, Section } from "./shared";
 import { EvidenceUpload } from "./evidence-upload";
+import { DriverPacket } from "@/components/compliance/driver-packet";
+import type { Readiness } from "@/lib/guarded-dispatch";
 
 const incident: FieldSpec[] = [
   {
@@ -69,6 +71,22 @@ export function DriverTask({ id }: { id: string }) {
     `/consignments/${cn?.id ?? "00000000-0000-0000-0000-000000000000"}/document-operational-projections`,
     org,
   );
+  const gateAction =
+    cn?.movement_status === "PICKED_UP" ? "DEPARTED" : "PICKUP_CONFIRMED";
+  const gate = useOperationsResource<Readiness>(
+    `/consignments/${cn?.id ?? "00000000-0000-0000-0000-000000000000"}/dispatch-readiness?action=${gateAction}`,
+    org,
+  );
+  const [clock, setClock] = useState(Date.now());
+  const reloadGate = gate.reload;
+  useEffect(() => {
+    const ticker = window.setInterval(() => setClock(Date.now()), 1000);
+    const poll = window.setInterval(() => void reloadGate(), 5000);
+    return () => {
+      window.clearInterval(ticker);
+      window.clearInterval(poll);
+    };
+  }, [reloadGate]);
   if (resource.error) return <p role="alert">{resource.error}</p>;
   if (!assignment || !cn) return <p role="status">Loading driver task...</p>;
   const allowed =
@@ -85,6 +103,13 @@ export function DriverTask({ id }: { id: string }) {
     "INCIDENT_REPORTED",
   ];
   const selected = choices.includes(kind) ? kind : choices[0];
+  const needsGate = ["PICKUP_CONFIRMED", "DEPARTED"].includes(selected);
+  const authorisation = gate.data?.authorisation;
+  const ready =
+    gate.data?.state === "READY" &&
+    !!authorisation &&
+    Date.parse(authorisation.expires_at) > clock &&
+    Date.parse(authorisation.valid_from) <= clock;
   const fields: FieldSpec[] =
     selected === "PICKUP_CONFIRMED"
       ? [
@@ -166,6 +191,35 @@ export function DriverTask({ id }: { id: string }) {
         </Section>
       )}
       {allowed && cn.movement_status !== "DELIVERY_CLOSED" && (
+        <DriverPacket readiness={gate.data} reload={gate.reload} />
+      )}
+      {needsGate && (
+        <Section name="Platform dispatch authorisation">
+          <Facts
+            values={{
+              readiness: gate.data?.state ?? "NOT_ASSESSED",
+              blockers: gate.data?.reasons ?? [],
+              authorisation_state:
+                authorisation?.effective_state ?? "NOT_ISSUED",
+              remaining_seconds: authorisation
+                ? Math.max(
+                    0,
+                    Math.floor(
+                      (Date.parse(authorisation.expires_at) - clock) / 1000,
+                    ),
+                  )
+                : null,
+            }}
+          />
+          {!ready && (
+            <p className="text-sm text-amber-900">
+              Contact the seller compliance preparer or carrier dispatcher for a
+              current reviewed release and authorisation.
+            </p>
+          )}
+        </Section>
+      )}
+      {allowed && cn.movement_status !== "DELIVERY_CLOSED" && (
         <Section name="Movement observation">
           <form
             className="space-y-4"
@@ -187,6 +241,17 @@ export function DriverTask({ id }: { id: string }) {
                 client_event_id: eventId,
                 event_type: selected,
                 assignment_id: id,
+                ...(needsGate
+                  ? {
+                      dispatch_authorization_id: authorisation?.id,
+                      ...(selected === "PICKUP_CONFIRMED"
+                        ? {
+                            loading_manifest_revision_id:
+                              authorisation?.loading_manifest_revision_id,
+                          }
+                        : {}),
+                    }
+                  : {}),
                 ...values,
                 payload: data,
               });
@@ -194,6 +259,7 @@ export function DriverTask({ id }: { id: string }) {
                 setEventId(crypto.randomUUID());
                 setPayload({});
                 setValues({ occurred_at: new Date().toISOString() });
+                await gate.reload();
               }
             }}
           >
@@ -257,18 +323,11 @@ export function DriverTask({ id }: { id: string }) {
                 {action.error.code}: {action.error.message}
               </p>
             )}
-            <Button
-              disabled={action.pending || cn.execution_mode !== "SIMULATION"}
-            >
+            <Button disabled={action.pending || (needsGate && !ready)}>
               <Check className="size-4" />
               Record {title(selected)}
             </Button>
           </form>
-          {cn.execution_mode !== "SIMULATION" && (
-            <p className="text-sm text-amber-900">
-              Production dispatch gate is not implemented.
-            </p>
-          )}
         </Section>
       )}
       <Section name="Movement timeline">

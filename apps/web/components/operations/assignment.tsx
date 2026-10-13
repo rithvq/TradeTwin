@@ -12,6 +12,7 @@ import {
   reason,
 } from "./shared";
 import { planFields } from "./planner";
+import { ReleaseDesk } from "@/components/compliance/release-desk";
 
 export function AssignmentDesk({ id }: { id: string }) {
   const { org } = useTradeContext();
@@ -141,8 +142,8 @@ export function AssignmentDesk({ id }: { id: string }) {
               }}
             />
             <p className="text-sm text-secondary">
-              Operational consent only. Freight price and dispatch readiness are
-              not approved.
+              Assignment consent is separate from freight price and platform
+              dispatch authorisation.
             </p>
             {a.status === "PROPOSED" &&
               a.carrier_organization_id === org &&
@@ -161,6 +162,7 @@ export function AssignmentDesk({ id }: { id: string }) {
           </article>
         ))}
       </Section>
+      {cn.active_assignment_id && <ReleaseDesk cn={cn} module="Shipments" />}
     </div>
   );
 }

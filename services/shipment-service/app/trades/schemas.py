@@ -351,6 +351,9 @@ class ErrorDetail(Schema):
     request_id: UUID
     field_errors: list[ErrorField]
     retryable: bool
+    blocker_requirement_ids: list[UUID] = Field(default_factory=list)
+    current_context_version: int | None = None
+    permitted_next_actions: list[str] = Field(default_factory=list)
 
 
 class ErrorResponse(Schema):

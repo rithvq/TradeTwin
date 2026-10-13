@@ -1,5 +1,20 @@
 # Threat Model
 
+## Guarded Dispatch
+
+Phase 4 uses scoped OAuth identities, independent roles, current assignment-bound
+packet grants and server-side action/mode/time validation. Decision history has
+database immutability guards; movement and token consumption share a transaction.
+Source/security changes, revoked permissions, held/conflicting sources and scheduled
+rule boundaries fail closed. PAN/FY payloads and document bytes are encrypted;
+shared projections filter private evidence and access logs redact query credentials.
+See [current controls and residual limits](guarded-dispatch-phase4.md#tests-and-limits).
+
+Registry publishers require trusted provisioning. Database administrators and
+authorised applications remain within the trust boundary; encryption and triggers
+are not independent WORM attestation. HTTPS, key recovery/rotation, external audit
+anchoring, rate limits and production penetration testing remain deployment requirements.
+
 This model covers the local project-evaluation prototype.
 
 Current document protection now includes authenticated file/metadata encryption and

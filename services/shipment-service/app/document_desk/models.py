@@ -120,9 +120,10 @@ class AccessGrant(Record, TradeBase):
 
 class Job(Mutable, TradeBase):
     __tablename__ = "doc_processing_jobs"
-    document_version_id: Mapped[str] = mapped_column(
-        ForeignKey("doc_document_versions.id"), index=True
+    document_version_id: Mapped[str | None] = mapped_column(
+        ForeignKey("doc_document_versions.id"), index=True, nullable=True
     )
+    trade_id: Mapped[str | None] = mapped_column(ForeignKey("trades.id"), nullable=True, index=True)
     stage: Mapped[str] = mapped_column(String(20))
     status: Mapped[str] = mapped_column(String(20), default="QUEUED", index=True)
     input_fingerprint: Mapped[str] = mapped_column(String(64), unique=True)

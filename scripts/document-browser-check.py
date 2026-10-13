@@ -1,5 +1,6 @@
 """Disposable authenticated Phase 3 acceptance; scanner transport is stubbed only here."""
 
+import base64
 import hashlib
 import importlib.util
 import json
@@ -346,7 +347,7 @@ def exercise(fx, tokens):
     )
 
 
-def main():
+def main(seed_module="app.document_desk.cli", exercise_fn=exercise):
     with socket.socket() as probe:
         if probe.connect_ex(("127.0.0.1", 3133)) == 0:
             raise SystemExit("Port 3133 occupied; refusing to replace an existing server")
@@ -360,6 +361,7 @@ def main():
         threading.Thread(target=scanner.serve_forever, daemon=True).start()
         token = secrets.token_urlsafe(48)
         extra = {
+            "DOCUMENT_ENCRYPTION_KEY": base64.b64encode(secrets.token_bytes(32)).decode(),
             "PROFILE_AUTH_ENABLED": "true",
             "API_SERVICE_URL": f"http://127.0.0.1:{smoke.SERVICES['api']}",
             "APP_PUBLIC_URL": ORIGIN,
@@ -382,7 +384,7 @@ def main():
             "DOCUMENT_SERVICE_URL": f"http://127.0.0.1:{smoke.SERVICES['document']}",
         }
         seeded = subprocess.run(
-            [sys.executable, "-m", "app.document_desk.cli"],
+            [sys.executable, "-m", seed_module],
             cwd=ROOT / "services/shipment-service",
             env=env,
             capture_output=True,
@@ -443,7 +445,7 @@ def main():
                 pass
             time.sleep(0.25)
         try:
-            exercise(fx, tokens)
+            exercise_fn(fx, tokens)
         except Exception:
             log.seek(0)
             print(log.read()[-8000:])

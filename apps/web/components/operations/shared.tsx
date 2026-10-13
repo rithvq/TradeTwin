@@ -253,7 +253,7 @@ export function ConsignmentHeader({ cn }: { cn: Consignment }) {
           preparation: cn.planning_status,
           movement: cn.movement_status,
           revision_alignment: cn.revision_alignment,
-          dispatch_readiness: "Not assessed",
+          dispatch_readiness: cn.dispatch_readiness ?? "NOT_ASSESSED",
         }}
       />
     </>

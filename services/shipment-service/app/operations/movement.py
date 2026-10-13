@@ -6,7 +6,7 @@ from sqlalchemy import select
 from app.trades.models import uid
 from app.trades.terms import digest
 
-from .access import aligned, consignment, exists, fail, simulated
+from .access import aligned, consignment, exists, fail
 from .ledger import record, touch, view
 from .models import Assignment, Event
 from .quantities import items
@@ -14,7 +14,6 @@ from .quantities import items
 
 def event(db, ctx, ident, payload):
     trade, row, _ = consignment(db, ctx, ident, "shipment.event.record", lock=True)
-    simulated(trade)
     fingerprint = digest(payload.model_dump(mode="json"))
     previous = db.scalar(
         select(Event).where(
@@ -79,7 +78,6 @@ def event(db, ctx, ident, payload):
                         "Loaded quantity and UQC must match final allocation.",
                     )
                 item.loaded_quantity = supplied.loaded_quantity
-        row.movement_status = target
     elif kind == "DELIVERY_HANDOVER_REPORTED" and state != "ARRIVED":
         fail(
             "INVALID_MOVEMENT_TRANSITION",
@@ -129,8 +127,15 @@ def event(db, ctx, ident, payload):
         projection_applied=projected,
         execution_mode=trade.execution_mode,
     )
-    db.add(ev)
+    if kind in {"PICKUP_CONFIRMED", "DEPARTED"}:
+        from app.compliance.dispatch import consume
+
+        consume(db, ctx, trade, row, assignment, payload, ev)
+    else:
+        db.add(ev)
     link(db, ctx, trade, row, ev, payload.evidence_attachment_ids)
+    if kind in transitions:
+        row.movement_status = target
     touch(row)
     record(
         db,
@@ -144,6 +149,14 @@ def event(db, ctx, ident, payload):
     from .schedules import refresh_triggers
 
     refresh_triggers(db, ctx, trade)
+    if kind in {"PICKUP_CONFIRMED", "DEPARTED"}:
+        from app.trades.context_locks import bump_context
+
+        bump_context(
+            db,
+            trade.id,
+            "COMPLIANCE_" + ("PICKUP" if kind == "PICKUP_CONFIRMED" else "DEPARTURE") + "_CONSUMED",
+        )
     return {
         **view(ev, trade, ctx),
         "recorded_at": view(ev)["created_at"],

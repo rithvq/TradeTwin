@@ -1,5 +1,10 @@
 # TradeTwin Architecture
 
+The commercial [Phase 4 architecture](guarded-dispatch-phase4.md#architecture) places
+deterministic compliance and atomic movement consumption in Shipment Service, with
+encrypted byte storage in Document Service and leased outbox/Redis workers.
+Legacy prototype Compliance Service assessments cannot grant commercial dispatch permission.
+
 The current primary workflow is [India domestic shipments](india-domestic.md).
 Structured domestic location metadata extends existing shipment records; legacy
 international records remain intact. Domestic rules, delivery-state projection

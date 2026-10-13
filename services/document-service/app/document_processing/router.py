@@ -319,6 +319,57 @@ def verify_input(storage, basis):
                 "limitations": ["No supported compact signed payload was found."],
             }
         )
+        page = basis.get("signed_page_artifact")
+        box = (
+            artifact.get("transformation_metadata_json", {}).get("bounding_box")
+            if artifact
+            else None
+        )
+        if (
+            result["signature_integrity"] == "VALID"
+            and result["issuer_trust"] == "TRUSTED_FOR_THIS_CHECK"
+            and page
+            and box
+        ):
+            from io import BytesIO
+
+            from PIL import Image
+
+            raw_page = plaintext(storage, artifact_key(page))
+            if hashlib.sha256(raw_page).hexdigest() != page["sha256"]:
+                raise HTTPException(503, "Verified QR page integrity failed")
+            with Image.open(BytesIO(raw_page)) as original:
+                if original.width * original.height > 25000000:
+                    raise HTTPException(422, "Verified QR page exceeds image limits")
+                bounds = (
+                    int(box["x0"] * original.width),
+                    int(box["y0"] * original.height),
+                    int(box["x1"] * original.width),
+                    int(box["y1"] * original.height),
+                )
+                if (
+                    not 0 <= bounds[0] < bounds[2] <= original.width
+                    or not 0 <= bounds[1] < bounds[3] <= original.height
+                ):
+                    raise HTTPException(422, "Verified QR bounds are invalid")
+                buffer = BytesIO()
+                original.crop(bounds).save(buffer, format="PNG")
+            image = store(
+                storage,
+                basis["version_id"],
+                basis["attempt_id"],
+                "SIGNED_QR_IMAGE",
+                buffer.getvalue(),
+                "image/png",
+                attachment_id,
+                {
+                    "verification_input_hash": basis["verification_input_hash"],
+                    "source_page_sha256": page["sha256"],
+                    "signature_checked": True,
+                },
+            )
+            artifacts.append(image)
+            result["signed_qr_artifact_id"] = image["id"]
     elif kind == "PDF_SIGNATURE":
         result.update(
             signature_integrity="UNSUPPORTED",

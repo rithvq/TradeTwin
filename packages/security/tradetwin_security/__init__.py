@@ -10,6 +10,10 @@ from sqlalchemy.orm import Mapped, Session, mapped_column, with_loader_criteria
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 
+from .access_logs import install as install_access_log_redaction
+
+install_access_log_redaction()
+
 LEGACY_OWNER = "legacy-unassigned"
 identity: ContextVar[dict | None] = ContextVar("tradetwin_identity", default=None)
 credential: ContextVar[str] = ContextVar("tradetwin_credential", default="")

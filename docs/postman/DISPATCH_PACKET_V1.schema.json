@@ -1,0 +1,95 @@
+{
+  "$defs": {
+    "SelectedRepresentation": {
+      "additionalProperties": false,
+      "properties": {
+        "requirement_id": {
+          "format": "uuid",
+          "title": "Requirement Id",
+          "type": "string"
+        },
+        "representation_type": {
+          "enum": [
+            "PAPER_INVOICE_REFERENCE",
+            "INVOICE_COPY",
+            "SIGNED_IRN_QR",
+            "EWB_COPY",
+            "EWB_NUMBER",
+            "TRANSPORT_RECORD_REFERENCE"
+          ],
+          "title": "Representation Type",
+          "type": "string"
+        },
+        "source_reference": {
+          "additionalProperties": true,
+          "title": "Source Reference",
+          "type": "object"
+        },
+        "carry_method": {
+          "enum": [
+            "PAPER_COPY",
+            "DIGITAL_OFFLINE_COPY",
+            "SIGNED_IRN_QR_ELECTRONIC",
+            "EWB_NUMBER_AVAILABLE",
+            "ISSUER_APP_RECORD"
+          ],
+          "title": "Carry Method",
+          "type": "string"
+        }
+      },
+      "required": [
+        "requirement_id",
+        "representation_type",
+        "source_reference",
+        "carry_method"
+      ],
+      "title": "SelectedRepresentation",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "action": {
+      "enum": [
+        "PICKUP_CONFIRMED",
+        "DEPARTED"
+      ],
+      "title": "Action",
+      "type": "string"
+    },
+    "evaluation_id": {
+      "format": "uuid",
+      "title": "Evaluation Id",
+      "type": "string"
+    },
+    "evaluation_hash": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Evaluation Hash",
+      "type": "string"
+    },
+    "approval_id": {
+      "format": "uuid",
+      "title": "Approval Id",
+      "type": "string"
+    },
+    "selected_representations": {
+      "items": {
+        "$ref": "#/$defs/SelectedRepresentation"
+      },
+      "maxItems": 40,
+      "minItems": 1,
+      "title": "Selected Representations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "action",
+    "evaluation_id",
+    "evaluation_hash",
+    "approval_id",
+    "selected_representations"
+  ],
+  "title": "PacketPrepare",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

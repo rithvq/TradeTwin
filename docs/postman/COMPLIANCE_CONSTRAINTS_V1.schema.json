@@ -1,0 +1,270 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "contract": {
+      "const": "COMPLIANCE_CONSTRAINTS_V1",
+      "title": "Contract",
+      "type": "string"
+    },
+    "trade_id": {
+      "format": "uuid",
+      "title": "Trade Id",
+      "type": "string"
+    },
+    "consignment_id": {
+      "format": "uuid",
+      "title": "Consignment Id",
+      "type": "string"
+    },
+    "accepted_trade_revision_id": {
+      "format": "uuid",
+      "title": "Accepted Trade Revision Id",
+      "type": "string"
+    },
+    "assignment_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Assignment Id"
+    },
+    "source_evaluation_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Source Evaluation Id"
+    },
+    "evaluation_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Evaluation Hash"
+    },
+    "dependency_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Dependency Hash"
+    },
+    "context_version": {
+      "title": "Context Version",
+      "type": "integer"
+    },
+    "action": {
+      "enum": [
+        "PICKUP_CONFIRMED",
+        "DEPARTED"
+      ],
+      "title": "Action",
+      "type": "string"
+    },
+    "execution_mode": {
+      "enum": [
+        "SIMULATION",
+        "PRODUCTION"
+      ],
+      "title": "Execution Mode",
+      "type": "string"
+    },
+    "evaluated_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Evaluated At"
+    },
+    "valid_until": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Valid Until"
+    },
+    "freshness": {
+      "enum": [
+        "CURRENT",
+        "STALE"
+      ],
+      "title": "Freshness",
+      "type": "string"
+    },
+    "supported_scope": {
+      "title": "Supported Scope",
+      "type": "boolean"
+    },
+    "coverage_dimensions": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Coverage Dimensions",
+      "type": "array"
+    },
+    "declared_corridor": {
+      "additionalProperties": true,
+      "title": "Declared Corridor",
+      "type": "object"
+    },
+    "hard_constraints": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Hard Constraints",
+      "type": "array"
+    },
+    "deadlines": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Deadlines",
+      "type": "array"
+    },
+    "missing_inputs": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Missing Inputs",
+      "type": "array"
+    },
+    "blockers": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Blockers",
+      "type": "array"
+    },
+    "limitations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Limitations",
+      "type": "array"
+    },
+    "constraint_id": {
+      "title": "Constraint Id",
+      "type": "string"
+    },
+    "constraint_hash": {
+      "title": "Constraint Hash",
+      "type": "string"
+    },
+    "registry_epoch_manifest": {
+      "additionalProperties": true,
+      "title": "Registry Epoch Manifest",
+      "type": "object"
+    },
+    "dispatch_eligible": {
+      "title": "Dispatch Eligible",
+      "type": "boolean"
+    },
+    "requirements": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Requirements",
+      "type": "array"
+    },
+    "allowed_transit_states": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Allowed Transit States"
+    },
+    "coverage": {
+      "additionalProperties": true,
+      "title": "Coverage",
+      "type": "object"
+    },
+    "source_references": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Source References",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "contract",
+    "trade_id",
+    "consignment_id",
+    "accepted_trade_revision_id",
+    "assignment_id",
+    "source_evaluation_id",
+    "evaluation_hash",
+    "dependency_hash",
+    "context_version",
+    "action",
+    "execution_mode",
+    "evaluated_at",
+    "valid_until",
+    "freshness",
+    "supported_scope",
+    "coverage_dimensions",
+    "declared_corridor",
+    "hard_constraints",
+    "deadlines",
+    "missing_inputs",
+    "blockers",
+    "limitations",
+    "constraint_id",
+    "constraint_hash",
+    "registry_epoch_manifest",
+    "dispatch_eligible",
+    "requirements",
+    "allowed_transit_states",
+    "coverage",
+    "source_references"
+  ],
+  "title": "ConstraintView",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

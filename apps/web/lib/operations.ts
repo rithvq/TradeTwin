@@ -1,6 +1,7 @@
 import { type Values } from "./trades";
 
 export type OperationalRecord = {
+  dispatch_readiness?: string;
   id: string;
   execution_mode: "PRODUCTION" | "SIMULATION";
   created_at: string;

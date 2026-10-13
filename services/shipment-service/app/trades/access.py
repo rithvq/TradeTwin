@@ -101,6 +101,10 @@ def participant_role(db, trade_id, organization_id):
 
 
 def trade_access(db, user, organization_id, trade_id, permission="trade.read", lock=False):
+    if lock:
+        from .context_locks import registry_lock
+
+        registry_lock(db)
     membership(db, user, organization_id)
     query = select(Trade).where(Trade.id == trade_id)
     trade = db.scalar(query.with_for_update() if lock else query)

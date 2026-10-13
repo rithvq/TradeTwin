@@ -8,6 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from .access import actor, membership, require, trade_access
+from .context_locks import registry_lock
 from .errors import TradeError
 from .models import Amendment, Idempotency, Offer, Organization, User, now
 from .terms import digest
@@ -84,6 +85,23 @@ def mutate(
     conflict_code="IDEMPOTENCY_KEY_REUSED",
 ):
     try:
+        registry_command = request.url.path.startswith(
+            "/api/v1/regulations/"
+        ) and request.url.path.endswith(
+            ("/publications", "/suspensions", "/resolutions", "/source-conflicts")
+        )
+        registry_command = registry_command or any(
+            segment in request.url.path
+            for segment in (
+                "/memberships",
+                "/members",
+                "/trusted-keys",
+                "/verification-connections",
+                "/pan-turnover-declarations/",
+                "/vehicles",
+            )
+        )
+        registry_lock(db, exclusive=registry_command)
         ctx = context(request, db, organization_required)
         key = request.headers.get("Idempotency-Key", "")
         if not 1 <= len(key) <= 128:

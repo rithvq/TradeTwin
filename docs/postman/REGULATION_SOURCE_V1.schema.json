@@ -1,0 +1,163 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "source_status": {
+      "default": "UNKNOWN",
+      "enum": [
+        "ACTIVE",
+        "HELD",
+        "WITHDRAWN",
+        "UNKNOWN"
+      ],
+      "title": "Source Status",
+      "type": "string"
+    },
+    "source_origin": {
+      "default": "OFFICIAL_SNAPSHOT_PROVIDED",
+      "enum": [
+        "OFFICIAL_SNAPSHOT_PROVIDED",
+        "SIMULATION_FIXTURE"
+      ],
+      "title": "Source Origin",
+      "type": "string"
+    },
+    "source_kind": {
+      "enum": [
+        "ACT",
+        "RULE",
+        "NOTIFICATION",
+        "CIRCULAR",
+        "PORTAL_ADVISORY",
+        "OFFICIAL_API_CONTRACT"
+      ],
+      "title": "Source Kind",
+      "type": "string"
+    },
+    "issuer": {
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Issuer",
+      "type": "string"
+    },
+    "title": {
+      "maxLength": 500,
+      "minLength": 1,
+      "title": "Title",
+      "type": "string"
+    },
+    "official_url": {
+      "maxLength": 2000,
+      "title": "Official Url",
+      "type": "string"
+    },
+    "document_number": {
+      "anyOf": [
+        {
+          "maxLength": 100,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Document Number"
+    },
+    "publication_date": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Publication Date"
+    },
+    "effective_from": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Effective From"
+    },
+    "effective_until": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Effective Until"
+    },
+    "jurisdictions": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 40,
+      "minItems": 1,
+      "title": "Jurisdictions",
+      "type": "array"
+    },
+    "retrieved_at": {
+      "format": "date-time",
+      "title": "Retrieved At",
+      "type": "string"
+    },
+    "snapshot_attachment_id": {
+      "format": "uuid",
+      "title": "Snapshot Attachment Id",
+      "type": "string"
+    },
+    "source_sha256": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Source Sha256",
+      "type": "string"
+    },
+    "supersedes_source_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Supersedes Source Id"
+    },
+    "interpretation_note": {
+      "maxLength": 5000,
+      "minLength": 1,
+      "title": "Interpretation Note",
+      "type": "string"
+    }
+  },
+  "required": [
+    "source_kind",
+    "issuer",
+    "title",
+    "official_url",
+    "jurisdictions",
+    "retrieved_at",
+    "snapshot_attachment_id",
+    "source_sha256",
+    "interpretation_note"
+  ],
+  "title": "SourceInput",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}
