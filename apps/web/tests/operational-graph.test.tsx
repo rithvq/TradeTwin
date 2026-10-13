@@ -65,7 +65,6 @@ describe("Operational graph isolation", () => {
     const operational = within(
       screen.getByRole("region", {
         name: "Operational relationships",
-        exact: true,
       }),
     );
     fireEvent.change(operational.getByLabelText("Relationship scope"), {
@@ -95,7 +94,6 @@ describe("Operational graph isolation", () => {
     const operational = within(
       screen.getByRole("region", {
         name: "Operational relationships",
-        exact: true,
       }),
     );
     const scope = operational.getByLabelText("Relationship scope");
