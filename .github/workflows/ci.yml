@@ -61,6 +61,7 @@ jobs:
 
       - name: Guarded dispatch contract drift
         run: |
+          python -c "import pydantic; print('Pydantic schema generator:', pydantic.__version__)"
           python scripts/export-dispatch-contracts.py
           git diff --exit-code -- docs/postman
 

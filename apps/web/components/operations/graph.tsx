@@ -107,7 +107,7 @@ export function OperationalGraph({ graph }: { graph: Operations["graph"] }) {
     (e) => e.source === selected || e.target === selected,
   );
   return (
-    <section className="space-y-3 py-4">
+    <section className="space-y-3 py-4" aria-label="Operational relationships">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <h3 className="text-lg font-semibold">Operational relationships</h3>
         <div className="min-w-0">

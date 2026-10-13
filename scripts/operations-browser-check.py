@@ -86,6 +86,29 @@ def run_browser(fixtures, tokens, fixture_env):
                 has=page.get_by_role("heading", name=name, exact=True)
             )
 
+        def evidence_response(response):
+            return (
+                response.request.method == "GET"
+                and f"/trades/{trade_id}/evidence-events" in response.url
+            )
+
+        def check_payment_evidence(response):
+            evidence = scope("Immutable evidence")
+            cursors = set()
+            for _ in range(20):
+                assert response.status == 200, response.text()
+                data = response.json()
+                if any(item["action"] == "PAYMENT_ALLOCATED" for item in data["items"]):
+                    expect(evidence.get_by_text("Payment Allocated", exact=True)).to_be_visible()
+                    return
+                cursor = data["next_cursor"]
+                assert cursor and cursor not in cursors, "Payment allocation absent from evidence"
+                cursors.add(cursor)
+                with page.expect_response(evidence_response) as loaded:
+                    evidence.get_by_role("button", name="Next evidence page", exact=True).click()
+                response = loaded.value
+            raise AssertionError("Payment allocation not found within 20 evidence pages")
+
         def upload_evidence(name, content, purpose, mime):
             page.get_by_label("Purpose", exact=True).select_option(purpose)
             page.get_by_label("Evidence file", exact=True).set_input_files(
@@ -270,28 +293,33 @@ def run_browser(fixtures, tokens, fixture_env):
                 "Evidence",
                 "Shipments",
             ):
-                commercial.key_button(page, module)
+                if module == "Evidence":
+                    with page.expect_response(evidence_response) as loaded:
+                        commercial.key_button(page, module)
+                    check_payment_evidence(loaded.value)
+                else:
+                    commercial.key_button(page, module)
                 if module == "Graph":
-                    expect(page.locator(".react-flow__node").first).to_be_visible()
-                    assert page.locator(".react-flow__edge").count() > 0
-                    total_nodes = page.locator(".react-flow__node").count()
-                    page.get_by_label("Relationship scope", exact=True).select_option(
+                    graph = page.get_by_role("region", name="Operational relationships", exact=True)
+                    expect(graph).to_have_count(1)
+                    expect(graph.locator(".react-flow__node").first).to_be_visible()
+                    assert graph.locator(".react-flow__edge").count() > 0
+                    total_nodes = graph.locator(".react-flow__node").count()
+                    graph.get_by_label("Relationship scope", exact=True).select_option(
                         consignments[0]["id"]
                     )
                     page.wait_for_function(
-                        "total => document.querySelectorAll('.react-flow__node').length < total",
-                        arg=total_nodes,
+                        "({root, total}) => "
+                        "root.querySelectorAll('.react-flow__node').length < total",
+                        arg={"root": graph.element_handle(), "total": total_nodes},
                     )
-                    node = page.locator(".react-flow__node").filter(
-                        has_text=consignments[0]["reference"]
-                    )
+                    node = graph.get_by_test_id(f"rf__node-{consignments[0]['id']}")
+                    expect(node).to_have_count(1)
                     node.click()
-                    expect(page.get_by_text("Incoming / Consignment", exact=True)).to_be_visible()
+                    expect(graph.get_by_text("Incoming / Consignment", exact=True)).to_be_visible()
                     page.screenshot(
                         path=str(OUTPUT / f"graph-{viewport['width']}.png"), full_page=True
                     )
-                if module == "Evidence":
-                    expect(page.get_by_text("Payment Allocated", exact=True)).to_be_visible()
                 assert page.evaluate("document.documentElement.scrollWidth <= innerWidth"), module
         signin("unrelated", operations)
         expect(page.get_by_text("Trade not found.", exact=True)).to_be_visible()
