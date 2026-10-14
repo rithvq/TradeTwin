@@ -59,6 +59,12 @@ jobs:
           services/shipment-service/tests/test_document_desk.py
           services/shipment-service/tests/test_dispatch_policy.py
           services/shipment-service/tests/test_freight_planning.py
+          services/shipment-service/tests/test_corridor_intelligence.py
+
+      - name: Corridor intelligence contract drift
+        run: |
+          python scripts/export-corridor-contracts.py
+          git diff --exit-code -- docs/postman
 
       - name: Freight planning contract drift
         run: |

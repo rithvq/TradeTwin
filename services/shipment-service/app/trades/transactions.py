@@ -102,6 +102,7 @@ def mutate(
             )
         )
         registry_command = registry_command or request.url.path.startswith("/api/v1/routing/")
+        registry_command = registry_command or request.url.path.startswith("/api/v1/corridor/")
         registry_lock(db, exclusive=registry_command)
         ctx = context(request, db, organization_required)
         key = request.headers.get("Idempotency-Key", "")

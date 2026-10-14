@@ -23,6 +23,8 @@ import { ReleaseDesk } from "@/components/compliance/release-desk";
 import { RegulationsDesk } from "@/components/compliance/regulations";
 import { FreightDesk } from "@/components/freight/desk";
 import { RoutingDataDesk } from "@/components/freight/datasets";
+import { CorridorDesk } from "@/components/corridor/desk";
+import { CorridorRegistryDesk } from "@/components/corridor/registry";
 
 const modules = [
   "Shipments",
@@ -417,6 +419,7 @@ export function OperationsWorkspace({ tradeId }: { tradeId: string }) {
       {module === "Regulations" && (
         <Section name="Regulatory context">
           <RoutingDataDesk />
+          <CorridorRegistryDesk capabilities={data.allowed_actions} />
           <RegulationsDesk
             attachments={data.documents}
             tradeId={tradeId}
@@ -431,6 +434,12 @@ export function OperationsWorkspace({ tradeId }: { tradeId: string }) {
         </Section>
       )}
       {module === "Evidence" && <EvidenceTimeline tradeId={tradeId} />}
+      {["Shipments", "Compliance", "Optimizer", "Risk", "Evidence"].includes(
+        module,
+      ) &&
+        data.consignments.map((c) => (
+          <CorridorDesk key={`${c.id}:corridor`} consignmentId={c.id} />
+        ))}
       <DocumentModulePanel tradeId={tradeId} module={module} />
     </div>
   );

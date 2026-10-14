@@ -185,6 +185,22 @@ def run_view(db, ctx, ident):
     visible = price_access(
         db, ctx, trade, row.input_json["context"]["freight_payer_organisation_id"]
     )
+    from app.corridor.service import event_visible
+
+    for candidate in data["candidates"]:
+        for scenario in candidate["scenarios"].values():
+            impact = scenario.get("corridor_impact")
+            if impact:
+                impact["items"] = [
+                    item
+                    if event_visible(db, ctx, item)
+                    else {
+                        "outcome": item["outcome"],
+                        "edge_key": item["edge_key"],
+                        "limitations": ["Restricted source evidence."],
+                    }
+                    for item in impact["items"]
+                ]
     if not visible:
         data.pop("rankings", None)
         data.pop("pareto_frontier", None)

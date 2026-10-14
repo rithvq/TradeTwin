@@ -4,6 +4,8 @@ from alembic import command
 from alembic.config import Config
 from sqlalchemy import text
 
+from app.corridor import models as corridor_models  # noqa: F401
+
 
 def migrate(engine):
     """Executable, versioned additive migration, serialized across service replicas."""

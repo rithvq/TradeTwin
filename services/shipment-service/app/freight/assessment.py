@@ -47,6 +47,21 @@ def assess(snapshot, source, scenario, candidate_id):
         for k in ("estimated_departure_at", "estimated_arrival_at", "estimated_completion_at")
     ]
     at = datetime.fromisoformat(snapshot["evaluated_as_of"])
+    corridor_impact = None
+    if source.get("corridor_projection"):
+        from app.corridor.impact import assess as assess_corridor
+        from app.corridor.impact import sections
+
+        corridor_impact = assess_corridor(
+            sections(
+                source["dataset"],
+                route,
+                timed["estimated_departure_at"],
+                source["profile"].get("speed_cap_kph"),
+                snapshot["planning_intent"]["planned_stop_seconds"],
+            ),
+            {**source["corridor_projection"], "evaluated_as_of": at.isoformat()},
+        )
     declaration = profile["vehicle_declarations"]
     checks = [
         requirement(
@@ -309,6 +324,26 @@ def assess(snapshot, source, scenario, candidate_id):
         )
     )
     outcomes = [c["outcome"] for c in checks]
+    if corridor_impact:
+        checks.append(
+            requirement(
+                "CORRIDOR_OPERATIONAL_IMPACT",
+                False
+                if corridor_impact["outcome"] == "BLOCKED"
+                else None
+                if corridor_impact["outcome"] == "NEEDS_REVIEW"
+                else True,
+                "Current reviewed corridor events, traversal windows and checked source coverage.",
+                refs=[
+                    {
+                        "event_revision_id": i["event_revision_id"],
+                        "policy_revision_id": i["policy_revision_id"],
+                    }
+                    for i in corridor_impact["items"]
+                ],
+            )
+        )
+        outcomes = [c["outcome"] for c in checks]
     supported = supported and source["compliance_profile_supported"] is not False
     planning = (
         "UNSUPPORTED"
@@ -335,6 +370,7 @@ def assess(snapshot, source, scenario, candidate_id):
     )
     return {
         "candidate_id": candidate_id,
+        "corridor_impact": corridor_impact,
         "scenario_code": scenario["scenario_code"],
         "assumptions": scenario,
         "assumption_hash": source["scenario_hashes"][scenario["scenario_code"]],

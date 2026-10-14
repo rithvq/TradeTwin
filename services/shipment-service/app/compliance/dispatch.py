@@ -401,6 +401,9 @@ def acknowledge(db, ctx, ident, payload):
 
 def issue(db, ctx, ident, payload):
     trade, cn, _ = context.access(db, ctx, ident, "dispatch.authorisation.request", lock=True)
+    from app.corridor.service import guard
+
+    guard(db, trade, cn)
     check_context(ctx, context.version(db, trade.id), payload.expected_context_version)
     evaluation, _, target = ready_evaluation(
         db,
@@ -553,6 +556,8 @@ def issue(db, ctx, ident, payload):
 
 
 def validate(db, row, trade, cn):
+    from app.corridor.service import guard
+
     at = instant(db)
     if row.consumed_event_id:
         fail("AUTHORISATION_CONSUMED", "Authorisation was already consumed.")
@@ -566,6 +571,7 @@ def validate(db, row, trade, cn):
         fail("AUTHORISATION_EXPIRED", "Authorisation is outside its server-time validity window.")
     if cn.movement_status != row.expected_movement_status:
         fail("COMPLIANCE_NOT_READY", "Movement state changed.")
+    guard(db, trade, cn)
     evaluation = exists(db, Evaluation, row.evaluation_id)
     if evaluations.current(db, evaluation, trade, cn, at) != "CURRENT":
         fail("EVALUATION_STALE", "Exact compliance dependencies changed.", status=412)

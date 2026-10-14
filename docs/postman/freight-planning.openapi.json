@@ -7108,6 +7108,34 @@
         ],
         "title": "CaseActionInput"
       },
+      "CaseInput": {
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Reason"
+          },
+          "assessment_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Assessment Id"
+          },
+          "current_route_plan_revision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Current Route Plan Revision Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "reason",
+          "assessment_id",
+          "current_route_plan_revision_id"
+        ],
+        "title": "CaseInput"
+      },
       "Charge": {
         "properties": {
           "component_id": {
@@ -7263,66 +7291,32 @@
         ],
         "title": "ConflictResolution"
       },
-      "ConnectionInput": {
+      "ConnectionStatus": {
         "properties": {
-          "adapter_name": {
+          "reason": {
             "type": "string",
-            "const": "AUTHORISED_READ_ONLY_V1",
-            "title": "Adapter Name"
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Reason"
           },
-          "provider_environment": {
+          "status": {
             "type": "string",
             "enum": [
-              "SIMULATION",
-              "SANDBOX",
-              "LIVE"
+              "CONFIGURED",
+              "DISABLED",
+              "NEEDS_REVIEW",
+              "NOT_AUTHORISED"
             ],
-            "title": "Provider Environment"
-          },
-          "requester_identifier": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 100
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Requester Identifier"
-          },
-          "authorised_secret_binding": {
-            "type": "string",
-            "maxLength": 100,
-            "minLength": 1,
-            "title": "Authorised Secret Binding"
-          },
-          "allowed_check_types": {
-            "items": {
-              "type": "string",
-              "enum": [
-                "GSTIN_FORMAT",
-                "GSTIN_AUTHORITY_LOOKUP",
-                "IRP_QR_SIGNATURE",
-                "IRP_JSON_SIGNATURE",
-                "IRN_LIVE_STATUS",
-                "EWB_AUTHORITY_LOOKUP",
-                "PDF_SIGNATURE"
-              ]
-            },
-            "type": "array",
-            "title": "Allowed Check Types"
+            "title": "Status"
           }
         },
         "additionalProperties": false,
         "type": "object",
         "required": [
-          "adapter_name",
-          "provider_environment",
-          "authorised_secret_binding",
-          "allowed_check_types"
+          "reason",
+          "status"
         ],
-        "title": "ConnectionInput"
+        "title": "ConnectionStatus"
       },
       "ConsignmentCreate": {
         "properties": {
@@ -9429,6 +9423,94 @@
         ],
         "title": "DraftPatch"
       },
+      "DriverInput": {
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Reason"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "ACKNOWLEDGE_ALERT",
+              "REPORT_MOVING",
+              "CONFIRM_REPORTED_STOPPED",
+              "CANNOT_STOP_SAFELY",
+              "REQUEST_ASSISTANCE"
+            ],
+            "title": "Action"
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Observed At"
+          },
+          "latitude": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 90.0,
+                "minimum": -90.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latitude"
+          },
+          "longitude": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 180.0,
+                "minimum": -180.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longitude"
+          },
+          "accuracy_meters": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 100000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accuracy Meters"
+          },
+          "location_method": {
+            "type": "string",
+            "enum": [
+              "GPS",
+              "PIN",
+              "NONE"
+            ],
+            "title": "Location Method"
+          },
+          "safe_stop": {
+            "type": "boolean",
+            "title": "Safe Stop",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "reason",
+          "action",
+          "observed_at",
+          "location_method"
+        ],
+        "title": "DriverInput"
+      },
       "Edge": {
         "properties": {
           "edge_key": {
@@ -9671,6 +9753,261 @@
           "expected_context_version"
         ],
         "title": "EvaluationInput"
+      },
+      "EventInput": {
+        "properties": {
+          "source_item_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Item Id"
+          },
+          "event_kind": {
+            "type": "string",
+            "enum": [
+              "WEATHER_WARNING",
+              "ROAD_CLOSURE",
+              "TRAFFIC_RESTRICTION",
+              "STRIKE_NOTICE",
+              "FLOOD_REPORT",
+              "CONGESTION_REPORT",
+              "REOPENING_NOTICE",
+              "PRICE_OBSERVATION",
+              "OTHER"
+            ],
+            "title": "Event Kind"
+          },
+          "headline": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Headline"
+          },
+          "summary": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Summary"
+          },
+          "source_sender": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Source Sender"
+          },
+          "source_identifier": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Source Identifier"
+          },
+          "source_sent_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Source Sent At"
+          },
+          "source_message_type": {
+            "type": "string",
+            "enum": [
+              "ALERT",
+              "UPDATE",
+              "CANCEL",
+              "ACK",
+              "ERROR",
+              "NON_CAP"
+            ],
+            "title": "Source Message Type",
+            "default": "NON_CAP"
+          },
+          "source_status": {
+            "type": "string",
+            "enum": [
+              "ACTUAL",
+              "EXERCISE",
+              "TEST",
+              "DRAFT",
+              "SYSTEM",
+              "NON_CAP"
+            ],
+            "title": "Source Status",
+            "default": "NON_CAP"
+          },
+          "upstream_references": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 100,
+            "title": "Upstream References"
+          },
+          "severity": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Severity"
+          },
+          "urgency": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 40
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Urgency"
+          },
+          "certainty": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 40
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Certainty"
+          },
+          "instructions": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Instructions"
+          },
+          "source_effective_raw": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Effective Raw"
+          },
+          "source_expiry_raw": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Expiry Raw"
+          },
+          "assessed_effective_from": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assessed Effective From"
+          },
+          "assessed_effective_until": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assessed Effective Until"
+          },
+          "operational_review_due_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Operational Review Due At"
+          },
+          "time_interpretation": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Time Interpretation"
+          },
+          "geography": {
+            "$ref": "#/components/schemas/Geography"
+          },
+          "vehicle_profile_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Vehicle Profile Codes"
+          },
+          "cargo_profile_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Cargo Profile Codes"
+          },
+          "report_basis": {
+            "type": "string",
+            "enum": [
+              "PRIMARY_SOURCE_OBSERVED",
+              "CORROBORATED_REPORT",
+              "SINGLE_REPORT",
+              "CARRIER_REPORTED",
+              "SIMULATION"
+            ],
+            "title": "Report Basis"
+          },
+          "independence_group": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Independence Group"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 30,
+            "title": "Limitations"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "source_item_id",
+          "event_kind",
+          "headline",
+          "summary",
+          "source_sender",
+          "source_identifier",
+          "source_sent_at",
+          "severity",
+          "operational_review_due_at",
+          "time_interpretation",
+          "geography",
+          "report_basis"
+        ],
+        "title": "EventInput"
       },
       "EvidenceBindings": {
         "properties": {
@@ -9949,6 +10286,28 @@
           "graph"
         ],
         "title": "EvidenceManifestView"
+      },
+      "Exact": {
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Reason"
+          },
+          "content_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Content Hash"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "reason",
+          "content_hash"
+        ],
+        "title": "Exact"
       },
       "ExternalCost": {
         "properties": {
@@ -10604,6 +10963,109 @@
           "dataset_revision_id_or_provider_connection_id"
         ],
         "title": "GenerateInput"
+      },
+      "Geography": {
+        "properties": {
+          "geometry_kind": {
+            "type": "string",
+            "enum": [
+              "ROAD_EDGE_SET",
+              "POLYGON",
+              "MULTIPOLYGON",
+              "DISTRICT",
+              "STATE",
+              "UNKNOWN"
+            ],
+            "title": "Geometry Kind"
+          },
+          "geojson": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Geojson"
+          },
+          "dataset_revision_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataset Revision Id"
+          },
+          "edge_keys": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 1000,
+            "title": "Edge Keys"
+          },
+          "state_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 40,
+            "title": "State Codes"
+          },
+          "district_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 1000,
+            "title": "District Codes"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "BOTH",
+              "FORWARD",
+              "REVERSE",
+              "UNKNOWN"
+            ],
+            "title": "Direction",
+            "default": "UNKNOWN"
+          },
+          "precision": {
+            "type": "string",
+            "enum": [
+              "EXACT_EDGE",
+              "SOURCE_POLYGON",
+              "ADMIN_AREA",
+              "APPROXIMATE",
+              "UNKNOWN"
+            ],
+            "title": "Precision"
+          },
+          "basis": {
+            "type": "string",
+            "enum": [
+              "SOURCE_DECLARED",
+              "REVIEWED_MAPPING",
+              "SIMULATION"
+            ],
+            "title": "Basis"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "geometry_kind",
+          "precision",
+          "basis"
+        ],
+        "title": "Geography"
       },
       "GoodsDraft": {
         "properties": {
@@ -11410,6 +11872,47 @@
         ],
         "title": "IdentityInput"
       },
+      "IncidentInput": {
+        "properties": {
+          "environment": {
+            "type": "string",
+            "enum": [
+              "SIMULATION",
+              "PRODUCTION"
+            ],
+            "title": "Environment"
+          },
+          "visibility": {
+            "type": "string",
+            "enum": [
+              "PUBLIC_APPROVED",
+              "ORG_ONLY",
+              "CONSIGNMENT_ONLY",
+              "RESTRICTED"
+            ],
+            "title": "Visibility",
+            "default": "ORG_ONLY"
+          },
+          "consignment_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Consignment Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "environment"
+        ],
+        "title": "IncidentInput"
+      },
       "IncidentPayload": {
         "properties": {
           "incident_type": {
@@ -12168,48 +12671,6 @@
           "observed_status"
         ],
         "title": "ManualAttestation"
-      },
-      "MappingInput": {
-        "properties": {
-          "fact_revision_id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "Fact Revision Id"
-          },
-          "accepted_trade_revision_id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "Accepted Trade Revision Id"
-          },
-          "base_mapping_revision_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "uuid"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Base Mapping Revision Id"
-          },
-          "mappings": {
-            "items": {
-              "$ref": "#/components/schemas/LineMapping"
-            },
-            "type": "array",
-            "maxItems": 10000,
-            "title": "Mappings"
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "fact_revision_id",
-          "accepted_trade_revision_id",
-          "mappings"
-        ],
-        "title": "MappingInput"
       },
       "MembershipChange": {
         "properties": {
@@ -13931,6 +14392,216 @@
         "type": "object",
         "title": "PlanningPolicy"
       },
+      "PolicyInput": {
+        "properties": {
+          "environment": {
+            "type": "string",
+            "enum": [
+              "SIMULATION",
+              "PRODUCTION"
+            ],
+            "title": "Environment"
+          },
+          "policy_code": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Policy Code"
+          },
+          "policy_class": {
+            "type": "string",
+            "const": "APPLICATION_POLICY",
+            "title": "Policy Class",
+            "default": "APPLICATION_POLICY"
+          },
+          "event_kinds": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "WEATHER_WARNING",
+                "ROAD_CLOSURE",
+                "TRAFFIC_RESTRICTION",
+                "STRIKE_NOTICE",
+                "FLOOD_REPORT",
+                "CONGESTION_REPORT",
+                "REOPENING_NOTICE",
+                "PRICE_OBSERVATION",
+                "OTHER"
+              ]
+            },
+            "type": "array",
+            "maxItems": 10,
+            "minItems": 1,
+            "title": "Event Kinds"
+          },
+          "state_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 40,
+            "title": "State Codes"
+          },
+          "source_kinds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 7,
+            "minItems": 1,
+            "title": "Source Kinds"
+          },
+          "effect": {
+            "type": "string",
+            "enum": [
+              "EXCLUDE_EDGE",
+              "REQUIRE_REVIEW",
+              "ADVISORY_ONLY",
+              "APPLY_DECLARED_DELAY_RANGE"
+            ],
+            "title": "Effect"
+          },
+          "minimum_precision": {
+            "type": "string",
+            "enum": [
+              "EXACT_EDGE",
+              "SOURCE_POLYGON",
+              "ADMIN_AREA",
+              "APPROXIMATE"
+            ],
+            "title": "Minimum Precision"
+          },
+          "vehicle_profile_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Vehicle Profile Codes"
+          },
+          "cargo_profile_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Cargo Profile Codes"
+          },
+          "maximum_source_age_seconds": {
+            "type": "integer",
+            "maximum": 604800.0,
+            "minimum": 60.0,
+            "title": "Maximum Source Age Seconds"
+          },
+          "missing_coverage_action": {
+            "type": "string",
+            "enum": [
+              "REQUIRE_REVIEW",
+              "SHOW_LIMITATION"
+            ],
+            "title": "Missing Coverage Action"
+          },
+          "required_source_kinds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 7,
+            "title": "Required Source Kinds"
+          },
+          "delay_basis": {
+            "type": "string",
+            "enum": [
+              "PROVIDER_ESTIMATE",
+              "REVIEWED_OPERATIONAL_ASSUMPTION",
+              "SIMULATION",
+              "NONE"
+            ],
+            "title": "Delay Basis",
+            "default": "NONE"
+          },
+          "minimum_delay_seconds": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 604800.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Minimum Delay Seconds"
+          },
+          "maximum_delay_seconds": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 604800.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maximum Delay Seconds"
+          },
+          "release_condition": {
+            "type": "string",
+            "enum": [
+              "REOPENING_EVIDENCE",
+              "WINDOW_END_AND_CURRENT_ASSESSMENT",
+              "REVIEWED_RESOLUTION",
+              "NOT_APPLICABLE"
+            ],
+            "title": "Release Condition"
+          },
+          "source_references": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 30,
+            "minItems": 1,
+            "title": "Source References"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 30,
+            "title": "Limitations"
+          },
+          "effective_from": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Effective From"
+          },
+          "effective_until": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Effective Until"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "environment",
+          "policy_code",
+          "event_kinds",
+          "source_kinds",
+          "effect",
+          "minimum_precision",
+          "maximum_source_age_seconds",
+          "missing_coverage_action",
+          "release_condition",
+          "source_references",
+          "effective_from",
+          "effective_until"
+        ],
+        "title": "PolicyInput"
+      },
       "PrintedEwayBill": {
         "additionalProperties": false,
         "properties": {
@@ -15266,6 +15937,27 @@
         ],
         "title": "ReadinessView"
       },
+      "Reassessment": {
+        "properties": {
+          "expected_context_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Expected Context Hash"
+          },
+          "current_route_plan_revision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Current Route Plan Revision Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_context_hash",
+          "current_route_plan_revision_id"
+        ],
+        "title": "Reassessment"
+      },
       "ReceiptCorrection": {
         "properties": {
           "client_receipt_id": {
@@ -15855,6 +16547,34 @@
         ],
         "title": "ReleaseDecision"
       },
+      "Reopening": {
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Reason"
+          },
+          "content_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Content Hash"
+          },
+          "reopening_event_revision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Reopening Event Revision Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "reason",
+          "content_hash",
+          "reopening_event_revision_id"
+        ],
+        "title": "Reopening"
+      },
       "RequestHashCommand": {
         "properties": {
           "request_hash": {
@@ -15940,6 +16660,37 @@
           "resolution_text"
         ],
         "title": "ResolutionProposal"
+      },
+      "Review": {
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Reason"
+          },
+          "content_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Content Hash"
+          },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "APPROVE",
+              "RETURN"
+            ],
+            "title": "Decision"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "reason",
+          "content_hash",
+          "decision"
+        ],
+        "title": "Review"
       },
       "ReviewInput": {
         "properties": {
@@ -17221,163 +17972,6 @@
           "created_at"
         ],
         "title": "ShipmentRead"
-      },
-      "SourceInput": {
-        "properties": {
-          "source_status": {
-            "type": "string",
-            "enum": [
-              "ACTIVE",
-              "HELD",
-              "WITHDRAWN",
-              "UNKNOWN"
-            ],
-            "title": "Source Status",
-            "default": "UNKNOWN"
-          },
-          "source_origin": {
-            "type": "string",
-            "enum": [
-              "OFFICIAL_SNAPSHOT_PROVIDED",
-              "SIMULATION_FIXTURE"
-            ],
-            "title": "Source Origin",
-            "default": "OFFICIAL_SNAPSHOT_PROVIDED"
-          },
-          "source_kind": {
-            "type": "string",
-            "enum": [
-              "ACT",
-              "RULE",
-              "NOTIFICATION",
-              "CIRCULAR",
-              "PORTAL_ADVISORY",
-              "OFFICIAL_API_CONTRACT"
-            ],
-            "title": "Source Kind"
-          },
-          "issuer": {
-            "type": "string",
-            "maxLength": 200,
-            "minLength": 1,
-            "title": "Issuer"
-          },
-          "title": {
-            "type": "string",
-            "maxLength": 500,
-            "minLength": 1,
-            "title": "Title"
-          },
-          "official_url": {
-            "type": "string",
-            "maxLength": 2000,
-            "title": "Official Url"
-          },
-          "document_number": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 100
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Document Number"
-          },
-          "publication_date": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Publication Date"
-          },
-          "effective_from": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Effective From"
-          },
-          "effective_until": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Effective Until"
-          },
-          "jurisdictions": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "maxItems": 40,
-            "minItems": 1,
-            "title": "Jurisdictions"
-          },
-          "retrieved_at": {
-            "type": "string",
-            "format": "date-time",
-            "title": "Retrieved At"
-          },
-          "snapshot_attachment_id": {
-            "type": "string",
-            "format": "uuid",
-            "title": "Snapshot Attachment Id"
-          },
-          "source_sha256": {
-            "type": "string",
-            "pattern": "^[a-f0-9]{64}$",
-            "title": "Source Sha256"
-          },
-          "supersedes_source_id": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "uuid"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Supersedes Source Id"
-          },
-          "interpretation_note": {
-            "type": "string",
-            "maxLength": 5000,
-            "minLength": 1,
-            "title": "Interpretation Note"
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "source_kind",
-          "issuer",
-          "title",
-          "official_url",
-          "jurisdictions",
-          "retrieved_at",
-          "snapshot_attachment_id",
-          "source_sha256",
-          "interpretation_note"
-        ],
-        "title": "SourceInput"
       },
       "SourceLocator": {
         "properties": {
@@ -18944,6 +19538,644 @@
           "reason"
         ],
         "title": "Reason"
+      },
+      "app__compliance__schemas_rules__SourceInput": {
+        "properties": {
+          "source_status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "HELD",
+              "WITHDRAWN",
+              "UNKNOWN"
+            ],
+            "title": "Source Status",
+            "default": "UNKNOWN"
+          },
+          "source_origin": {
+            "type": "string",
+            "enum": [
+              "OFFICIAL_SNAPSHOT_PROVIDED",
+              "SIMULATION_FIXTURE"
+            ],
+            "title": "Source Origin",
+            "default": "OFFICIAL_SNAPSHOT_PROVIDED"
+          },
+          "source_kind": {
+            "type": "string",
+            "enum": [
+              "ACT",
+              "RULE",
+              "NOTIFICATION",
+              "CIRCULAR",
+              "PORTAL_ADVISORY",
+              "OFFICIAL_API_CONTRACT"
+            ],
+            "title": "Source Kind"
+          },
+          "issuer": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Issuer"
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Title"
+          },
+          "official_url": {
+            "type": "string",
+            "maxLength": 2000,
+            "title": "Official Url"
+          },
+          "document_number": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Number"
+          },
+          "publication_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Publication Date"
+          },
+          "effective_from": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective From"
+          },
+          "effective_until": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective Until"
+          },
+          "jurisdictions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 40,
+            "minItems": 1,
+            "title": "Jurisdictions"
+          },
+          "retrieved_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Retrieved At"
+          },
+          "snapshot_attachment_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Snapshot Attachment Id"
+          },
+          "source_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Source Sha256"
+          },
+          "supersedes_source_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supersedes Source Id"
+          },
+          "interpretation_note": {
+            "type": "string",
+            "maxLength": 5000,
+            "minLength": 1,
+            "title": "Interpretation Note"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "source_kind",
+          "issuer",
+          "title",
+          "official_url",
+          "jurisdictions",
+          "retrieved_at",
+          "snapshot_attachment_id",
+          "source_sha256",
+          "interpretation_note"
+        ],
+        "title": "SourceInput"
+      },
+      "app__corridor__schemas__ConnectionInput": {
+        "properties": {
+          "provider_code": {
+            "type": "string",
+            "enum": [
+              "MANUAL_OFFICIAL",
+              "CARRIER_OBSERVATION",
+              "SIMULATION",
+              "IMD_NOWCAST",
+              "IMD_DISTRICT_WARNING",
+              "SACHET_CAP",
+              "LICENSED_NEWS"
+            ],
+            "title": "Provider Code"
+          },
+          "environment": {
+            "type": "string",
+            "enum": [
+              "SIMULATION",
+              "PRODUCTION"
+            ],
+            "title": "Environment"
+          },
+          "source_kind": {
+            "type": "string",
+            "enum": [
+              "OFFICIAL_CAP",
+              "OFFICIAL_WEATHER_API",
+              "OFFICIAL_ADVISORY",
+              "LICENSED_NEWS",
+              "CARRIER_OBSERVATION",
+              "SIMULATION"
+            ],
+            "title": "Source Kind"
+          },
+          "documented_endpoint_reference": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Documented Endpoint Reference"
+          },
+          "endpoint_contract_version": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 1,
+            "title": "Endpoint Contract Version"
+          },
+          "approved_https_hosts": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 10,
+            "title": "Approved Https Hosts"
+          },
+          "covered_state_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 40,
+            "minItems": 1,
+            "title": "Covered State Codes"
+          },
+          "covered_event_kinds": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "WEATHER_WARNING",
+                "ROAD_CLOSURE",
+                "TRAFFIC_RESTRICTION",
+                "STRIKE_NOTICE",
+                "FLOOD_REPORT",
+                "CONGESTION_REPORT",
+                "REOPENING_NOTICE",
+                "PRICE_OBSERVATION",
+                "OTHER"
+              ]
+            },
+            "type": "array",
+            "maxItems": 10,
+            "minItems": 1,
+            "title": "Covered Event Kinds"
+          },
+          "mapping_revision_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mapping Revision Id"
+          },
+          "access_approval_reference": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 300
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Access Approval Reference"
+          },
+          "vault_secret_reference": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vault Secret Reference"
+          },
+          "polling_interval_seconds": {
+            "type": "integer",
+            "maximum": 86400.0,
+            "minimum": 60.0,
+            "title": "Polling Interval Seconds",
+            "default": 300
+          },
+          "maximum_item_age_seconds": {
+            "type": "integer",
+            "maximum": 604800.0,
+            "minimum": 60.0,
+            "title": "Maximum Item Age Seconds",
+            "default": 3600
+          },
+          "request_timeout_seconds": {
+            "type": "integer",
+            "maximum": 30.0,
+            "minimum": 1.0,
+            "title": "Request Timeout Seconds",
+            "default": 15
+          },
+          "retention_policy": {
+            "type": "string",
+            "enum": [
+              "PERMITTED_ARCHIVE",
+              "UNTIL_DATE",
+              "METADATA_ONLY"
+            ],
+            "title": "Retention Policy"
+          },
+          "retention_until": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retention Until"
+          },
+          "source_item_storage_allowed": {
+            "type": "boolean",
+            "title": "Source Item Storage Allowed"
+          },
+          "export_allowed": {
+            "type": "boolean",
+            "title": "Export Allowed",
+            "default": false
+          },
+          "article_storage_allowed": {
+            "type": "boolean",
+            "title": "Article Storage Allowed",
+            "default": false
+          },
+          "attribution_text": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Attribution Text"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "provider_code",
+          "environment",
+          "source_kind",
+          "documented_endpoint_reference",
+          "endpoint_contract_version",
+          "approved_https_hosts",
+          "covered_state_codes",
+          "covered_event_kinds",
+          "retention_policy",
+          "source_item_storage_allowed",
+          "attribution_text"
+        ],
+        "title": "ConnectionInput"
+      },
+      "app__corridor__schemas__MappingInput": {
+        "properties": {
+          "environment": {
+            "type": "string",
+            "enum": [
+              "SIMULATION",
+              "PRODUCTION"
+            ],
+            "title": "Environment"
+          },
+          "endpoint_contract_version": {
+            "type": "string",
+            "enum": [
+              "IMD_NOWCAST_V1",
+              "IMD_DISTRICT_WARNING_V1",
+              "CAP_1_2"
+            ],
+            "title": "Endpoint Contract Version"
+          },
+          "administrative_mapping": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Administrative Mapping"
+          },
+          "boundary_dataset_reference": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Boundary Dataset Reference"
+          },
+          "source_references": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "minItems": 1,
+            "title": "Source References"
+          },
+          "effective_from": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Effective From"
+          },
+          "effective_until": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Effective Until"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 30,
+            "title": "Limitations"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "environment",
+          "endpoint_contract_version",
+          "boundary_dataset_reference",
+          "source_references",
+          "effective_from",
+          "effective_until"
+        ],
+        "title": "MappingInput"
+      },
+      "app__corridor__schemas__Reason": {
+        "properties": {
+          "reason": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "reason"
+        ],
+        "title": "Reason"
+      },
+      "app__corridor__schemas__SourceInput": {
+        "properties": {
+          "source_connection_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Source Connection Id"
+          },
+          "provider_item_key": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Provider Item Key"
+          },
+          "artifact_attachment_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artifact Attachment Id"
+          },
+          "source_issued_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Issued At"
+          },
+          "retrieved_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Retrieved At"
+          },
+          "source_reference": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Source Reference"
+          },
+          "payload_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Payload Sha256"
+          },
+          "mime_type": {
+            "type": "string",
+            "enum": [
+              "application/pdf",
+              "application/xml",
+              "application/json",
+              "text/plain"
+            ],
+            "title": "Mime Type"
+          },
+          "language": {
+            "type": "string",
+            "maxLength": 20,
+            "title": "Language",
+            "default": "en"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 30,
+            "title": "Limitations"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "source_connection_id",
+          "provider_item_key",
+          "retrieved_at",
+          "source_reference",
+          "payload_sha256",
+          "mime_type"
+        ],
+        "title": "SourceInput"
+      },
+      "app__document_desk__schemas__ConnectionInput": {
+        "properties": {
+          "adapter_name": {
+            "type": "string",
+            "const": "AUTHORISED_READ_ONLY_V1",
+            "title": "Adapter Name"
+          },
+          "provider_environment": {
+            "type": "string",
+            "enum": [
+              "SIMULATION",
+              "SANDBOX",
+              "LIVE"
+            ],
+            "title": "Provider Environment"
+          },
+          "requester_identifier": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requester Identifier"
+          },
+          "authorised_secret_binding": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Authorised Secret Binding"
+          },
+          "allowed_check_types": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "GSTIN_FORMAT",
+                "GSTIN_AUTHORITY_LOOKUP",
+                "IRP_QR_SIGNATURE",
+                "IRP_JSON_SIGNATURE",
+                "IRN_LIVE_STATUS",
+                "EWB_AUTHORITY_LOOKUP",
+                "PDF_SIGNATURE"
+              ]
+            },
+            "type": "array",
+            "title": "Allowed Check Types"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "adapter_name",
+          "provider_environment",
+          "authorised_secret_binding",
+          "allowed_check_types"
+        ],
+        "title": "ConnectionInput"
+      },
+      "app__document_desk__schemas__MappingInput": {
+        "properties": {
+          "fact_revision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Fact Revision Id"
+          },
+          "accepted_trade_revision_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Accepted Trade Revision Id"
+          },
+          "base_mapping_revision_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Base Mapping Revision Id"
+          },
+          "mappings": {
+            "items": {
+              "$ref": "#/components/schemas/LineMapping"
+            },
+            "type": "array",
+            "maxItems": 10000,
+            "title": "Mappings"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "fact_revision_id",
+          "accepted_trade_revision_id",
+          "mappings"
+        ],
+        "title": "MappingInput"
       },
       "app__document_desk__schemas__Reason": {
         "properties": {

@@ -74,7 +74,10 @@ def base_context(db, trade, cn):
     owner, basis = payer(db, trade)
     head = db.scalar(select(LocationHead).where(LocationHead.consignment_id == cn.id))
     _, registry, _ = governance.resolve(db, trade.execution_mode)
-    _, compliance_hash = context.dependency_snapshot(db, trade, cn, registry)
+    commercial_dependencies, _ = context.dependency_snapshot(db, trade, cn, registry)
+    # Alerts change planning feasibility, not the carrier's retained fixed offer context.
+    commercial_dependencies.pop("corridor_intelligence", None)
+    compliance_hash = digest(commercial_dependencies)
     cargo = {
         "gross_weight_kg": cn.plan_json["declared_gross_weight_kg"],
         "volume_m3": cn.plan_json.get("declared_volume_m3"),

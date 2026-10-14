@@ -1,0 +1,918 @@
+{
+  "info": {
+    "name": "TradeTwin corridor intelligence foundation",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8011"
+    },
+    {
+      "key": "organization_id",
+      "value": ""
+    },
+    {
+      "key": "record_id",
+      "value": ""
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "current_etag",
+      "value": ""
+    },
+    {
+      "key": "command_json",
+      "value": "{}"
+    }
+  ],
+  "item": [
+    {
+      "name": "Corridor  Corridor Source-Connections",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/corridor/source-connections",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Corridor  Corridor Source-Connections Record Status",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/corridor/source-connections/{{record_id}}/status",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Corridor  Corridor Manual-Source-Items",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/corridor/manual-source-items",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Corridor  Corridor Incidents",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/corridor/incidents",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Corridor  Corridor Incidents Record Event-Revisions",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/corridor/incidents/{{record_id}}/event-revisions",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Corridor  Corridor Event-Revisions Record Reviews",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/corridor/event-revisions/{{record_id}}/reviews",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Corridor  Corridor Event-Revisions Record Publications",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/corridor/event-revisions/{{record_id}}/publications",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Corridor  Corridor Event-Revisions Record Withdrawals",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/corridor/event-revisions/{{record_id}}/withdrawals",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Corridor  Corridor Event-Revisions Record Reopening-Evidence",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/corridor/event-revisions/{{record_id}}/reopening-evidence",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Corridor  Corridor Effect-Policy-Revisions",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/corridor/effect-policy-revisions",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Corridor  Corridor Mapping-Revisions",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/corridor/mapping-revisions",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Corridor  Corridor Effect-Policy-Revisions Record Review-Approvals",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/corridor/effect-policy-revisions/{{record_id}}/review-approvals",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Corridor  Corridor Effect-Policy-Revisions Record Publications",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/corridor/effect-policy-revisions/{{record_id}}/publications",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Corridor  Corridor Mapping-Revisions Record Review-Approvals",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/corridor/mapping-revisions/{{record_id}}/review-approvals",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Corridor  Corridor Mapping-Revisions Record Publications",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/corridor/mapping-revisions/{{record_id}}/publications",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Corridor  Consignments Record Corridor-Reassessments",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/consignments/{{record_id}}/corridor-reassessments",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Corridor  Consignments Record Recovery-Cases",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/consignments/{{record_id}}/recovery-cases",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Corridor  Recovery-Cases Record Driver-Responses",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/recovery-cases/{{record_id}}/driver-responses",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Dynamic",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/consignments/{{record_id}}/dynamic-tradetwin-context",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Assessment",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/corridor-impact-assessments/{{record_id}}",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Recovery",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/recovery-cases/{{record_id}}",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Registry",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/corridor/registry",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

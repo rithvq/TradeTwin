@@ -113,6 +113,9 @@ def install_openapi(app):
         from app.freight.contracts import install as install_freight
 
         install_freight(document)
+        from app.corridor.contracts import install as install_corridor
+
+        install_corridor(document)
         app.openapi_schema = document
         return document
 

@@ -127,6 +127,7 @@ def dependency_snapshot(db, trade, cn, registry_manifest):
     value = {
         "schema_version": "PH4_DEPENDENCIES_V1",
         "committed_route_plan": phase4_dependency(db, cn),
+        "corridor_intelligence": corridor_dependency(db, trade, cn),
         "recipient_confirmation": recipient_state(db, cn),
         "inherited": inherited(db, trade, cn),
         "context_version": version(db, trade.id),
@@ -285,6 +286,12 @@ def dependency_snapshot(db, trade, cn, registry_manifest):
         )
     ]
     return value, digest(value)
+
+
+def corridor_dependency(db, trade, cn):
+    from app.corridor.projection import dependency
+
+    return dependency(db, trade, cn)
 
 
 def recipient_state(db, cn):

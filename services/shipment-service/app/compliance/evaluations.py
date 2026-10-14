@@ -318,7 +318,9 @@ def complete(db, ctx, ident):
             or not row.loading_manifest_revision_id
         )
         operational_block = (
-            not recipient.compatible(recipient.current(db, cn), trade)
+            (row.snapshot_json.get("corridor_intelligence") or {}).get("outcome")
+            in {"BLOCKED", "NEEDS_REVIEW"}
+            or not recipient.compatible(recipient.current(db, cn), trade)
             or cn.planning_status != "PREPARING"
             or cn.revision_alignment != "CURRENT"
             or cn.movement_status
@@ -377,6 +379,11 @@ def complete(db, ctx, ident):
             deadlines.append(boundary)
         deadline = min([deadline, *deadlines])
         row.job_state = "COMPLETED"
+    corridor_boundary = (row.snapshot_json.get("corridor_intelligence") or {}).get("valid_until")
+    if corridor_boundary:
+        from datetime import datetime
+
+        deadline = min(deadline, datetime.fromisoformat(corridor_boundary))
     row.valid_until = deadline
     db.add(
         Dependency(

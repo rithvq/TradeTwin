@@ -121,6 +121,7 @@ def dependencies(db, trade, cn, quote_ids, assumption_id, at=None):
                 "dataset_current": dataset_current(db, dataset, at),
                 "evidence": evidence,
                 "availability_hash": digest([b.id for b in availability]),
+                "corridor": corridor_snapshot(db, trade, cn, dataset, template),
             }
         )
     assumptions = exists(db, Assumptions, assumption_id) if assumption_id else None
@@ -177,6 +178,30 @@ def fresh(db, row, trade, cn, at=None):
     ):
         return "STALE"
     return "CURRENT"
+
+
+def corridor_snapshot(db, trade, cn, dataset, template):
+    from app.corridor.projection import capture
+
+    chosen = set(template.template_json["ordered_edge_keys"])
+    states = sorted(
+        {
+            s
+            for e in dataset.dataset_json["edges"]
+            if e["edge_key"] in chosen
+            for s in (e["ordered_state_sequence"] or [])
+        }
+    )
+    return capture(
+        db,
+        trade,
+        cn,
+        {
+            "dataset_revision_id": dataset.id,
+            "ordered_edge_keys": sorted(chosen),
+            "state_sequence": states,
+        },
+    )
 
 
 def permit_snapshot(db, quote, through, at):
@@ -374,6 +399,7 @@ def request(db, ctx, ident, payload):
             "quote": quote.quote_json,
             "quote_lifecycle": quote_status(db, quote, at)[0],
             "profile": profile.profile_json,
+            "corridor_projection": corridor_snapshot(db, trade, cn, dataset, template),
             "profile_hash": profile.content_hash,
             "profile_current": vehicle.current_routing_profile_revision_id == profile.id
             and vehicle.active
