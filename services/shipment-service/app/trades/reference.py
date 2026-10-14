@@ -346,3 +346,40 @@ ROLE_PERMISSIONS["CARRIER_DISPATCHER"] |= {
     "freight.offer.accept",
 }
 ROLE_PERMISSIONS["INTEGRATION_ADMINISTRATOR"] |= {"routing.provider.read"}
+
+ROLE_PERMISSIONS.update(
+    {
+        "EVIDENCE_ANALYST": {
+            "organization.read",
+            "evidence.replay.request",
+            "evidence.bundle.request",
+        },
+        "READINESS_OPERATOR": {
+            "organization.read",
+            "readiness.read",
+            "readiness.run",
+            "readiness.manual.prepare",
+        },
+        "QUALIFICATION_REVIEWER": {
+            "organization.read",
+            "readiness.read",
+            "readiness.review",
+            "pilot.scope.review",
+        },
+        "DEPLOYMENT_OPERATOR": {
+            "organization.read",
+            "readiness.read",
+            "deployment.activate",
+            "deployment.pause",
+            "deployment.restore.rehearse",
+            "pilot.scope.prepare",
+        },
+        "DEMO_PRESENTER": {
+            "organization.read",
+            "demo.read",
+            "demo.workspace.create",
+            "demo.run",
+            "demo.clock.advance",
+        },
+    }
+)

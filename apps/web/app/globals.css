@@ -380,3 +380,12 @@ a:focus-visible, button:focus-visible, summary:focus-visible {
 .tt-orbit-node-selected > span:first-child { background: #d9eee9; border-color: var(--tt-teal); }
 .react-flow__attribution { background: #ffffff !important; color: #52656c !important; }
 .react-flow__node { --xy-node-color: #172d32; }
+
+.product-controls :is(button, input, select, [role="button"]) {
+  min-height: 44px;
+}
+.product-controls button {
+  height: auto;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}

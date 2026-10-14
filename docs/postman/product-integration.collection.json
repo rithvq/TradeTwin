@@ -1,0 +1,1238 @@
+{
+  "info": {
+    "name": "TradeTwin Phase 7 bounded product integration",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8011"
+    },
+    {
+      "key": "organization_id",
+      "value": ""
+    },
+    {
+      "key": "record_id",
+      "value": ""
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "current_etag",
+      "value": ""
+    },
+    {
+      "key": "command_json",
+      "value": "{}"
+    }
+  ],
+  "item": [
+    {
+      "name": "Inbox",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/me/action-inbox",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Inbox",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/me/workspaces",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Journey",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/trades/{{record_id}}/journey-evidence-manifest",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Journey",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/trades/{{record_id}}/workspace/tasks",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Journey",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/trades/{{record_id}}/workspace",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Product  Trades Record Workspace-Task-States",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/trades/{{record_id}}/workspace-task-states",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Product  Evidence Replay-Requests",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/evidence/replay-requests",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Product  Evidence Comparison-Jobs",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/evidence/comparison-jobs",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Product  Evidence Bundle-Jobs",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/evidence/bundle-jobs",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Replay Result",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/evidence/replay-results/{{record_id}}",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Comparison Result",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/evidence/comparisons/{{record_id}}",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Bundle",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/evidence/bundles/{{record_id}}/download",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Bundle",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/evidence/bundles/{{record_id}}",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Readiness Context",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/readiness/context",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Readiness Result",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/readiness/runs/{{record_id}}/evidence-manifest",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Readiness Result",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/readiness/runs/{{record_id}}",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/deployments/{{record_id}}/health",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Product  Readiness Runs",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/readiness/runs",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Product  Readiness Runs Record Manual-Review-Records",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/readiness/runs/{{record_id}}/manual-review-records",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Product  Readiness Runs Record Qualification-Decisions",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/readiness/runs/{{record_id}}/qualification-decisions",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Product  Pilot-Scope-Revisions",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/pilot-scope-revisions",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Product  Pilot-Scope-Revisions Record Review-Approvals",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/pilot-scope-revisions/{{record_id}}/review-approvals",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Product  Deployments Record Pauses",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/deployments/{{record_id}}/pauses",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Product  Deployments Record Activations",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/deployments/{{record_id}}/activations",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Product  Deployments Record Restore-Rehearsal-Jobs",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/deployments/{{record_id}}/restore-rehearsal-jobs",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Scenarios",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/demo/scenarios",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Demo Workspace",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/demo/workspaces/{{record_id}}",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Demo Run",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/demo/runs/{{record_id}}",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Product  Demo Workspaces",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/demo/workspaces",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Product  Demo Workspaces Record Clock-Advances",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/demo/workspaces/{{record_id}}/clock-advances",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Product  Demo Workspaces Record Reset-Successors",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/demo/workspaces/{{record_id}}/reset-successors",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Product  Demo Workspaces Record Runs",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/demo/workspaces/{{record_id}}/runs",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Product  Demo Runs Record Step-Executions",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/demo/runs/{{record_id}}/step-executions",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Product  Demo Runs Record Cancellations",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/demo/runs/{{record_id}}/cancellations",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Product  Demo Runs Record Measurements",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/demo/runs/{{record_id}}/measurements",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "If-Match",
+            "value": "{{current_etag}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{command_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -4,7 +4,7 @@ import { ModuleWorkspace } from "@/components/dashboard/module-workspace";
 import { tradeTwinModules } from "@/lib/config/tradetwin-modules";
 import { RegulatorySourcePanel } from "@/components/regulatory-source-panel";
 import Link from "next/link";
-import { BookOpen } from "lucide-react";
+import { BookOpen, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function DashboardRegulationsPage() {
@@ -13,7 +13,13 @@ export default function DashboardRegulationsPage() {
   )!;
   return (
     <>
-      <div className="mb-4">
+      <div className="mb-4 flex flex-wrap gap-2">
+        <Button variant="outline" asChild>
+          <Link href="/dashboard/regulations/assurance">
+            <ShieldCheck className="size-4" />
+            Deployment assurance
+          </Link>
+        </Button>
         <Button variant="outline" asChild>
           <Link href="/dashboard/regulations/rule-registry">
             <BookOpen className="size-4" />

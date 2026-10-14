@@ -20,6 +20,7 @@ from app.corridor.models import TABLES as CORRIDOR_TABLES  # noqa: E402
 from app.document_desk.models import Document  # noqa: E402
 from app.freight.models import TABLES as FREIGHT_TABLES  # noqa: E402
 from app.operations.models import Assignment  # noqa: E402
+from app.product.models import TABLES as PRODUCT_TABLES  # noqa: E402
 from app.trades.migrate import migrate  # noqa: E402
 from app.trades.models import TradeBase  # noqa: E402
 
@@ -63,7 +64,8 @@ def test_phase_migrations_only_create_their_own_tables(migration_engine):
     commercial = {
         name
         for name in expected
-        if (name == "trades" or name.startswith("trade_")) and name != "trade_compliance_contexts"
+        if (name == "trades" or name.startswith("trade_"))
+        and name not in {"trade_compliance_contexts", "trade_workspace_projection_heads"}
     }
     operational = {name for name in expected if name.startswith("op_")}
     documents = {name for name in expected if name.startswith("doc_")}
@@ -82,11 +84,17 @@ def test_phase_migrations_only_create_their_own_tables(migration_engine):
 
     upgrade_to(migration_engine, "trade_004")
     actual = set(inspect(migration_engine).get_table_names()) - {"trade_alembic_version"}
-    assert actual == expected - {m.__tablename__ for m in [*FREIGHT_TABLES, *CORRIDOR_TABLES]}
+    assert actual == expected - {
+        m.__tablename__ for m in [*FREIGHT_TABLES, *CORRIDOR_TABLES, *PRODUCT_TABLES]
+    }
 
     upgrade_to(migration_engine, "trade_005")
     actual = set(inspect(migration_engine).get_table_names()) - {"trade_alembic_version"}
-    assert actual == expected - {m.__tablename__ for m in CORRIDOR_TABLES}
+    assert actual == expected - {m.__tablename__ for m in [*CORRIDOR_TABLES, *PRODUCT_TABLES]}
+
+    upgrade_to(migration_engine, "trade_006")
+    actual = set(inspect(migration_engine).get_table_names()) - {"trade_alembic_version"}
+    assert actual == expected - {m.__tablename__ for m in PRODUCT_TABLES}
 
     migrate(migration_engine)
     migrate(migration_engine)
@@ -102,5 +110,5 @@ def test_fresh_database_upgrades_directly_to_head(migration_engine):
     assert set(TradeBase.metadata.tables).issubset(inspect(migration_engine).get_table_names())
     with migration_engine.connect() as connection:
         assert (
-            connection.scalar(text("SELECT version_num FROM trade_alembic_version")) == "trade_006"
+            connection.scalar(text("SELECT version_num FROM trade_alembic_version")) == "trade_007"
         )

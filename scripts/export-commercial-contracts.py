@@ -3,8 +3,9 @@
 import json
 import os
 import sys
-from copy import deepcopy
 from pathlib import Path
+
+from contract_schema import scoped
 
 ROOT = Path(__file__).resolve().parents[1]
 os.environ.setdefault("DATABASE_URL", "sqlite+pysqlite:///:memory:")
@@ -17,39 +18,7 @@ from app.trades.demo import demo_address, demo_facts, demo_profile  # noqa: E402
 
 
 def main():
-    schema = deepcopy(app.openapi())
-    schema["paths"] = {
-        path: {
-            method: operation
-            for method, operation in operations.items()
-            if "Trade operations - Phase 2" not in operation.get("tags", [])
-        }
-        for path, operations in schema["paths"].items()
-    }
-    schema["paths"] = {
-        path: operations for path, operations in schema["paths"].items() if operations
-    }
-    referenced = set()
-    components = schema["components"]["schemas"]
-
-    def references(value):
-        if isinstance(value, dict):
-            target = value.get("$ref", "")
-            if target.startswith("#/components/schemas/"):
-                name = target.rsplit("/", 1)[-1]
-                if name not in referenced:
-                    referenced.add(name)
-                    references(components[name])
-            for item in value.values():
-                references(item)
-        elif isinstance(value, list):
-            for item in value:
-                references(item)
-
-    references(schema["paths"])
-    schema["components"]["schemas"] = {
-        name: value for name, value in components.items() if name in referenced
-    }
+    schema = scoped(app.openapi(), {"Commercial agreements"})
     output = ROOT / "docs/postman"
     output.mkdir(parents=True, exist_ok=True)
     collection = {

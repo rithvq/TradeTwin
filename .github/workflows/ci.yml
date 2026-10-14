@@ -60,11 +60,18 @@ jobs:
           services/shipment-service/tests/test_dispatch_policy.py
           services/shipment-service/tests/test_freight_planning.py
           services/shipment-service/tests/test_corridor_intelligence.py
+          services/shipment-service/tests/test_product_integration.py
 
       - name: Corridor intelligence contract drift
         run: |
           python scripts/export-corridor-contracts.py
           git diff --exit-code -- docs/postman
+
+      - name: Product integration contract drift
+        run: |
+          python scripts/export-product-contracts.py
+          git diff --exit-code -- docs/postman
+          pytest scripts/test_contract_schema.py
 
       - name: Freight planning contract drift
         run: |
@@ -153,3 +160,8 @@ jobs:
         env:
           PLAYWRIGHT_CHANNEL: chromium
         run: python scripts/freight-browser-check.py
+
+      - name: Product integration browser acceptance
+        env:
+          PLAYWRIGHT_CHANNEL: chromium
+        run: python scripts/product-browser-check.py

@@ -5,6 +5,8 @@ import json
 from copy import deepcopy
 from pathlib import Path
 
+from contract_schema import prune
+
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location(
     "commercial_contracts", ROOT / "scripts/export-commercial-contracts.py"
@@ -22,6 +24,7 @@ def main():
         for p, methods in schema["paths"].items()
     }
     schema["paths"] = {p: m for p, m in schema["paths"].items() if m}
+    schema = prune(schema)
     (folder / "freight-planning.openapi.json").write_text(
         json.dumps(schema, indent=2) + "\n", encoding="utf-8"
     )

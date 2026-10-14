@@ -94,7 +94,7 @@
       "value": ""
     },
     {
-      "key": "buyer_organization_id",
+      "key": "seller_organization_id",
       "value": ""
     },
     {
@@ -102,7 +102,7 @@
       "value": ""
     },
     {
-      "key": "seller_organization_id",
+      "key": "buyer_organization_id",
       "value": ""
     },
     {

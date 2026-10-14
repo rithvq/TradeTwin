@@ -1,7 +1,6 @@
 """Frozen decision inputs on the existing durable job/outbox pipeline."""
 
 from copy import deepcopy
-from uuid import NAMESPACE_URL, uuid5
 
 from sqlalchemy import select
 
@@ -19,8 +18,9 @@ from app.trades.models import Revision, User, uid
 from app.trades.terms import digest
 
 from .access import base_context, planning
-from .assessment import assess
 from .calculator import ENGINE_VERSION, rank
+from .compute import candidate as compute_candidate
+from .compute import engine_manifest
 from .models import (
     RFQ,
     AssumptionReview,
@@ -328,6 +328,7 @@ def request(db, ctx, ident, payload):
     snapshot = {
         **payload.model_dump(mode="json"),
         "schema_version": "TRADETWIN_INPUT_V1",
+        "engine_manifest": engine_manifest(),
         "context": base,
         "deadline": {
             "at": deadline,
@@ -527,25 +528,10 @@ def complete(db, ctx, ident):
     snapshot = row.input_json
     candidates = []
     for source in snapshot["sources"]:
-        ident = str(uuid5(NAMESPACE_URL, row.content_hash + ":" + source["quote_revision_id"]))
-        scenarios = {
-            s["scenario_code"]: assess(snapshot, source, s, ident) for s in snapshot["scenarios"]
-        }
-        base = scenarios["BASE"]
-        value = {
-            "candidate_id": ident,
-            "offer_label": source["quote"].get("carrier_offer_reference")
-            or source["quote_revision_id"][:8],
-            "quote_revision_id": source["quote_revision_id"],
-            "quote_hash": source["quote_hash"],
-            "route_template_revision_id": source["quote"]["route_template_revision_id"],
-            "carrier_organisation_id": source["quote"]["carrier_organisation_id"],
-            "vehicle_id": source["quote"]["vehicle_id"],
-            "scenarios": scenarios,
-            "execution_mode": row.execution_mode,
-        }
-        fingerprint = digest(value)
-        value["candidate_hash"] = fingerprint
+        value = compute_candidate(snapshot, source, row.content_hash, row.execution_mode)
+        ident = value["candidate_id"]
+        base = value["scenarios"]["BASE"]
+        fingerprint = value["candidate_hash"]
         candidate = Candidate(
             id=ident,
             run_id=row.id,

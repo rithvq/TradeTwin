@@ -44,6 +44,7 @@ def error_response(request, code, message, status, fields=None, details=None):
             }
         },
         status_code=status,
+        headers={"Cache-Control": "private, no-store"},
     )
 
 

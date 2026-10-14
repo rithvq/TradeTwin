@@ -15,6 +15,7 @@ import {
 import { displayTime, tradeRequest } from "@/lib/trades";
 import { ActionForm, Facts, Section } from "@/components/operations/shared";
 import { title } from "@/lib/operations";
+import { DecisionReplay } from "@/components/product/replay";
 
 export function FreightComparison({
   runId,
@@ -90,6 +91,14 @@ export function FreightComparison({
             : "TradeTwin baseline comparison"
       }
     >
+      {module === "Evidence" && data.engine_version && (
+        <DecisionReplay
+          runId={runId}
+          inputHash={data.input_hash}
+          engineVersion={data.engine_version}
+          capabilities={context.capabilities}
+        />
+      )}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <strong>
           {data.execution_mode} / {data.freshness}

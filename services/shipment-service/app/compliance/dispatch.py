@@ -402,7 +402,9 @@ def acknowledge(db, ctx, ident, payload):
 def issue(db, ctx, ident, payload):
     trade, cn, _ = context.access(db, ctx, ident, "dispatch.authorisation.request", lock=True)
     from app.corridor.service import guard
+    from app.product.fence import guard as operational_guard
 
+    operational_guard(db, trade, "MOVEMENT")
     guard(db, trade, cn)
     check_context(ctx, context.version(db, trade.id), payload.expected_context_version)
     evaluation, _, target = ready_evaluation(
@@ -557,7 +559,9 @@ def issue(db, ctx, ident, payload):
 
 def validate(db, row, trade, cn):
     from app.corridor.service import guard
+    from app.product.fence import guard as operational_guard
 
+    operational_guard(db, trade, "MOVEMENT")
     at = instant(db)
     if row.consumed_event_id:
         fail("AUTHORISATION_CONSUMED", "Authorisation was already consumed.")

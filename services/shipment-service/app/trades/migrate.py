@@ -5,6 +5,7 @@ from alembic.config import Config
 from sqlalchemy import text
 
 from app.corridor import models as corridor_models  # noqa: F401
+from app.product import models as product_models  # noqa: F401
 
 
 def migrate(engine):

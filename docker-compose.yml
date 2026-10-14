@@ -67,7 +67,12 @@ services:
       DOCUMENT_ENCRYPTION_KEY_FILE: /run/secrets/document-keyring.json
       DOCUMENT_WORKER_TOKEN_FILE: /run/secrets/document-worker-token
       DOCUMENT_FIXTURE_DIRECTORY: /app/data/fixtures/document-desk
+      TRADETWIN_OPERATIONAL_FENCE_FILE: ${TRADETWIN_OPERATIONAL_FENCE_FILE:-}
     volumes:
+      - type: bind
+        source: ./.runtime/operational-controls
+        target: /run/tradetwin-controls
+        read_only: true
       - type: bind
         source: ./.secrets/document-keyring.json
         target: /run/secrets/document-keyring.json
@@ -155,7 +160,12 @@ services:
     environment:
       DOCUMENT_WORKER_TOKEN_FILE: /run/secrets/document-worker-token
       DOCUMENT_ENCRYPTION_KEY_FILE: /run/secrets/document-keyring.json
+      TRADETWIN_OPERATIONAL_FENCE_FILE: ${TRADETWIN_OPERATIONAL_FENCE_FILE:-}
     volumes:
+      - type: bind
+        source: ./.runtime/operational-controls
+        target: /run/tradetwin-controls
+        read_only: true
       - type: bind
         source: ./.secrets/document-keyring.json
         target: /run/secrets/document-keyring.json

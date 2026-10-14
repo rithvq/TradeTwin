@@ -105,6 +105,7 @@ def inherited(db, trade, cn):
 
 def dependency_snapshot(db, trade, cn, registry_manifest):
     from app.freight.commitments import phase4_dependency
+    from app.product.fence import dependency as operational_dependency
 
     head = heads(db, cn)
     binding = (
@@ -126,6 +127,7 @@ def dependency_snapshot(db, trade, cn, registry_manifest):
     vehicle = db.get(Vehicle, assignment.vehicle_id) if assignment else None
     value = {
         "schema_version": "PH4_DEPENDENCIES_V1",
+        "operational_deployment": operational_dependency(db),
         "committed_route_plan": phase4_dependency(db, cn),
         "corridor_intelligence": corridor_dependency(db, trade, cn),
         "recipient_confirmation": recipient_state(db, cn),

@@ -77,6 +77,7 @@ def base_context(db, trade, cn):
     commercial_dependencies, _ = context.dependency_snapshot(db, trade, cn, registry)
     # Alerts change planning feasibility, not the carrier's retained fixed offer context.
     commercial_dependencies.pop("corridor_intelligence", None)
+    commercial_dependencies.pop("operational_deployment", None)
     compliance_hash = digest(commercial_dependencies)
     cargo = {
         "gross_weight_kg": cn.plan_json["declared_gross_weight_kg"],

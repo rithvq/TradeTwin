@@ -1,6 +1,7 @@
 .env
 .secrets/
 .backups/
+.runtime/
 .venv/
 __pycache__/
 *.py[cod]

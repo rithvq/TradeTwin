@@ -502,7 +502,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "Current record ETag, including quotes."
+            "description": "Current record ETag, including quotes. For carrier-profile PUT, required only when updating an existing profile."
           }
         ],
         "requestBody": {
@@ -1688,7 +1688,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "Current record ETag, including quotes."
+            "description": "Current record ETag, including quotes. For carrier-profile PUT, required only when updating an existing profile."
           }
         ],
         "requestBody": {
@@ -1835,7 +1835,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "Current record ETag, including quotes."
+            "description": "Current record ETag, including quotes. For carrier-profile PUT, required only when updating an existing profile."
           }
         ],
         "requestBody": {
@@ -1982,7 +1982,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "Current record ETag, including quotes."
+            "description": "Current record ETag, including quotes. For carrier-profile PUT, required only when updating an existing profile."
           }
         ],
         "requestBody": {
@@ -2401,7 +2401,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "Current record ETag, including quotes."
+            "description": "Current record ETag, including quotes. For carrier-profile PUT, required only when updating an existing profile."
           }
         ],
         "requestBody": {
@@ -2548,7 +2548,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "Current record ETag, including quotes."
+            "description": "Current record ETag, including quotes. For carrier-profile PUT, required only when updating an existing profile."
           }
         ],
         "requestBody": {
@@ -2695,7 +2695,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "Current record ETag, including quotes."
+            "description": "Current record ETag, including quotes. For carrier-profile PUT, required only when updating an existing profile."
           }
         ],
         "requestBody": {
@@ -3004,6 +3004,40 @@
             }
           },
           {
+            "name": "document_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Document Id"
+            }
+          },
+          {
+            "name": "document_version_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Document Version Id"
+            }
+          },
+          {
             "name": "X-Organization-Id",
             "in": "header",
             "required": false,
@@ -3099,433 +3133,6 @@
             "ProfileSession": []
           }
         ]
-      }
-    },
-    "/locations/states": {
-      "get": {
-        "summary": "Indian States",
-        "operationId": "indian_states_locations_states_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/health": {
-      "get": {
-        "summary": "Health",
-        "operationId": "health_health_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "type": "object",
-                  "title": "Response Health Health Get"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/ready": {
-      "get": {
-        "summary": "Ready",
-        "operationId": "ready_ready_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          }
-        }
-      }
-    },
-    "/demo/seed": {
-      "post": {
-        "tags": [
-          "demo"
-        ],
-        "summary": "Load Demo Endpoint",
-        "operationId": "load_demo_endpoint_demo_seed_post",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ShipmentRead"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/shipments": {
-      "get": {
-        "summary": "List Shipments Endpoint",
-        "operationId": "list_shipments_endpoint_shipments_get",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/ShipmentRead"
-                  },
-                  "type": "array",
-                  "title": "Response List Shipments Endpoint Shipments Get"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "summary": "Create Shipment Endpoint",
-        "operationId": "create_shipment_endpoint_shipments_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ShipmentCreate"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ShipmentRead"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/shipments/{shipment_id}": {
-      "get": {
-        "summary": "Get Shipment Endpoint",
-        "operationId": "get_shipment_endpoint_shipments__shipment_id__get",
-        "parameters": [
-          {
-            "name": "shipment_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Shipment Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ShipmentRead"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "summary": "Delete Shipment Endpoint",
-        "operationId": "delete_shipment_endpoint_shipments__shipment_id__delete",
-        "parameters": [
-          {
-            "name": "shipment_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Shipment Id"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Successful Response"
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/shipments/{shipment_id}/consignments": {
-      "post": {
-        "summary": "Add Consignment Endpoint",
-        "operationId": "add_consignment_endpoint_shipments__shipment_id__consignments_post",
-        "parameters": [
-          {
-            "name": "shipment_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Shipment Id"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ConsignmentCreate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ConsignmentRead"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/shipments/{shipment_id}/route-legs": {
-      "post": {
-        "summary": "Add Route Leg Endpoint",
-        "operationId": "add_route_leg_endpoint_shipments__shipment_id__route_legs_post",
-        "parameters": [
-          {
-            "name": "shipment_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Shipment Id"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ShipmentLegCreate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ShipmentLegRead"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/shipments/{shipment_id}/events": {
-      "post": {
-        "summary": "Add Event Endpoint",
-        "operationId": "add_event_endpoint_shipments__shipment_id__events_post",
-        "parameters": [
-          {
-            "name": "shipment_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Shipment Id"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ShipmentEventCreate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ShipmentEventRead"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/shipments/{shipment_id}/timeline": {
-      "get": {
-        "summary": "Get Timeline Endpoint",
-        "operationId": "get_timeline_endpoint_shipments__shipment_id__timeline_get",
-        "parameters": [
-          {
-            "name": "shipment_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Shipment Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TimelineRead"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/shipments/{shipment_id}/graph": {
-      "get": {
-        "summary": "Get Graph Endpoint",
-        "operationId": "get_graph_endpoint_shipments__shipment_id__graph_get",
-        "parameters": [
-          {
-            "name": "shipment_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Shipment Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ShipmentGraphRead"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
       }
     }
   },
@@ -3677,293 +3284,6 @@
           "terms_hash"
         ],
         "title": "Confirmation"
-      },
-      "ConsignmentCreate": {
-        "properties": {
-          "domestic": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/DomesticConsignment"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "product_name": {
-            "type": "string",
-            "maxLength": 120,
-            "minLength": 1,
-            "title": "Product Name"
-          },
-          "product_description": {
-            "type": "string",
-            "title": "Product Description"
-          },
-          "quantity": {
-            "type": "integer",
-            "exclusiveMinimum": 0.0,
-            "title": "Quantity"
-          },
-          "declared_value": {
-            "anyOf": [
-              {
-                "type": "number",
-                "minimum": 0.0
-              },
-              {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,12}|(?=[\\d.]{1,15}0*$)\\d{0,12}\\.\\d{0,2}0*$)"
-              }
-            ],
-            "title": "Declared Value"
-          },
-          "currency": {
-            "type": "string",
-            "pattern": "^[A-Z]{3}$",
-            "title": "Currency"
-          },
-          "country_of_origin": {
-            "type": "string",
-            "maxLength": 80,
-            "minLength": 1,
-            "title": "Country Of Origin"
-          },
-          "destination_country": {
-            "type": "string",
-            "maxLength": 80,
-            "minLength": 1,
-            "title": "Destination Country"
-          },
-          "proposed_hs_code": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 20
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Proposed Hs Code"
-          }
-        },
-        "type": "object",
-        "required": [
-          "product_name",
-          "product_description",
-          "quantity",
-          "declared_value",
-          "currency",
-          "country_of_origin",
-          "destination_country"
-        ],
-        "title": "ConsignmentCreate"
-      },
-      "ConsignmentRead": {
-        "properties": {
-          "domestic": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/DomesticConsignment"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "product_name": {
-            "type": "string",
-            "maxLength": 120,
-            "minLength": 1,
-            "title": "Product Name"
-          },
-          "product_description": {
-            "type": "string",
-            "title": "Product Description"
-          },
-          "quantity": {
-            "type": "integer",
-            "exclusiveMinimum": 0.0,
-            "title": "Quantity"
-          },
-          "declared_value": {
-            "type": "string",
-            "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,12}|(?=[\\d.]{1,15}0*$)\\d{0,12}\\.\\d{0,2}0*$)",
-            "title": "Declared Value"
-          },
-          "currency": {
-            "type": "string",
-            "pattern": "^[A-Z]{3}$",
-            "title": "Currency"
-          },
-          "country_of_origin": {
-            "type": "string",
-            "maxLength": 80,
-            "minLength": 1,
-            "title": "Country Of Origin"
-          },
-          "destination_country": {
-            "type": "string",
-            "maxLength": 80,
-            "minLength": 1,
-            "title": "Destination Country"
-          },
-          "proposed_hs_code": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 20
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Proposed Hs Code"
-          },
-          "id": {
-            "type": "string",
-            "title": "Id"
-          },
-          "shipment_id": {
-            "type": "string",
-            "title": "Shipment Id"
-          },
-          "customs_status": {
-            "type": "string",
-            "title": "Customs Status"
-          }
-        },
-        "type": "object",
-        "required": [
-          "product_name",
-          "product_description",
-          "quantity",
-          "declared_value",
-          "currency",
-          "country_of_origin",
-          "destination_country",
-          "id",
-          "shipment_id",
-          "customs_status"
-        ],
-        "title": "ConsignmentRead"
-      },
-      "DomesticConsignment": {
-        "properties": {
-          "destination": {
-            "$ref": "#/components/schemas/Location"
-          },
-          "consignment_value": {
-            "type": "number",
-            "maximum": 999999999999.99,
-            "minimum": 0.0,
-            "title": "Consignment Value"
-          },
-          "eway_bill_required": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Eway Bill Required"
-          }
-        },
-        "type": "object",
-        "required": [
-          "destination",
-          "consignment_value"
-        ],
-        "title": "DomesticConsignment"
-      },
-      "DomesticLeg": {
-        "properties": {
-          "origin": {
-            "$ref": "#/components/schemas/Location"
-          },
-          "destination": {
-            "$ref": "#/components/schemas/Location"
-          },
-          "distance_km": {
-            "type": "number",
-            "maximum": 10000.0,
-            "exclusiveMinimum": 0.0,
-            "title": "Distance Km"
-          }
-        },
-        "type": "object",
-        "required": [
-          "origin",
-          "destination",
-          "distance_km"
-        ],
-        "title": "DomesticLeg"
-      },
-      "DomesticPlan": {
-        "properties": {
-          "origin": {
-            "$ref": "#/components/schemas/Location"
-          },
-          "destination": {
-            "$ref": "#/components/schemas/Location"
-          },
-          "consignor_name": {
-            "type": "string",
-            "maxLength": 120,
-            "minLength": 1,
-            "title": "Consignor Name"
-          },
-          "consignee_name": {
-            "type": "string",
-            "maxLength": 120,
-            "minLength": 1,
-            "title": "Consignee Name"
-          },
-          "movement_reason": {
-            "type": "string",
-            "enum": [
-              "SUPPLY",
-              "JOB_WORK",
-              "STOCK_TRANSFER",
-              "OTHER"
-            ],
-            "title": "Movement Reason",
-            "default": "SUPPLY"
-          },
-          "registered_consignor": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Registered Consignor"
-          },
-          "ordinary_goods": {
-            "anyOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Ordinary Goods"
-          }
-        },
-        "type": "object",
-        "required": [
-          "origin",
-          "destination",
-          "consignor_name",
-          "consignee_name"
-        ],
-        "title": "DomesticPlan"
       },
       "DraftPatch": {
         "properties": {
@@ -4263,96 +3583,6 @@
         "additionalProperties": false,
         "type": "object",
         "title": "GoodsDraft"
-      },
-      "GraphEdge": {
-        "properties": {
-          "id": {
-            "type": "string",
-            "title": "Id"
-          },
-          "source": {
-            "type": "string",
-            "title": "Source"
-          },
-          "target": {
-            "type": "string",
-            "title": "Target"
-          },
-          "label": {
-            "type": "string",
-            "title": "Label"
-          }
-        },
-        "type": "object",
-        "required": [
-          "id",
-          "source",
-          "target",
-          "label"
-        ],
-        "title": "GraphEdge"
-      },
-      "GraphNode": {
-        "properties": {
-          "id": {
-            "type": "string",
-            "title": "Id"
-          },
-          "label": {
-            "type": "string",
-            "title": "Label"
-          },
-          "type": {
-            "type": "string",
-            "title": "Type"
-          }
-        },
-        "type": "object",
-        "required": [
-          "id",
-          "label",
-          "type"
-        ],
-        "title": "GraphNode"
-      },
-      "HTTPValidationError": {
-        "properties": {
-          "detail": {
-            "items": {
-              "$ref": "#/components/schemas/ValidationError"
-            },
-            "type": "array",
-            "title": "Detail"
-          }
-        },
-        "type": "object",
-        "title": "HTTPValidationError"
-      },
-      "Location": {
-        "properties": {
-          "state": {
-            "type": "string",
-            "title": "State"
-          },
-          "city": {
-            "type": "string",
-            "maxLength": 100,
-            "minLength": 1,
-            "title": "City"
-          },
-          "pincode": {
-            "type": "string",
-            "pattern": "^[1-9][0-9]{5}$",
-            "title": "Pincode"
-          }
-        },
-        "type": "object",
-        "required": [
-          "state",
-          "city",
-          "pincode"
-        ],
-        "title": "Location"
       },
       "LocationCreate": {
         "properties": {
@@ -5402,410 +4632,6 @@
         ],
         "title": "RevisionView"
       },
-      "ShipmentCreate": {
-        "properties": {
-          "domestic": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/DomesticPlan"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "shipment_reference": {
-            "type": "string",
-            "maxLength": 80,
-            "minLength": 1,
-            "title": "Shipment Reference"
-          },
-          "exporter_country": {
-            "type": "string",
-            "maxLength": 80,
-            "minLength": 1,
-            "title": "Exporter Country"
-          },
-          "importer_country": {
-            "type": "string",
-            "maxLength": 80,
-            "minLength": 1,
-            "title": "Importer Country"
-          },
-          "transport_mode": {
-            "type": "string",
-            "maxLength": 40,
-            "minLength": 1,
-            "title": "Transport Mode"
-          },
-          "planned_departure_at": {
-            "type": "string",
-            "format": "date-time",
-            "title": "Planned Departure At"
-          },
-          "planned_arrival_at": {
-            "type": "string",
-            "format": "date-time",
-            "title": "Planned Arrival At"
-          },
-          "consignments": {
-            "items": {
-              "$ref": "#/components/schemas/ConsignmentCreate"
-            },
-            "type": "array",
-            "title": "Consignments"
-          },
-          "route_legs": {
-            "items": {
-              "$ref": "#/components/schemas/ShipmentLegCreate"
-            },
-            "type": "array",
-            "title": "Route Legs"
-          }
-        },
-        "type": "object",
-        "required": [
-          "shipment_reference",
-          "exporter_country",
-          "importer_country",
-          "transport_mode",
-          "planned_departure_at",
-          "planned_arrival_at"
-        ],
-        "title": "ShipmentCreate"
-      },
-      "ShipmentEventCreate": {
-        "properties": {
-          "consignment_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Consignment Id"
-          },
-          "event_type": {
-            "$ref": "#/components/schemas/ShipmentEventType"
-          },
-          "location_country": {
-            "type": "string",
-            "maxLength": 80,
-            "minLength": 1,
-            "title": "Location Country"
-          },
-          "occurred_at": {
-            "type": "string",
-            "format": "date-time",
-            "title": "Occurred At"
-          },
-          "metadata": {
-            "additionalProperties": true,
-            "type": "object",
-            "title": "Metadata"
-          }
-        },
-        "type": "object",
-        "required": [
-          "event_type",
-          "location_country",
-          "occurred_at"
-        ],
-        "title": "ShipmentEventCreate"
-      },
-      "ShipmentEventRead": {
-        "properties": {
-          "id": {
-            "type": "string",
-            "title": "Id"
-          },
-          "shipment_id": {
-            "type": "string",
-            "title": "Shipment Id"
-          },
-          "consignment_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Consignment Id"
-          },
-          "event_type": {
-            "type": "string",
-            "title": "Event Type"
-          },
-          "location_country": {
-            "type": "string",
-            "title": "Location Country"
-          },
-          "occurred_at": {
-            "type": "string",
-            "format": "date-time",
-            "title": "Occurred At"
-          },
-          "metadata": {
-            "additionalProperties": true,
-            "type": "object",
-            "title": "Metadata"
-          }
-        },
-        "type": "object",
-        "required": [
-          "id",
-          "shipment_id",
-          "consignment_id",
-          "event_type",
-          "location_country",
-          "occurred_at"
-        ],
-        "title": "ShipmentEventRead"
-      },
-      "ShipmentEventType": {
-        "type": "string",
-        "enum": [
-          "ARRIVED_AT_HUB",
-          "DELIVERED",
-          "CREATED",
-          "LOADED",
-          "ARRIVED_AT_TRANSIT_PORT",
-          "UNLOADED",
-          "TEMPORARY_STORAGE",
-          "TRANSSHIPMENT",
-          "CONTAINER_OPENED",
-          "CONTAINER_RESEALED",
-          "ROUTE_CHANGED"
-        ],
-        "title": "ShipmentEventType"
-      },
-      "ShipmentGraphRead": {
-        "properties": {
-          "nodes": {
-            "items": {
-              "$ref": "#/components/schemas/GraphNode"
-            },
-            "type": "array",
-            "title": "Nodes"
-          },
-          "edges": {
-            "items": {
-              "$ref": "#/components/schemas/GraphEdge"
-            },
-            "type": "array",
-            "title": "Edges"
-          }
-        },
-        "type": "object",
-        "required": [
-          "nodes",
-          "edges"
-        ],
-        "title": "ShipmentGraphRead"
-      },
-      "ShipmentLegCreate": {
-        "properties": {
-          "domestic": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/DomesticLeg"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "sequence_number": {
-            "type": "integer",
-            "exclusiveMinimum": 0.0,
-            "title": "Sequence Number"
-          },
-          "origin_country": {
-            "type": "string",
-            "title": "Origin Country"
-          },
-          "destination_country": {
-            "type": "string",
-            "title": "Destination Country"
-          },
-          "transport_mode": {
-            "type": "string",
-            "title": "Transport Mode"
-          },
-          "carrier_name": {
-            "type": "string",
-            "title": "Carrier Name"
-          }
-        },
-        "type": "object",
-        "required": [
-          "sequence_number",
-          "origin_country",
-          "destination_country",
-          "transport_mode",
-          "carrier_name"
-        ],
-        "title": "ShipmentLegCreate"
-      },
-      "ShipmentLegRead": {
-        "properties": {
-          "domestic": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/DomesticLeg"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "sequence_number": {
-            "type": "integer",
-            "exclusiveMinimum": 0.0,
-            "title": "Sequence Number"
-          },
-          "origin_country": {
-            "type": "string",
-            "title": "Origin Country"
-          },
-          "destination_country": {
-            "type": "string",
-            "title": "Destination Country"
-          },
-          "transport_mode": {
-            "type": "string",
-            "title": "Transport Mode"
-          },
-          "carrier_name": {
-            "type": "string",
-            "title": "Carrier Name"
-          },
-          "id": {
-            "type": "string",
-            "title": "Id"
-          },
-          "shipment_id": {
-            "type": "string",
-            "title": "Shipment Id"
-          }
-        },
-        "type": "object",
-        "required": [
-          "sequence_number",
-          "origin_country",
-          "destination_country",
-          "transport_mode",
-          "carrier_name",
-          "id",
-          "shipment_id"
-        ],
-        "title": "ShipmentLegRead"
-      },
-      "ShipmentRead": {
-        "properties": {
-          "domestic": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/DomesticPlan"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "id": {
-            "type": "string",
-            "title": "Id"
-          },
-          "shipment_reference": {
-            "type": "string",
-            "title": "Shipment Reference"
-          },
-          "exporter_country": {
-            "type": "string",
-            "title": "Exporter Country"
-          },
-          "importer_country": {
-            "type": "string",
-            "title": "Importer Country"
-          },
-          "transport_mode": {
-            "type": "string",
-            "title": "Transport Mode"
-          },
-          "planned_departure_at": {
-            "type": "string",
-            "format": "date-time",
-            "title": "Planned Departure At"
-          },
-          "planned_arrival_at": {
-            "type": "string",
-            "format": "date-time",
-            "title": "Planned Arrival At"
-          },
-          "status": {
-            "type": "string",
-            "title": "Status"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time",
-            "title": "Created At"
-          },
-          "consignments": {
-            "items": {
-              "$ref": "#/components/schemas/ConsignmentRead"
-            },
-            "type": "array",
-            "title": "Consignments"
-          },
-          "route_legs": {
-            "items": {
-              "$ref": "#/components/schemas/ShipmentLegRead"
-            },
-            "type": "array",
-            "title": "Route Legs"
-          }
-        },
-        "type": "object",
-        "required": [
-          "id",
-          "shipment_reference",
-          "exporter_country",
-          "importer_country",
-          "transport_mode",
-          "planned_departure_at",
-          "planned_arrival_at",
-          "status",
-          "created_at"
-        ],
-        "title": "ShipmentRead"
-      },
-      "TimelineRead": {
-        "properties": {
-          "shipment_id": {
-            "type": "string",
-            "title": "Shipment Id"
-          },
-          "events": {
-            "items": {
-              "$ref": "#/components/schemas/ShipmentEventRead"
-            },
-            "type": "array",
-            "title": "Events"
-          }
-        },
-        "type": "object",
-        "required": [
-          "shipment_id",
-          "events"
-        ],
-        "title": "TimelineRead"
-      },
       "TradeCreate": {
         "properties": {
           "initiated_by_role": {
@@ -6218,39 +5044,6 @@
         ],
         "title": "TradeView"
       },
-      "ValidationError": {
-        "properties": {
-          "loc": {
-            "items": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "integer"
-                }
-              ]
-            },
-            "type": "array",
-            "title": "Location"
-          },
-          "msg": {
-            "type": "string",
-            "title": "Message"
-          },
-          "type": {
-            "type": "string",
-            "title": "Error Type"
-          }
-        },
-        "type": "object",
-        "required": [
-          "loc",
-          "msg",
-          "type"
-        ],
-        "title": "ValidationError"
-      },
       "app__trades__schemas__Reason": {
         "properties": {
           "reason": {
@@ -6293,6 +5086,33 @@
           "retryable": {
             "title": "Retryable",
             "type": "boolean"
+          },
+          "blocker_requirement_ids": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Blocker Requirement Ids",
+            "type": "array"
+          },
+          "current_context_version": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Current Context Version"
+          },
+          "permitted_next_actions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Permitted Next Actions",
+            "type": "array"
           }
         },
         "required": [

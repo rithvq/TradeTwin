@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,9 @@ import { FreightDesk } from "@/components/freight/desk";
 import { RoutingDataDesk } from "@/components/freight/datasets";
 import { CorridorDesk } from "@/components/corridor/desk";
 import { CorridorRegistryDesk } from "@/components/corridor/registry";
+import { JourneyOverview } from "@/components/product/journey";
+import { AssuranceDesk } from "@/components/product/assurance";
+import { GuidedDemo } from "@/components/product/demo";
 
 const modules = [
   "Shipments",
@@ -37,17 +40,26 @@ const modules = [
   "Evidence",
 ];
 export function OperationsWorkspace({ tradeId }: { tradeId: string }) {
-  const { org } = useTradeContext();
+  const { org, me } = useTradeContext();
   const resource = useOperationsResource<Operations>(
     `/trades/${tradeId}/operations`,
     org,
   );
   const [module, setModule] = useState("Shipments");
+  useEffect(() => {
+    const selected = new URLSearchParams(window.location.search).get("module");
+    if (selected && modules.includes(selected)) setModule(selected);
+  }, []);
   const data = resource.data;
+  const productCapabilities =
+    me.memberships
+      .find((m) => m.organization_id === org)
+      ?.permissions.filter((p) => !p.trade_id || p.trade_id === tradeId)
+      .map((p) => p.permission_code) ?? [];
   if (resource.error) return <p role="alert">{resource.error}</p>;
   if (!data) return <p role="status">Loading trade operations...</p>;
   return (
-    <div className="space-y-5">
+    <div className="product-controls space-y-5">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-xl font-semibold">Trade operations</h2>
@@ -78,6 +90,7 @@ export function OperationsWorkspace({ tradeId }: { tradeId: string }) {
           </button>
         ))}
       </nav>
+      <JourneyOverview tradeId={tradeId} module={module} />
       {module === "Shipments" && (
         <>
           <Section name="Commercial agreement">
@@ -417,23 +430,34 @@ export function OperationsWorkspace({ tradeId }: { tradeId: string }) {
           />
         ))}
       {module === "Regulations" && (
-        <Section name="Regulatory context">
-          <RoutingDataDesk />
-          <CorridorRegistryDesk capabilities={data.allowed_actions} />
-          <RegulationsDesk
-            attachments={data.documents}
-            tradeId={tradeId}
-            reload={resource.reload}
-          />
-          {data.consignments.map((c) => (
-            <RegulatoryContext key={c.id} consignment={c} />
-          ))}
-          <Link className="text-accent underline" href="/dashboard/regulations">
-            Regulations
-          </Link>
-        </Section>
+        <>
+          <AssuranceDesk capabilities={productCapabilities} />
+          <Section name="Regulatory context">
+            <RoutingDataDesk />
+            <CorridorRegistryDesk capabilities={data.allowed_actions} />
+            <RegulationsDesk
+              attachments={data.documents}
+              tradeId={tradeId}
+              reload={resource.reload}
+            />
+            {data.consignments.map((c) => (
+              <RegulatoryContext key={c.id} consignment={c} />
+            ))}
+            <Link
+              className="text-accent underline"
+              href="/dashboard/regulations"
+            >
+              Regulations
+            </Link>
+          </Section>
+        </>
       )}
-      {module === "Evidence" && <EvidenceTimeline tradeId={tradeId} />}
+      {module === "Evidence" && (
+        <>
+          <EvidenceTimeline tradeId={tradeId} />
+          <GuidedDemo capabilities={productCapabilities} />
+        </>
+      )}
       {["Shipments", "Compliance", "Optimizer", "Risk", "Evidence"].includes(
         module,
       ) &&

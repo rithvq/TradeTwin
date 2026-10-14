@@ -258,6 +258,9 @@ def decide(db, ctx, offer_id, payload, decision):
         else:
             trade.agreement_status = "DRAFT"
     elif all(item["decision"] == "ACCEPT" for item in approvals(db, offer)):
+        from app.product.fence import guard
+
+        guard(db, trade, "BINDING")
         if amendment:
             from app.operations.allocation import accept_amendment
 

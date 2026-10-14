@@ -4,6 +4,8 @@ import importlib.util
 import json
 from pathlib import Path
 
+from contract_schema import scoped
+
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location(
     "commercial_contracts", ROOT / "scripts/export-commercial-contracts.py"
@@ -13,7 +15,9 @@ spec.loader.exec_module(commercial)
 
 
 def main():
-    schema = commercial.app.openapi()
+    schema = scoped(
+        commercial.app.openapi(), {"Commercial agreements", "Trade operations - Phase 2"}
+    )
     variables = {
         "base_url": "http://localhost:8011",
         "trade_id": "",

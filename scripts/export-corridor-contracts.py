@@ -5,6 +5,8 @@ import json
 from copy import deepcopy
 from pathlib import Path
 
+from contract_schema import prune
+
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location(
     "commercial_contracts", ROOT / "scripts/export-commercial-contracts.py"
@@ -25,6 +27,7 @@ def main():
         for path, methods in document["paths"].items()
     }
     document["paths"] = {path: methods for path, methods in document["paths"].items() if methods}
+    document = prune(document)
     (folder / "corridor-intelligence.openapi.json").write_text(
         json.dumps(document, indent=2) + "\n", encoding="utf-8"
     )

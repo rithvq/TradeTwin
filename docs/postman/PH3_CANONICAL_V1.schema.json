@@ -123,6 +123,96 @@
           ],
           "default": null,
           "title": "Acknowledgment At"
+        },
+        "place_of_supply_state_code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Place Of Supply State Code"
+        },
+        "reverse_charge_position": {
+          "anyOf": [
+            {
+              "enum": [
+                "YES",
+                "NO",
+                "UNKNOWN"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reverse Charge Position"
+        },
+        "issuance_form": {
+          "anyOf": [
+            {
+              "enum": [
+                "PAPER_WITH_SIGNATURE",
+                "ELECTRONIC_IT_ACT_DECLARED",
+                "UNKNOWN"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Issuance Form"
+        },
+        "signature_presence": {
+          "anyOf": [
+            {
+              "enum": [
+                "OBSERVED",
+                "NOT_OBSERVED",
+                "NOT_ASSESSED"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Signature Presence"
+        },
+        "invoice_series_fy": {
+          "anyOf": [
+            {
+              "maximum": 2100,
+              "minimum": 2017,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Invoice Series Fy"
+        },
+        "invoice_profile_code": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Invoice Profile Code"
         }
       },
       "title": "DocumentHeader",
@@ -1562,8 +1652,11 @@
   "additionalProperties": false,
   "properties": {
     "schema_version": {
-      "const": "PH3_CANONICAL_V1",
       "default": "PH3_CANONICAL_V1",
+      "enum": [
+        "PH3_CANONICAL_V1",
+        "PH4_CANONICAL_V2"
+      ],
       "title": "Schema Version",
       "type": "string"
     },

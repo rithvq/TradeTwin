@@ -146,6 +146,7 @@ export type FreightRun = {
   };
   id: string;
   input_hash: string;
+  engine_version?: string;
   result_hash: string | null;
   job_state: string;
   freshness: string;

@@ -11,6 +11,7 @@ from sqlalchemy import select
 from tradetwin_security.document_worker import headers as worker_headers
 
 from app.database import SessionLocal, engine
+from app.product import jobs as product_jobs
 from app.trades.errors import TradeError
 from app.trades.migrate import migrate
 from app.trades.models import now
@@ -56,6 +57,12 @@ def publish_outbox(sessions):
 def complete(db, lease, output):
     job, attempt = jobs.leased(db, *lease)
     ctx = jobs.job_context(db, job)
+    if job.stage in product_jobs.STAGES:
+        product_jobs.complete(db, ctx, job)
+        job.status, job.finished_at = "SUCCEEDED", now()
+        attempt.status, attempt.finished_at = "SUCCEEDED", now()
+        db.commit()
+        return
     if job.stage == "ROUTE_GENERATION":
         from app.freight.routing import complete_generation
 
@@ -165,7 +172,7 @@ def run_one(sessions=SessionLocal, job_id=None, processor=None):
         with sessions() as db:
             row = db.get(Job, lease[0])
             stage = row.stage
-        if stage in {
+        if stage in product_jobs.STAGES or stage in {
             "COMPARE",
             "EVAL_COMPLIANCE",
             "PROJECT_MOVEMENT",

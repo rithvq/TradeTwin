@@ -17,7 +17,7 @@ def upgrade():
             table
             for table in TradeBase.metadata.sorted_tables
             if (table.name == "trades" or table.name.startswith("trade_"))
-            and table.name != "trade_compliance_contexts"
+            and table.name not in {"trade_compliance_contexts", "trade_workspace_projection_heads"}
         ],
     )
     if connection.dialect.name == "postgresql":

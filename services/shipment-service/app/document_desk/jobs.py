@@ -7,6 +7,7 @@ from datetime import timedelta
 from sqlalchemy import or_, select
 
 from app.operations.access import exists, fail, lock_trade
+from app.product import jobs as product_jobs
 from app.trades.access import aware
 from app.trades.models import User, now, uid
 from app.trades.terms import digest
@@ -140,6 +141,8 @@ def claim(db, worker, job_id=None):
     requester = db.get(User, row.requested_by_user_id)
     if not requester or (not requester.active and row.stage != "PROJECT_MOVEMENT"):
         row.status, row.last_error_code, row.finished_at = "FAILED", "ACCESS_REVOKED", instant
+        if row.stage in product_jobs.STAGES:
+            product_jobs.mark(db, row, "FAILED")
         if row.stage == "EVAL_COMPLIANCE":
             from app.compliance.models import Evaluation
 
@@ -147,7 +150,9 @@ def claim(db, worker, job_id=None):
             evaluation.job_state, evaluation.decision = "FAILED", "BLOCKED"
         db.commit()
         return None
-    if row.stage in {"EVAL_COMPLIANCE", "PROJECT_MOVEMENT", "TRADETWIN_RUN", "ROUTE_GENERATION"}:
+    if row.stage in product_jobs.STAGES:
+        product_jobs.lock(db, row)
+    elif row.stage in {"EVAL_COMPLIANCE", "PROJECT_MOVEMENT", "TRADETWIN_RUN", "ROUTE_GENERATION"}:
         lock_trade(db, row.trade_id)
     else:
         version = db.get(Version, row.document_version_id)
@@ -164,6 +169,8 @@ def claim(db, worker, job_id=None):
         previous.status, previous.finished_at = "LEASE_LOST", instant
     if row.attempt_count >= 3:
         row.status, row.last_error_code, row.finished_at = "FAILED", "ATTEMPTS_EXHAUSTED", instant
+        if row.stage in product_jobs.STAGES:
+            product_jobs.mark(db, row, "FAILED")
         db.commit()
         return None
     attempt = Attempt(
@@ -181,7 +188,9 @@ def claim(db, worker, job_id=None):
     row.row_version += 1
     db.flush()
     ctx = Context(db.get(User, row.requested_by_user_id), row.requested_by_organization_id, uid())
-    if row.stage in {"EVAL_COMPLIANCE", "PROJECT_MOVEMENT", "TRADETWIN_RUN", "ROUTE_GENERATION"}:
+    if row.stage in product_jobs.STAGES:
+        product_jobs.mark(db, row, "RUNNING")
+    elif row.stage in {"EVAL_COMPLIANCE", "PROJECT_MOVEMENT", "TRADETWIN_RUN", "ROUTE_GENERATION"}:
         from app.compliance.ledger import record as compliance_record
 
         compliance_record(db, ctx, "COMPLIANCE_ATTEMPT_STARTED", row, row.trade_id)
@@ -211,7 +220,9 @@ def leased(db, job_id, attempt_id, token, lock=True):
         basis = db.scalar(query)
         if not basis:
             fail("JOB_ALREADY_TERMINAL", "Job no longer exists.")
-        if basis.stage in {
+        if basis.stage in product_jobs.STAGES:
+            product_jobs.lock(db, basis)
+        elif basis.stage in {
             "EVAL_COMPLIANCE",
             "PROJECT_MOVEMENT",
             "TRADETWIN_RUN",
@@ -243,6 +254,15 @@ def heartbeat(db, job_id, attempt_id, token):
 
 def cancel(db, ctx, ident, payload):
     job = exists(db, Job, ident)
+    if job.stage in product_jobs.STAGES:
+        product_jobs.lock(db, job)
+        product_jobs.view(db, ctx, job)
+        if ctx.if_match != f'"{job.row_version}"' or job.status in TERMINAL:
+            fail("JOB_ALREADY_TERMINAL", "Job changed or already finished.", status=412)
+        job.status, job.cancelled_at, job.finished_at = "CANCELLED", now(), now()
+        job.row_version += 1
+        product_jobs.mark(db, job, "CANCELLED")
+        return product_jobs.view(db, ctx, job)
     if job.stage == "PROJECT_MOVEMENT":
         from app.compliance.context import access as compliance_access
 
@@ -285,6 +305,8 @@ def cancel(db, ctx, ident, payload):
 
 
 def job_view(db, ctx, row):
+    if row.stage in product_jobs.STAGES:
+        return product_jobs.view(db, ctx, row)
     if row.stage in {"EVAL_COMPLIANCE", "PROJECT_MOVEMENT"}:
         from app.compliance.context import access as compliance_access
 
@@ -329,6 +351,10 @@ def failed(db, lease, code):
     )
     if job.status == "FAILED":
         job.finished_at = now()
+    if job.stage in product_jobs.STAGES:
+        product_jobs.mark(db, job, job.status)
+        db.commit()
+        return
     if job.stage in {"TRADETWIN_RUN", "ROUTE_GENERATION"}:
         from app.freight.models import Generation, Run
 

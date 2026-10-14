@@ -191,6 +191,9 @@ def decide(db, ctx, ident, payload, freight_selection_id=None):
     if payload.decision == "DECLINE":
         assignment.status = "DECLINED"
     else:
+        from app.product.fence import guard
+
+        guard(db, trade, "BINDING")
         carrier = db.scalar(
             select(Carrier).where(Carrier.organization_id == ctx.org_id, Carrier.active.is_(True))
         )

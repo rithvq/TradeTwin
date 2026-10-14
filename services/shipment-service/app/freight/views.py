@@ -219,6 +219,7 @@ def run_view(db, ctx, ident):
         **data,
         "id": row.id,
         "input_hash": row.content_hash,
+        "engine_version": row.engine_version,
         "result_hash": row.result_hash,
         "job_state": row.job_state,
         "execution_mode": row.execution_mode,
