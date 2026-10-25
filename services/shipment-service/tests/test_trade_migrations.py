@@ -16,6 +16,7 @@ for name in list(sys.modules):
         del sys.modules[name]
 
 from app.compliance.models import TABLES  # noqa: E402
+from app.compliance.models_computation import TABLES as COMPUTATION_TABLES  # noqa: E402
 from app.corridor.models import TABLES as CORRIDOR_TABLES  # noqa: E402
 from app.document_desk.models import Document  # noqa: E402
 from app.freight.models import TABLES as FREIGHT_TABLES  # noqa: E402
@@ -85,16 +86,23 @@ def test_phase_migrations_only_create_their_own_tables(migration_engine):
     upgrade_to(migration_engine, "trade_004")
     actual = set(inspect(migration_engine).get_table_names()) - {"trade_alembic_version"}
     assert actual == expected - {
-        m.__tablename__ for m in [*FREIGHT_TABLES, *CORRIDOR_TABLES, *PRODUCT_TABLES]
+        m.__tablename__
+        for m in [*FREIGHT_TABLES, *CORRIDOR_TABLES, *PRODUCT_TABLES, *COMPUTATION_TABLES]
     }
 
     upgrade_to(migration_engine, "trade_005")
     actual = set(inspect(migration_engine).get_table_names()) - {"trade_alembic_version"}
-    assert actual == expected - {m.__tablename__ for m in [*CORRIDOR_TABLES, *PRODUCT_TABLES]}
+    assert actual == expected - {
+        m.__tablename__ for m in [*CORRIDOR_TABLES, *PRODUCT_TABLES, *COMPUTATION_TABLES]
+    }
 
     upgrade_to(migration_engine, "trade_006")
     actual = set(inspect(migration_engine).get_table_names()) - {"trade_alembic_version"}
-    assert actual == expected - {m.__tablename__ for m in PRODUCT_TABLES}
+    assert actual == expected - {m.__tablename__ for m in [*PRODUCT_TABLES, *COMPUTATION_TABLES]}
+
+    upgrade_to(migration_engine, "trade_007")
+    actual = set(inspect(migration_engine).get_table_names()) - {"trade_alembic_version"}
+    assert actual == expected - {m.__tablename__ for m in COMPUTATION_TABLES}
 
     migrate(migration_engine)
     migrate(migration_engine)
@@ -110,5 +118,5 @@ def test_fresh_database_upgrades_directly_to_head(migration_engine):
     assert set(TradeBase.metadata.tables).issubset(inspect(migration_engine).get_table_names())
     with migration_engine.connect() as connection:
         assert (
-            connection.scalar(text("SELECT version_num FROM trade_alembic_version")) == "trade_007"
+            connection.scalar(text("SELECT version_num FROM trade_alembic_version")) == "trade_008"
         )

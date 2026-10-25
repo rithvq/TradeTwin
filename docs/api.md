@@ -5,6 +5,11 @@ The older demo tokens below cannot authorise its movement gate. See the
 [Phase 4 contracts](guarded-dispatch-phase4.md#apis-and-contracts) and
 [generated OpenAPI](postman/guarded-dispatch.openapi.json).
 
+`GET /api/v1/compliance-evaluations/{id}/computation-trace` exposes an authorised,
+read-only calculation explanation with private/no-store caching. It includes rule
+reuse/recalculation counts and reason codes, without private source witnesses.
+See [selective calculation modes and replay](selective-compliance.md).
+
 TradeTwin exposes service-level APIs directly in the local Docker demo.
 
 ## Authentication

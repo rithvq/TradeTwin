@@ -3,7 +3,7 @@
 from typing import Annotated
 from uuid import UUID, uuid4
 
-from fastapi import APIRouter, Depends, Query, Request
+from fastapi import APIRouter, Depends, Query, Request, Response
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -67,7 +67,7 @@ from .schemas_rules import (
     PublishInput,
     SourceInput,
 )
-from .schemas_views import ConstraintView, EvidenceManifestView, ReadinessView
+from .schemas_views import ComputationTraceView, ConstraintView, EvidenceManifestView, ReadinessView
 
 router = APIRouter(tags=["Compliance and guarded dispatch - Phase 4"])
 
@@ -327,6 +327,18 @@ root_command(
 @router.get("/compliance-evaluations/{ident}")
 def evaluation(ident: UUID, request: Request, db: Session = Depends(get_db)):
     return evaluations.read(db, actor_context(request, db), str(ident))
+
+
+@router.get(
+    "/compliance-evaluations/{ident}/computation-trace", response_model=ComputationTraceView
+)
+def computation_trace(
+    ident: UUID, request: Request, response: Response, db: Session = Depends(get_db)
+):
+    from .computation_trace import read
+
+    response.headers["Cache-Control"] = "private, no-store"
+    return read(db, actor_context(request, db), str(ident))
 
 
 @router.get("/consignments/{ident}/compliance-evaluations")

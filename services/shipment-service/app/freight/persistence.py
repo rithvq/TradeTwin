@@ -114,7 +114,7 @@ def selection_event(db, ctx, selection, code, head):
 
 
 def resource_changed(db, mode, kind, ident):
-    if not inspect(db.get_bind()).has_table(ResourceVersion.__tablename__):
+    if not inspect(db.connection()).has_table(ResourceVersion.__tablename__):
         return
     key = (mode, kind, ident)
     row = db.get(ResourceVersion, key)

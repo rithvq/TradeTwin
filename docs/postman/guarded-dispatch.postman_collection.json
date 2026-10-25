@@ -860,6 +860,42 @@
           ]
         },
         {
+          "name": "Explain rule reuse without carrying release approval",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/compliance-evaluations/{{evaluation_id}}/computation-trace",
+            "header": [
+              {
+                "key": "X-Organization-Id",
+                "value": "{{preparer_org}}"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{preparer_token}}"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();const v=pm.collectionVariables;",
+                  "pm.test('No permission reused',()=>pm.expect(r.permission_reused).to.equal(false));"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Independent release decision",
           "request": {
             "method": "POST",

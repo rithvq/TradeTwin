@@ -61,6 +61,7 @@ jobs:
           services/shipment-service/tests/test_freight_planning.py
           services/shipment-service/tests/test_corridor_intelligence.py
           services/shipment-service/tests/test_product_integration.py
+          services/shipment-service/tests/test_selective_compliance.py
 
       - name: Corridor intelligence contract drift
         run: |

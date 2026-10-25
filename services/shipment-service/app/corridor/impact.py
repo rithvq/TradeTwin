@@ -230,7 +230,7 @@ def assess(route_sections, projection, vehicle_profile=None, cargo_profiles=None
     }
 
 
-def evaluate_plan(db, plan, projection):
+def evaluate_plan(db, plan, projection, at=None):
     if not plan:
         return {"outcome": "NEEDS_REVIEW", "items": [], "limitations": ["No committed route plan."]}
     data = plan.route_plan_json
@@ -238,7 +238,7 @@ def evaluate_plan(db, plan, projection):
     dataset = db.get(Dataset, route["dataset_revision_id"])
     from app.compliance.clock import instant
 
-    at = instant(db)
+    at = at or instant(db)
     value = {**projection, "evaluated_as_of": at.isoformat()}
     from app.freight.models import Profile
 

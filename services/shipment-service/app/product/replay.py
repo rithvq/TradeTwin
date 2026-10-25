@@ -149,11 +149,26 @@ def complete(db, ctx, ident):
     else:
         evaluation = exists(db, Evaluation, row.evaluation_id)
         integrity = "PASS" if digest(evaluation.snapshot_json) == fingerprint else "INCOMPLETE"
+        from app.compliance import calculation_replay
+
+        execution, captured = calculation_replay.capture(db, evaluation)
+        if execution:
+            integrity = (
+                "PASS"
+                if integrity == "PASS" and calculation_replay.integrity(execution, captured)
+                else "FAIL"
+            )
     if requested.replay_kind == "RECOMPUTE_CAPTURED_INPUTS":
         if engine != requested.expected_engine_version:
             outcome = "UNSUPPORTED_ENGINE"
         elif integrity != "PASS":
             outcome = "INCOMPLETE_INPUTS"
+        elif requested.subject_type == "DISPATCH_AUTHORISATION":
+            outcome, differences = calculation_replay.recompute(db, evaluation)
+            limitations.append(
+                "Captured compliance replay assesses no current dispatch readiness; "
+                "private difference values are withheld."
+            )
         elif requested.subject_type != "TRADETWIN_RUN":
             outcome = "UNSUPPORTED_ENGINE"
             limitations.append(

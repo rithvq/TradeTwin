@@ -88,6 +88,21 @@ def get(context, path):
     return None if value in ("UNKNOWN", "NOT_PROVIDED") else value
 
 
+def dependencies(*expressions):
+    """Walk all branches of validated predicates, not just the branch evaluated as true."""
+    paths = set()
+
+    def walk(node):
+        if node["op"] == "field":
+            paths.add(node["path"])
+        for child in node.get("args", []):
+            walk(child)
+
+    for expression in expressions:
+        walk(validate(expression))
+    return sorted(paths)
+
+
 def typed(value, kind):
     if value is None:
         return None

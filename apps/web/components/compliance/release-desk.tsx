@@ -35,6 +35,7 @@ import { PrepareFacts, LoadingManifest } from "./prepare-facts";
 import { EvidenceBindings } from "./evidence-bindings";
 import { PrivateTurnover } from "./private-turnover";
 import { TransportEvidenceDesk } from "./transport-evidence";
+import { ComputationTrace } from "./computation-trace";
 import {
   ComplianceEvidenceGraph,
   type EvidenceGraphData,
@@ -453,6 +454,7 @@ export function EvaluationView({
   const [warnings, setWarnings] = useState<string[]>([]);
   return (
     <Section name="Versioned requirements">
+      <ComputationTrace key={e.id + e.job_state} evaluationId={e.id} />
       <Facts
         values={{
           decision: e.decision,

@@ -3886,6 +3886,125 @@
         ]
       }
     },
+    "/api/v1/compliance-evaluations/{ident}/computation-trace": {
+      "get": {
+        "tags": [
+          "Commercial agreements",
+          "Compliance and guarded dispatch - Phase 4"
+        ],
+        "summary": "Computation Trace",
+        "operationId": "computation_trace_api_v1_compliance_evaluations__ident__computation_trace_get",
+        "parameters": [
+          {
+            "name": "ident",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Ident"
+            }
+          },
+          {
+            "name": "X-Organization-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Required for organisation-scoped resources; server validates active membership."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComputationTraceView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Field validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not accessible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Revision mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary database failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProfileSession": []
+          }
+        ]
+      }
+    },
     "/api/v1/consignments/{ident}/dispatch-readiness": {
       "get": {
         "tags": [
@@ -6352,6 +6471,153 @@
           "reason"
         ],
         "title": "CaseActionInput"
+      },
+      "ComputationRuleView": {
+        "properties": {
+          "rule_code": {
+            "type": "string",
+            "title": "Rule Code"
+          },
+          "disposition": {
+            "type": "string",
+            "enum": [
+              "REUSED",
+              "RECOMPUTED"
+            ],
+            "title": "Disposition"
+          },
+          "reason_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reason Codes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "rule_code",
+          "disposition",
+          "reason_codes"
+        ],
+        "title": "ComputationRuleView"
+      },
+      "ComputationTraceView": {
+        "properties": {
+          "evaluation_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Evaluation Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "RECORDED",
+              "NOT_RECORDED"
+            ],
+            "title": "Status"
+          },
+          "strategy": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "FULL",
+                  "SHADOW",
+                  "INCREMENTAL"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Strategy"
+          },
+          "authoritative_strategy": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "FULL",
+                  "INCREMENTAL"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Authoritative Strategy"
+          },
+          "rules_total": {
+            "type": "integer",
+            "title": "Rules Total"
+          },
+          "rules_recomputed": {
+            "type": "integer",
+            "title": "Rules Recomputed"
+          },
+          "rules_reused": {
+            "type": "integer",
+            "title": "Rules Reused"
+          },
+          "shadow_rules_reused": {
+            "type": "integer",
+            "title": "Shadow Rules Reused"
+          },
+          "shadow_equivalent": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shadow Equivalent"
+          },
+          "invalidation_reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Invalidation Reasons"
+          },
+          "rules": {
+            "items": {
+              "$ref": "#/components/schemas/ComputationRuleView"
+            },
+            "type": "array",
+            "title": "Rules"
+          },
+          "permission_reused": {
+            "type": "boolean",
+            "const": false,
+            "title": "Permission Reused"
+          },
+          "notice": {
+            "type": "string",
+            "title": "Notice"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "evaluation_id",
+          "status",
+          "strategy",
+          "authoritative_strategy",
+          "rules_total",
+          "rules_recomputed",
+          "rules_reused",
+          "shadow_rules_reused",
+          "shadow_equivalent",
+          "invalidation_reasons",
+          "rules",
+          "permission_reused",
+          "notice"
+        ],
+        "title": "ComputationTraceView"
       },
       "ConflictInput": {
         "properties": {

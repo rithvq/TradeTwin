@@ -24,6 +24,7 @@ from app.compliance.schemas_facts import (  # noqa: E402
 )
 from app.compliance.schemas_rules import PackInput, SourceInput  # noqa: E402
 from app.compliance.schemas_views import (  # noqa: E402
+    ComputationTraceView,
     ConstraintView,
     EvidenceManifestView,
     ReadinessView,
@@ -62,6 +63,7 @@ def main():
         "COMPLIANCE_CONSTRAINTS_V1": ConstraintView,
         "PH4_EVIDENCE_MANIFEST_V1": EvidenceManifestView,
         "PH4_READINESS_V1": ReadinessView,
+        "COMPLIANCE_COMPUTATION_TRACE_V1": ComputationTraceView,
     }.items():
         value = model.model_json_schema(mode="serialization", by_alias=True)
         value["$schema"] = "https://json-schema.org/draft/2020-12/schema"
@@ -272,6 +274,15 @@ def main():
     )
     add(
         "Release chain",
+        "Explain rule reuse without carrying release approval",
+        "GET",
+        "/compliance-evaluations/{{evaluation_id}}/computation-trace",
+        capture=[
+            "pm.test('No permission reused',()=>pm.expect(r.permission_reused).to.equal(false));"
+        ],
+    )
+    add(
+        "Release chain",
         "Independent release decision",
         "POST",
         "/compliance-evaluations/{{evaluation_id}}/review-decisions",
@@ -435,7 +446,7 @@ def main():
         json.dumps(environment, indent=2) + "\n"
     )
     print(
-        f"Exported {len(schema['paths'])} paths, 14 schemas and a local, credential-free collection"
+        f"Exported {len(schema['paths'])} paths, 15 schemas and a local, credential-free collection"
     )
 
 

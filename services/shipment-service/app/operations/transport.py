@@ -173,7 +173,7 @@ def decide(db, ctx, ident, payload, freight_selection_id=None):
     from app.freight.commitments import guard_manual_change
     from app.freight.models import SelectionHead
 
-    if inspect(db.get_bind()).has_table(SelectionHead.__tablename__):
+    if inspect(db.connection()).has_table(SelectionHead.__tablename__):
         linked = db.scalar(
             select(SelectionHead).where(SelectionHead.proposed_assignment_id == assignment.id)
         )

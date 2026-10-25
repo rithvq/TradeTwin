@@ -99,6 +99,8 @@ def exercise(fx, tokens):
                 json=data,
             )
             assert response.status_code in {200, 201, 202}, response.text()
+            if path.endswith("/computation-trace"):
+                assert "no-store" in response.headers["cache-control"].split(", ")
             return response.json()
 
         def wait(action):
@@ -120,7 +122,13 @@ def exercise(fx, tokens):
                 {"action": action, "expected_context_version": ctx["context_version"]},
                 etag=ctx["etag"],
             )
-            return wait(action)
+            state = wait(action)
+            trace = request(
+                "GET", f"/compliance-evaluations/{state['evaluation']['id']}/computation-trace"
+            )
+            assert trace["status"] == "RECORDED" and not trace["permission_reused"]
+            assert trace["rules_recomputed"] + trace["rules_reused"] == trace["rules_total"]
+            return state
 
         ctx = request("GET", f"/consignments/{cn_id}/compliance-context")
         request("GET", f"/trades/{trade_id}/document-assessment-summary")
@@ -226,6 +234,18 @@ def exercise(fx, tokens):
                 "button", name="Departure" if action == "DEPARTED" else "Pickup", exact=True
             ).click()
             release = section("Versioned requirements")
+            release.get_by_text("How checks were calculated", exact=True).click()
+            expect(release.get_by_text("recalculated", exact=False).first).to_be_visible()
+            expect(
+                release.get_by_text("requires its own release workflow", exact=False)
+            ).to_be_visible()
+            trace_panel = release.locator("details").filter(
+                has=page.get_by_text("How checks were calculated", exact=True)
+            )
+            for width in (1440, 390):
+                page.set_viewport_size({"width": width, "height": 900})
+                assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+                trace_panel.screenshot(path=str(OUTPUT / f"computation-{action}-{width}.png"))
             expect(
                 release.get_by_role("button", name="Approve platform release", exact=True)
             ).to_be_visible()

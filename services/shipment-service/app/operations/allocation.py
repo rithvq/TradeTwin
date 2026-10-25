@@ -241,7 +241,7 @@ def transition(db, ctx, ident, payload, cancel=False):
 
         from app.freight.commitments import abort_service
 
-        if inspect(db.get_bind()).has_table("freight_commitments"):
+        if inspect(db.connection()).has_table("freight_commitments"):
             abort_service(db, ctx, row)
         row.planning_status = "CANCELLED"
         release(db, row, "CANCELLED")

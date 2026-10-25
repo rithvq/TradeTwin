@@ -730,7 +730,7 @@ def cancel_commitment(db, ctx, ident, payload):
 def guard_manual_change(db, cn):
     from sqlalchemy import inspect
 
-    if not inspect(db.get_bind()).has_table(SelectionHead.__tablename__):
+    if not inspect(db.connection()).has_table(SelectionHead.__tablename__):
         return
     head = db.scalar(select(SelectionHead).where(SelectionHead.consignment_id == cn.id))
     if head and head.current_commitment_id:
@@ -757,7 +757,7 @@ def abort_service(db, ctx, cn):
 def phase4_dependency(db, cn):
     from sqlalchemy import inspect
 
-    if not inspect(db.get_bind()).has_table(PlanHead.__tablename__):
+    if not inspect(db.connection()).has_table(PlanHead.__tablename__):
         return None
     head = db.scalar(select(PlanHead).where(PlanHead.consignment_id == cn.id))
     if not head or not head.current_revision_id:

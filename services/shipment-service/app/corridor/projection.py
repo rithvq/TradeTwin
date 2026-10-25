@@ -33,7 +33,7 @@ def plan(db, cn):
 
 def capture(db, trade, cn, route=None, at=None):
     at = at or instant(db)
-    if not inspect(db.get_bind()).has_table(Incident.__tablename__):
+    if not inspect(db.connection()).has_table(Incident.__tablename__):
         return None
     mode = trade.execution_mode
     current = plan(db, cn) if route is None else None
@@ -210,15 +210,16 @@ def capture(db, trade, cn, route=None, at=None):
     }
 
 
-def dependency(db, trade, cn):
-    captured = capture(db, trade, cn)
+def dependency(db, trade, cn, at=None):
+    at = at or instant(db)
+    captured = capture(db, trade, cn, at=at)
     if captured is None:
         return None
     # The clock itself is not hashed. Trusted-time state/health changes are.
     from .impact import evaluate_plan
 
     current = plan(db, cn)
-    result = evaluate_plan(db, current, captured) if current else None
+    result = evaluate_plan(db, current, captured, at=at) if current else None
     return {
         "projection_hash": captured["projection_hash"],
         "scope_epochs": captured["scope_epochs"],

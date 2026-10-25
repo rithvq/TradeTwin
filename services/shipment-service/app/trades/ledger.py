@@ -41,7 +41,7 @@ def audit(
 ):
     from .context_locks import invalidate
 
-    invalidate(db, trade, action, summary or {})
+    invalidate(db, trade, action, summary or {}, subject=subject, document=document)
 
     def redact(value):
         if isinstance(value, dict):

@@ -25,8 +25,9 @@ override those outcomes to activate a pilot.
   authenticated user and exact task basis. Changed bases invalidate prior state;
   blockers cannot be snoozed. Targets are allowlisted local routes.
 - Replay supports recorded runs, freight commitments, dispatch authorisations and
-  recovery assessments. Exact captured-input recomputation is registered only for
-  TradeTwin baseline runs with a matching source/dependency engine manifest.
+  recovery assessments. Exact captured-input recomputation is registered for
+  TradeTwin baseline runs and newly captured guarded-dispatch evaluations with a
+  matching source/dependency engine manifest. See [selective compliance](selective-compliance.md).
   Older/different engines return `UNSUPPORTED_ENGINE`. Missing inputs are not repaired
   with current-world data. Replay never issues movement permissions or commits plans.
 - Replay/export jobs reuse the existing outbox, expiring leases and worker. Access is

@@ -103,7 +103,7 @@ def inherited(db, trade, cn):
     }
 
 
-def dependency_snapshot(db, trade, cn, registry_manifest):
+def dependency_snapshot(db, trade, cn, registry_manifest, assessment_time=None):
     from app.freight.commitments import phase4_dependency
     from app.product.fence import dependency as operational_dependency
 
@@ -129,7 +129,7 @@ def dependency_snapshot(db, trade, cn, registry_manifest):
         "schema_version": "PH4_DEPENDENCIES_V1",
         "operational_deployment": operational_dependency(db),
         "committed_route_plan": phase4_dependency(db, cn),
-        "corridor_intelligence": corridor_dependency(db, trade, cn),
+        "corridor_intelligence": corridor_dependency(db, trade, cn, assessment_time),
         "recipient_confirmation": recipient_state(db, cn),
         "inherited": inherited(db, trade, cn),
         "context_version": version(db, trade.id),
@@ -290,10 +290,10 @@ def dependency_snapshot(db, trade, cn, registry_manifest):
     return value, digest(value)
 
 
-def corridor_dependency(db, trade, cn):
+def corridor_dependency(db, trade, cn, at=None):
     from app.corridor.projection import dependency
 
-    return dependency(db, trade, cn)
+    return dependency(db, trade, cn, at=at)
 
 
 def recipient_state(db, cn):

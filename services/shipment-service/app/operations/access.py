@@ -78,7 +78,7 @@ def consignment(db, ctx, ident, permission="consignment.read", side=None, lock=F
             "attachment.upload",
             "transport.evidence.prepare",
             "transport.evidence.review",
-        } and inspect(db.get_bind()).has_table("freight_rfqs"):
+        } and inspect(db.connection()).has_table("freight_rfqs"):
             from app.freight.access import invited_scope
 
             if invited_scope(db, ctx, row, permission):

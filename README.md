@@ -1,5 +1,7 @@
 # TradeTwin
 
+Selective guarded-dispatch calculations: [dependency tracking, computation trace, replay and safe rollout](docs/selective-compliance.md).
+
 Guarded dispatch Phase 4: [scope, review, encrypted evidence, migration, demo and contracts](docs/guarded-dispatch-phase4.md).
 
 Document evidence Phase 3: [Document Desk setup, permissions, processing, verification, demo and tests](docs/document-desk-phase3.md).

@@ -50,7 +50,9 @@ def registry_lock(db, exclusive=False):
 
 def phase4_installed(db):
     if "phase4_installed" not in db.info:
-        db.info["phase4_installed"] = inspect(db.get_bind()).has_table("trade_compliance_contexts")
+        db.info["phase4_installed"] = inspect(db.connection()).has_table(
+            "trade_compliance_contexts"
+        )
     return db.info["phase4_installed"]
 
 
@@ -78,7 +80,10 @@ def bump_context(db, trade_id, code):
     )
 
 
-def invalidate(db, trade, action, summary):
+def invalidate(db, trade, action, summary, subject=None, document=None):
+    from app.compliance.scope_epochs import on_change
+
+    on_change(db, trade, action, subject, document)
     if not trade or db.info.get("defer_compliance_context"):
         return
     accepted = "ACCEPTED" in action and any(
