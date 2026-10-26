@@ -28,6 +28,7 @@ import { CorridorRegistryDesk } from "@/components/corridor/registry";
 import { JourneyOverview } from "@/components/product/journey";
 import { AssuranceDesk } from "@/components/product/assurance";
 import { GuidedDemo } from "@/components/product/demo";
+import type { DispatchAction } from "@/lib/guarded-dispatch";
 
 const modules = [
   "Shipments",
@@ -477,6 +478,20 @@ function ComplianceAccess({
   module: string;
 }) {
   const { me, org } = useTradeContext();
+  const [initialAction, setInitialAction] = useState<DispatchAction>();
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const action = params.get("dispatch_action");
+    if (
+      params.get("consignment") === cn.id &&
+      (action === "PICKUP_CONFIRMED" || action === "DEPARTED")
+    ) {
+      setInitialAction(action);
+      document
+        .getElementById(`dispatch-${cn.id}`)
+        ?.scrollIntoView?.({ block: "start" });
+    }
+  }, [cn.id]);
   const granted = me.memberships
     .find((m) => m.organization_id === org)
     ?.permissions.some(
@@ -484,7 +499,16 @@ function ComplianceAccess({
         p.permission_code === "compliance.read" &&
         (!p.trade_id || p.trade_id === cn.trade_id),
     );
-  return granted ? <ReleaseDesk cn={cn} module={module} /> : null;
+  return granted ? (
+    <div id={`dispatch-${cn.id}`} className="scroll-mt-24">
+      <ReleaseDesk
+        key={initialAction ?? "default"}
+        cn={cn}
+        module={module}
+        initialAction={initialAction}
+      />
+    </div>
+  ) : null;
 }
 function ReadinessBadge({ cn }: { cn: Operations["consignments"][number] }) {
   const { me, org } = useTradeContext();

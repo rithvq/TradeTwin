@@ -246,6 +246,9 @@ def execute(db, ctx, row, snapshot, rules, at):
 
 
 def retain(db, ctx, evaluation, bundle, at):
+    from .evidence_changes import retain as retain_change_baseline
+
+    retain_change_baseline(db, ctx, evaluation, bundle)
     requirements = {
         r.rule_id: r
         for r in db.scalars(select(Requirement).where(Requirement.evaluation_id == evaluation.id))

@@ -2,24 +2,11 @@
 
 import { useOperationsResource } from "@/hooks/use-operations";
 import { useTradeContext } from "@/components/trades/trade-context";
-
-type Trace = {
-  status: "RECORDED" | "NOT_RECORDED";
-  strategy: string | null;
-  authoritative_strategy: string | null;
-  rules_total: number;
-  rules_recomputed: number;
-  rules_reused: number;
-  shadow_rules_reused: number;
-  shadow_equivalent: boolean | null;
-  invalidation_reasons: string[];
-  rules: { rule_code: string; disposition: string; reason_codes: string[] }[];
-  notice: string;
-};
+import type { ComputationTraceData } from "@/lib/computation-trace";
 
 export function ComputationTrace({ evaluationId }: { evaluationId: string }) {
   const { org } = useTradeContext();
-  const resource = useOperationsResource<Trace>(
+  const resource = useOperationsResource<ComputationTraceData>(
     `/compliance-evaluations/${evaluationId}/computation-trace`,
     org,
   );
@@ -38,47 +25,74 @@ export function ComputationTrace({ evaluationId }: { evaluationId: string }) {
           Loading calculation details…
         </p>
       ) : (
-        <div className="mt-3 space-y-3 text-sm">
-          {trace.status === "RECORDED" && (
-            <>
-              <p>
-                <strong>{trace.rules_recomputed} recalculated</strong> ·{" "}
-                <strong>{trace.rules_reused} reused</strong> ·{" "}
-                {trace.rules_total} checks
-              </p>
-              <p className="text-secondary">
-                Strategy: {trace.strategy}. Authoritative result:{" "}
-                {trace.authoritative_strategy}.
-              </p>
-              {trace.strategy === "SHADOW" && (
-                <p>
-                  Shadow comparison:{" "}
-                  {trace.shadow_equivalent ? "equivalent" : "mismatch"};{" "}
-                  {trace.shadow_rules_reused} calculations eligible for reuse.
-                  Full evaluation remains authoritative.
-                </p>
-              )}
-              {!!trace.invalidation_reasons.length && (
-                <p>
-                  Reasons: {trace.invalidation_reasons.map(humanise).join(", ")}
-                  .
-                </p>
-              )}
-              <ul className="space-y-1">
-                {trace.rules.map((rule) => (
-                  <li key={rule.rule_code}>
-                    <strong>{humanise(rule.rule_code)}</strong>:{" "}
-                    {humanise(rule.disposition)} (
-                    {rule.reason_codes.map(humanise).join(", ")})
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
-          <p className="font-medium text-primary">{trace.notice}</p>
-        </div>
+        <ComputationTraceDetails trace={trace} />
       )}
     </details>
+  );
+}
+
+export function ComputationTraceDetails({
+  trace,
+  compactRules = false,
+}: {
+  trace: ComputationTraceData;
+  compactRules?: boolean;
+}) {
+  return (
+    <div className="mt-3 space-y-3 text-sm">
+      {trace.status === "NOT_RECORDED" && <p>Detail not recorded.</p>}
+      {trace.status === "RECORDED" && (
+        <>
+          <p>
+            <strong>{trace.rules_recomputed} recalculated</strong> ·{" "}
+            <strong>{trace.rules_reused} reused</strong> · {trace.rules_total}{" "}
+            checks
+          </p>
+          <p className="text-secondary">
+            Strategy: {trace.strategy}. Authoritative result:{" "}
+            {trace.authoritative_strategy}.
+          </p>
+          {trace.strategy === "SHADOW" && (
+            <p>
+              Shadow comparison:{" "}
+              {trace.shadow_equivalent ? "equivalent" : "mismatch"};{" "}
+              {trace.shadow_rules_reused} calculations eligible for reuse. Full
+              evaluation remains authoritative.
+            </p>
+          )}
+          {!!trace.invalidation_reasons.length && (
+            <p>
+              Reasons: {trace.invalidation_reasons.map(humanise).join(", ")}.
+            </p>
+          )}
+          {compactRules ? (
+            <details>
+              <summary className="cursor-pointer font-medium">
+                Per-rule reasons ({trace.rules_total})
+              </summary>
+              <RuleReasons rules={trace.rules} />
+            </details>
+          ) : (
+            <RuleReasons rules={trace.rules} />
+          )}
+        </>
+      )}
+      <p className="font-medium text-primary">{trace.notice}</p>
+    </div>
+  );
+}
+
+function RuleReasons({ rules }: { rules: ComputationTraceData["rules"] }) {
+  return (
+    <ul className="mt-2 space-y-1">
+      {rules.map((rule) => (
+        <li key={rule.rule_code}>
+          <strong>{humanise(rule.rule_code)}</strong>:{" "}
+          {humanise(rule.disposition)} (
+          {rule.reason_codes.map(humanise).join(", ")})
+        </li>
+      ))}
+    </ul>
   );
 }
 

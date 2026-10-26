@@ -1,5 +1,9 @@
 # TradeTwin API Reference
 
+Live organization-scoped dispatch projections: `GET /api/v1/dispatch-dashboard` and
+`GET /api/v1/consignments/{id}/dispatch-journey?action=PICKUP_CONFIRMED|DEPARTED`.
+See [the dispatch dashboard contract and access rules](dispatch-dashboard.md).
+
 The current commercial Phase 4 workflow uses OAuth organisation-scoped requests.
 The older demo tokens below cannot authorise its movement gate. See the
 [Phase 4 contracts](guarded-dispatch-phase4.md#apis-and-contracts) and

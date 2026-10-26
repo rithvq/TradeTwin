@@ -35,6 +35,7 @@ from .models import (
     TransportEvidence,
     Turnover,
 )
+from .schemas_dashboard import DispatchDashboardView, DispatchJourneyView
 from .schemas_dispatch import (
     Acknowledge,
     AuthorizationInput,
@@ -70,6 +71,34 @@ from .schemas_rules import (
 from .schemas_views import ComputationTraceView, ConstraintView, EvidenceManifestView, ReadinessView
 
 router = APIRouter(tags=["Compliance and guarded dispatch - Phase 4"])
+
+
+@router.get("/dispatch-dashboard", response_model=DispatchDashboardView)
+def dispatch_dashboard(
+    request: Request,
+    response: Response,
+    cursor: UUID | None = None,
+    limit: int = Query(20, ge=1, le=50),
+    db: Session = Depends(get_db),
+):
+    from .dashboard import listing
+
+    response.headers["Cache-Control"] = "private, no-store"
+    return listing(db, actor_context(request, db), str(cursor) if cursor else None, limit)
+
+
+@router.get("/consignments/{ident}/dispatch-journey", response_model=DispatchJourneyView)
+def dispatch_journey(
+    ident: UUID,
+    request: Request,
+    response: Response,
+    action: Action = "PICKUP_CONFIRMED",
+    db: Session = Depends(get_db),
+):
+    from .dashboard import journey
+
+    response.headers["Cache-Control"] = "private, no-store"
+    return journey(db, actor_context(request, db), str(ident), action)
 
 
 def authorize(db, ctx, resource, ident, permission, seller=False):

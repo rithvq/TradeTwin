@@ -147,7 +147,7 @@ class ProfileMiddleware(BaseHTTPMiddleware):
         credential_token = credential.set(token)
         try:
             response = await call_next(request)
-            response.headers["Cache-Control"] = "no-store"
+            response.headers["Cache-Control"] = "private, no-store"
             return response
         finally:
             identity.reset(identity_token)

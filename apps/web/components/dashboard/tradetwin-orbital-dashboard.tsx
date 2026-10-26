@@ -11,6 +11,7 @@ import {
 } from "react";
 
 import { DashboardSummary } from "@/components/dashboard/dashboard-summary";
+import { DispatchOverview } from "@/components/dashboard/dispatch-overview";
 import { MobileModuleGrid } from "@/components/dashboard/mobile-module-grid";
 import {
   OrbitalModuleCard,
@@ -271,6 +272,7 @@ export function TradeTwinOrbitalDashboard({
       </section>
 
       <DashboardSummary summary={summary} />
+      <DispatchOverview />
     </main>
   );
 }

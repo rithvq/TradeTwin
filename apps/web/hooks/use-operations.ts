@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { tradeRequest, TradeApiError } from "@/lib/trades";
+import { announceOperationalChange } from "@/lib/dispatch-dashboard";
 
 export function useOperationsResource<T>(path: string, org: string) {
   const [data, setData] = useState<T | null>(null);
@@ -56,10 +57,12 @@ export function useOperationalMutation(
     try {
       const result = await tradeRequest<T>(path, org, method, body, etag, key);
       requests.current.delete(fingerprint);
+      announceOperationalChange();
       setSaved("Recorded");
       await reload();
       return result;
     } catch (problem) {
+      if (path.endsWith("/events")) announceOperationalChange();
       setError(
         problem instanceof TradeApiError
           ? problem

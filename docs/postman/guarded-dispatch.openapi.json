@@ -278,6 +278,277 @@
         ]
       }
     },
+    "/api/v1/dispatch-dashboard": {
+      "get": {
+        "tags": [
+          "Commercial agreements",
+          "Compliance and guarded dispatch - Phase 4"
+        ],
+        "summary": "Dispatch Dashboard",
+        "operationId": "dispatch_dashboard_api_v1_dispatch_dashboard_get",
+        "parameters": [
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "X-Organization-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Required for organisation-scoped resources; server validates active membership."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DispatchDashboardView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Field validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not accessible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Revision mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary database failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProfileSession": []
+          }
+        ]
+      }
+    },
+    "/api/v1/consignments/{ident}/dispatch-journey": {
+      "get": {
+        "tags": [
+          "Commercial agreements",
+          "Compliance and guarded dispatch - Phase 4"
+        ],
+        "summary": "Dispatch Journey",
+        "operationId": "dispatch_journey_api_v1_consignments__ident__dispatch_journey_get",
+        "parameters": [
+          {
+            "name": "ident",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Ident"
+            }
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "PICKUP_CONFIRMED",
+                "DEPARTED"
+              ],
+              "type": "string",
+              "default": "PICKUP_CONFIRMED",
+              "title": "Action"
+            }
+          },
+          {
+            "name": "X-Organization-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Required for organisation-scoped resources; server validates active membership."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DispatchJourneyView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Field validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not accessible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Revision mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary database failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProfileSession": []
+          }
+        ]
+      }
+    },
     "/api/v1/consignments/{ident}/compliance-context": {
       "get": {
         "tags": [
@@ -6345,6 +6616,45 @@
         ],
         "title": "AuthorizationInput"
       },
+      "BindingItem": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "reference": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reference"
+          },
+          "reason_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reason Codes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "label",
+          "status",
+          "reference",
+          "reason_codes"
+        ],
+        "title": "BindingItem"
+      },
       "BindingPrepare": {
         "properties": {
           "expected_context_version": {
@@ -6980,6 +7290,458 @@
         ],
         "title": "DeclarationReview"
       },
+      "DispatchAlert": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "severity": {
+            "type": "string",
+            "title": "Severity"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "severity"
+        ],
+        "title": "DispatchAlert"
+      },
+      "DispatchCounts": {
+        "properties": {
+          "ready_to_move": {
+            "type": "integer",
+            "title": "Ready To Move"
+          },
+          "awaiting_evidence_or_review": {
+            "type": "integer",
+            "title": "Awaiting Evidence Or Review"
+          },
+          "expiring_soon": {
+            "type": "integer",
+            "title": "Expiring Soon"
+          },
+          "blocked": {
+            "type": "integer",
+            "title": "Blocked"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ready_to_move",
+          "awaiting_evidence_or_review",
+          "expiring_soon",
+          "blocked"
+        ],
+        "title": "DispatchCounts"
+      },
+      "DispatchDashboardView": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "DISPATCH_DASHBOARD_V1",
+            "title": "Schema Version"
+          },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Organization Id"
+          },
+          "checked_at": {
+            "type": "string",
+            "title": "Checked At"
+          },
+          "counts": {
+            "$ref": "#/components/schemas/DispatchCounts"
+          },
+          "counts_scope": {
+            "type": "string",
+            "const": "ALL_AUTHORIZED_CONSIGNMENTS",
+            "title": "Counts Scope"
+          },
+          "expiring_within_seconds": {
+            "type": "integer",
+            "title": "Expiring Within Seconds"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/DispatchRow"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "schema_version",
+          "organization_id",
+          "checked_at",
+          "counts",
+          "counts_scope",
+          "expiring_within_seconds",
+          "total",
+          "items",
+          "next_cursor"
+        ],
+        "title": "DispatchDashboardView"
+      },
+      "DispatchJourneyView": {
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "const": "DISPATCH_JOURNEY_V1",
+            "title": "Schema Version"
+          },
+          "consignment_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Consignment Id"
+          },
+          "reference": {
+            "type": "string",
+            "title": "Reference"
+          },
+          "trade_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Trade Id"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "PICKUP_CONFIRMED",
+              "DEPARTED"
+            ],
+            "title": "Action"
+          },
+          "execution_mode": {
+            "type": "string",
+            "enum": [
+              "SIMULATION",
+              "PRODUCTION"
+            ],
+            "title": "Execution Mode"
+          },
+          "checked_at": {
+            "type": "string",
+            "title": "Checked At"
+          },
+          "readiness_state": {
+            "type": "string",
+            "title": "Readiness State"
+          },
+          "historical": {
+            "type": "boolean",
+            "title": "Historical"
+          },
+          "links": {
+            "items": {
+              "$ref": "#/components/schemas/DispatchLink"
+            },
+            "type": "array",
+            "title": "Links"
+          },
+          "stages": {
+            "items": {
+              "$ref": "#/components/schemas/DispatchStage"
+            },
+            "type": "array",
+            "title": "Stages"
+          },
+          "evidence_changes": {
+            "$ref": "#/components/schemas/EvidenceChangesView"
+          },
+          "calculation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ComputationTraceView"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "binding": {
+            "$ref": "#/components/schemas/ExactBindingView"
+          },
+          "validity": {
+            "$ref": "#/components/schemas/WindowView"
+          },
+          "post_dispatch_alerts": {
+            "items": {
+              "$ref": "#/components/schemas/DispatchAlert"
+            },
+            "type": "array",
+            "title": "Post Dispatch Alerts"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "schema_version",
+          "consignment_id",
+          "reference",
+          "trade_id",
+          "action",
+          "execution_mode",
+          "checked_at",
+          "readiness_state",
+          "historical",
+          "links",
+          "stages",
+          "evidence_changes",
+          "calculation",
+          "binding",
+          "validity",
+          "post_dispatch_alerts"
+        ],
+        "title": "DispatchJourneyView"
+      },
+      "DispatchLink": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "href": {
+            "type": "string",
+            "title": "Href"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "label",
+          "href"
+        ],
+        "title": "DispatchLink"
+      },
+      "DispatchRow": {
+        "properties": {
+          "consignment_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Consignment Id"
+          },
+          "reference": {
+            "type": "string",
+            "title": "Reference"
+          },
+          "trade_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Trade Id"
+          },
+          "trade_reference": {
+            "type": "string",
+            "title": "Trade Reference"
+          },
+          "execution_mode": {
+            "type": "string",
+            "enum": [
+              "SIMULATION",
+              "PRODUCTION"
+            ],
+            "title": "Execution Mode"
+          },
+          "movement_status": {
+            "type": "string",
+            "title": "Movement Status"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "PICKUP_CONFIRMED",
+              "DEPARTED"
+            ],
+            "title": "Action"
+          },
+          "state": {
+            "type": "string",
+            "title": "State"
+          },
+          "readiness_state": {
+            "type": "string",
+            "title": "Readiness State"
+          },
+          "current_stage": {
+            "type": "string",
+            "title": "Current Stage"
+          },
+          "reason_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reason Codes"
+          },
+          "expiring_soon": {
+            "type": "boolean",
+            "title": "Expiring Soon"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "checked_at": {
+            "type": "string",
+            "title": "Checked At"
+          },
+          "links": {
+            "items": {
+              "$ref": "#/components/schemas/DispatchLink"
+            },
+            "type": "array",
+            "title": "Links"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "consignment_id",
+          "reference",
+          "trade_id",
+          "trade_reference",
+          "execution_mode",
+          "movement_status",
+          "action",
+          "state",
+          "readiness_state",
+          "current_stage",
+          "reason_codes",
+          "expiring_soon",
+          "expires_at",
+          "checked_at",
+          "links"
+        ],
+        "title": "DispatchRow"
+      },
+      "DispatchStage": {
+        "properties": {
+          "number": {
+            "type": "integer",
+            "title": "Number"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "facts": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Facts"
+          },
+          "reason_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reason Codes"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/DispatchStageItem"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "number",
+          "name",
+          "status",
+          "facts",
+          "reason_codes",
+          "items"
+        ],
+        "title": "DispatchStage"
+      },
+      "DispatchStageItem": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "reason_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reason Codes"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "label",
+          "status",
+          "reason_codes"
+        ],
+        "title": "DispatchStageItem"
+      },
       "DocumentReference": {
         "properties": {
           "document_id": {
@@ -7182,6 +7944,46 @@
         ],
         "title": "EvidenceBindings"
       },
+      "EvidenceChangesView": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "detail_status": {
+            "type": "string",
+            "title": "Detail Status"
+          },
+          "reason_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reason Codes"
+          },
+          "transitions": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceTransition"
+            },
+            "type": "array",
+            "title": "Transitions"
+          },
+          "notice": {
+            "type": "string",
+            "title": "Notice"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "status",
+          "detail_status",
+          "reason_codes",
+          "transitions",
+          "notice"
+        ],
+        "title": "EvidenceChangesView"
+      },
       "EvidenceManifestView": {
         "properties": {
           "schema": {
@@ -7372,6 +8174,64 @@
           "graph"
         ],
         "title": "EvidenceManifestView"
+      },
+      "EvidenceTransition": {
+        "properties": {
+          "document_type": {
+            "type": "string",
+            "title": "Document Type"
+          },
+          "basis": {
+            "type": "string",
+            "title": "Basis"
+          },
+          "code": {
+            "type": "string",
+            "title": "Code"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document_type",
+          "basis",
+          "code"
+        ],
+        "title": "EvidenceTransition"
+      },
+      "ExactBindingView": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/BindingItem"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "manifest_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Path"
+          },
+          "notice": {
+            "type": "string",
+            "title": "Notice"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "items",
+          "manifest_path",
+          "notice"
+        ],
+        "title": "ExactBindingView"
       },
       "FactPrepare": {
         "properties": {
@@ -9545,6 +10405,117 @@
           "provenance"
         ],
         "title": "TurnoverYear"
+      },
+      "WindowInput": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "at": {
+            "type": "string",
+            "title": "At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "at"
+        ],
+        "title": "WindowInput"
+      },
+      "WindowView": {
+        "properties": {
+          "detail_status": {
+            "type": "string",
+            "title": "Detail Status"
+          },
+          "notice": {
+            "type": "string",
+            "title": "Notice"
+          },
+          "schema_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Schema Version"
+          },
+          "valid_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid From"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "start_inputs": {
+            "items": {
+              "$ref": "#/components/schemas/WindowInput"
+            },
+            "type": "array",
+            "title": "Start Inputs",
+            "default": []
+          },
+          "expiry_inputs": {
+            "items": {
+              "$ref": "#/components/schemas/WindowInput"
+            },
+            "type": "array",
+            "title": "Expiry Inputs",
+            "default": []
+          },
+          "start_limited_by": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Start Limited By",
+            "default": []
+          },
+          "expiry_limited_by": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Expiry Limited By",
+            "default": []
+          },
+          "evaluation_deadlines": {
+            "items": {
+              "$ref": "#/components/schemas/WindowInput"
+            },
+            "type": "array",
+            "title": "Evaluation Deadlines",
+            "default": []
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "detail_status",
+          "notice"
+        ],
+        "title": "WindowView"
       },
       "app__compliance__schemas_dispatch__Reason": {
         "properties": {

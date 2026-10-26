@@ -13,6 +13,10 @@ spec = importlib.util.spec_from_file_location(
 )
 commercial = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(commercial)
+from app.compliance.schemas_dashboard import (  # noqa: E402
+    DispatchDashboardView,
+    DispatchJourneyView,
+)
 from app.compliance.schemas_dispatch import AuthorizationInput, PacketPrepare  # noqa: E402
 from app.compliance.schemas_facts import (  # noqa: E402
     EvidenceBindings,
@@ -64,6 +68,8 @@ def main():
         "PH4_EVIDENCE_MANIFEST_V1": EvidenceManifestView,
         "PH4_READINESS_V1": ReadinessView,
         "COMPLIANCE_COMPUTATION_TRACE_V1": ComputationTraceView,
+        "DISPATCH_DASHBOARD_V1": DispatchDashboardView,
+        "DISPATCH_JOURNEY_V1": DispatchJourneyView,
     }.items():
         value = model.model_json_schema(mode="serialization", by_alias=True)
         value["$schema"] = "https://json-schema.org/draft/2020-12/schema"
@@ -157,6 +163,14 @@ def main():
         )
 
     base = "/consignments/{{consignment_id}}"
+    add("Read-only smoke", "Live organisation dispatch overview", "GET", "/dispatch-dashboard")
+    add(
+        "Read-only smoke",
+        "Separate seven-step dispatch journey",
+        "GET",
+        base + "/dispatch-journey?action={{action}}",
+        capture=["pm.test('Seven read-only stages',()=>pm.expect(r.stages.length).to.equal(7));"],
+    )
     add(
         "Read-only smoke",
         "Role-filtered current context",
@@ -446,7 +460,7 @@ def main():
         json.dumps(environment, indent=2) + "\n"
     )
     print(
-        f"Exported {len(schema['paths'])} paths, 15 schemas and a local, credential-free collection"
+        f"Exported {len(schema['paths'])} paths, 17 schemas and a local, credential-free collection"
     )
 
 

@@ -1,0 +1,651 @@
+{
+  "$defs": {
+    "BindingItem": {
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        },
+        "reference": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Reference"
+        },
+        "reason_codes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reason Codes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "label",
+        "status",
+        "reference",
+        "reason_codes"
+      ],
+      "title": "BindingItem",
+      "type": "object"
+    },
+    "ComputationRuleView": {
+      "additionalProperties": false,
+      "properties": {
+        "rule_code": {
+          "title": "Rule Code",
+          "type": "string"
+        },
+        "disposition": {
+          "enum": [
+            "REUSED",
+            "RECOMPUTED"
+          ],
+          "title": "Disposition",
+          "type": "string"
+        },
+        "reason_codes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reason Codes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "rule_code",
+        "disposition",
+        "reason_codes"
+      ],
+      "title": "ComputationRuleView",
+      "type": "object"
+    },
+    "ComputationTraceView": {
+      "additionalProperties": false,
+      "properties": {
+        "evaluation_id": {
+          "format": "uuid",
+          "title": "Evaluation Id",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "RECORDED",
+            "NOT_RECORDED"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "strategy": {
+          "anyOf": [
+            {
+              "enum": [
+                "FULL",
+                "SHADOW",
+                "INCREMENTAL"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Strategy"
+        },
+        "authoritative_strategy": {
+          "anyOf": [
+            {
+              "enum": [
+                "FULL",
+                "INCREMENTAL"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Authoritative Strategy"
+        },
+        "rules_total": {
+          "title": "Rules Total",
+          "type": "integer"
+        },
+        "rules_recomputed": {
+          "title": "Rules Recomputed",
+          "type": "integer"
+        },
+        "rules_reused": {
+          "title": "Rules Reused",
+          "type": "integer"
+        },
+        "shadow_rules_reused": {
+          "title": "Shadow Rules Reused",
+          "type": "integer"
+        },
+        "shadow_equivalent": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Shadow Equivalent"
+        },
+        "invalidation_reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Invalidation Reasons",
+          "type": "array"
+        },
+        "rules": {
+          "items": {
+            "$ref": "#/$defs/ComputationRuleView"
+          },
+          "title": "Rules",
+          "type": "array"
+        },
+        "permission_reused": {
+          "const": false,
+          "title": "Permission Reused",
+          "type": "boolean"
+        },
+        "notice": {
+          "title": "Notice",
+          "type": "string"
+        }
+      },
+      "required": [
+        "evaluation_id",
+        "status",
+        "strategy",
+        "authoritative_strategy",
+        "rules_total",
+        "rules_recomputed",
+        "rules_reused",
+        "shadow_rules_reused",
+        "shadow_equivalent",
+        "invalidation_reasons",
+        "rules",
+        "permission_reused",
+        "notice"
+      ],
+      "title": "ComputationTraceView",
+      "type": "object"
+    },
+    "DispatchAlert": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "severity": {
+          "title": "Severity",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "severity"
+      ],
+      "title": "DispatchAlert",
+      "type": "object"
+    },
+    "DispatchLink": {
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "href": {
+          "title": "Href",
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "href"
+      ],
+      "title": "DispatchLink",
+      "type": "object"
+    },
+    "DispatchStage": {
+      "additionalProperties": false,
+      "properties": {
+        "number": {
+          "title": "Number",
+          "type": "integer"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        },
+        "facts": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Facts",
+          "type": "object"
+        },
+        "reason_codes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reason Codes",
+          "type": "array"
+        },
+        "items": {
+          "items": {
+            "$ref": "#/$defs/DispatchStageItem"
+          },
+          "title": "Items",
+          "type": "array"
+        }
+      },
+      "required": [
+        "number",
+        "name",
+        "status",
+        "facts",
+        "reason_codes",
+        "items"
+      ],
+      "title": "DispatchStage",
+      "type": "object"
+    },
+    "DispatchStageItem": {
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        },
+        "reason_codes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reason Codes",
+          "type": "array"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        }
+      },
+      "required": [
+        "label",
+        "status",
+        "reason_codes"
+      ],
+      "title": "DispatchStageItem",
+      "type": "object"
+    },
+    "EvidenceChangesView": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "title": "Status",
+          "type": "string"
+        },
+        "detail_status": {
+          "title": "Detail Status",
+          "type": "string"
+        },
+        "reason_codes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reason Codes",
+          "type": "array"
+        },
+        "transitions": {
+          "items": {
+            "$ref": "#/$defs/EvidenceTransition"
+          },
+          "title": "Transitions",
+          "type": "array"
+        },
+        "notice": {
+          "title": "Notice",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "detail_status",
+        "reason_codes",
+        "transitions",
+        "notice"
+      ],
+      "title": "EvidenceChangesView",
+      "type": "object"
+    },
+    "EvidenceTransition": {
+      "additionalProperties": false,
+      "properties": {
+        "document_type": {
+          "title": "Document Type",
+          "type": "string"
+        },
+        "basis": {
+          "title": "Basis",
+          "type": "string"
+        },
+        "code": {
+          "title": "Code",
+          "type": "string"
+        }
+      },
+      "required": [
+        "document_type",
+        "basis",
+        "code"
+      ],
+      "title": "EvidenceTransition",
+      "type": "object"
+    },
+    "ExactBindingView": {
+      "additionalProperties": false,
+      "properties": {
+        "items": {
+          "items": {
+            "$ref": "#/$defs/BindingItem"
+          },
+          "title": "Items",
+          "type": "array"
+        },
+        "manifest_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Manifest Path"
+        },
+        "notice": {
+          "title": "Notice",
+          "type": "string"
+        }
+      },
+      "required": [
+        "items",
+        "manifest_path",
+        "notice"
+      ],
+      "title": "ExactBindingView",
+      "type": "object"
+    },
+    "WindowInput": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "at": {
+          "title": "At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "at"
+      ],
+      "title": "WindowInput",
+      "type": "object"
+    },
+    "WindowView": {
+      "additionalProperties": false,
+      "properties": {
+        "detail_status": {
+          "title": "Detail Status",
+          "type": "string"
+        },
+        "notice": {
+          "title": "Notice",
+          "type": "string"
+        },
+        "schema_version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Schema Version"
+        },
+        "valid_from": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Valid From"
+        },
+        "expires_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expires At"
+        },
+        "start_inputs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/WindowInput"
+          },
+          "title": "Start Inputs",
+          "type": "array"
+        },
+        "expiry_inputs": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/WindowInput"
+          },
+          "title": "Expiry Inputs",
+          "type": "array"
+        },
+        "start_limited_by": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Start Limited By",
+          "type": "array"
+        },
+        "expiry_limited_by": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Expiry Limited By",
+          "type": "array"
+        },
+        "evaluation_deadlines": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/WindowInput"
+          },
+          "title": "Evaluation Deadlines",
+          "type": "array"
+        }
+      },
+      "required": [
+        "detail_status",
+        "notice"
+      ],
+      "title": "WindowView",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "DISPATCH_JOURNEY_V1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "consignment_id": {
+      "format": "uuid",
+      "title": "Consignment Id",
+      "type": "string"
+    },
+    "reference": {
+      "title": "Reference",
+      "type": "string"
+    },
+    "trade_id": {
+      "format": "uuid",
+      "title": "Trade Id",
+      "type": "string"
+    },
+    "action": {
+      "enum": [
+        "PICKUP_CONFIRMED",
+        "DEPARTED"
+      ],
+      "title": "Action",
+      "type": "string"
+    },
+    "execution_mode": {
+      "enum": [
+        "SIMULATION",
+        "PRODUCTION"
+      ],
+      "title": "Execution Mode",
+      "type": "string"
+    },
+    "checked_at": {
+      "title": "Checked At",
+      "type": "string"
+    },
+    "readiness_state": {
+      "title": "Readiness State",
+      "type": "string"
+    },
+    "historical": {
+      "title": "Historical",
+      "type": "boolean"
+    },
+    "links": {
+      "items": {
+        "$ref": "#/$defs/DispatchLink"
+      },
+      "title": "Links",
+      "type": "array"
+    },
+    "stages": {
+      "items": {
+        "$ref": "#/$defs/DispatchStage"
+      },
+      "title": "Stages",
+      "type": "array"
+    },
+    "evidence_changes": {
+      "$ref": "#/$defs/EvidenceChangesView"
+    },
+    "calculation": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ComputationTraceView"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "binding": {
+      "$ref": "#/$defs/ExactBindingView"
+    },
+    "validity": {
+      "$ref": "#/$defs/WindowView"
+    },
+    "post_dispatch_alerts": {
+      "items": {
+        "$ref": "#/$defs/DispatchAlert"
+      },
+      "title": "Post Dispatch Alerts",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "consignment_id",
+    "reference",
+    "trade_id",
+    "action",
+    "execution_mode",
+    "checked_at",
+    "readiness_state",
+    "historical",
+    "links",
+    "stages",
+    "evidence_changes",
+    "calculation",
+    "binding",
+    "validity",
+    "post_dispatch_alerts"
+  ],
+  "title": "DispatchJourneyView",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

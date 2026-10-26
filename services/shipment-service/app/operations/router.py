@@ -17,6 +17,7 @@ from . import (
     attachments,
     disputes,
     movement,
+    movement_attempts,
     payments,
     receiving,
     schedules,
@@ -116,7 +117,8 @@ def authorize_resource(db, ctx, resource, ident, permission, side=None):
 
 def mutation(path, model, service, resource, permission, side=None, method="POST", status_code=200):
     def endpoint(ident: UUID, request: Request, payload: model, db: Session = Depends(get_db)):
-        return mutate(
+        run = movement_attempts.recorded_mutation if service is movement.event else mutate
+        return run(
             request,
             db,
             lambda session, ctx, value: service(session, ctx, str(ident), value),

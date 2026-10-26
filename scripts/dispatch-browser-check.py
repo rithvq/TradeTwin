@@ -190,7 +190,8 @@ def exercise(fx, tokens):
                 ]
             )
             page.goto(ORIGIN + path)
-            expect(page.get_by_role("heading", name="Trade workspace", exact=True)).to_be_visible()
+            heading = "Dispatch control" if path == "/dashboard" else "Trade workspace"
+            expect(page.get_by_role("heading", name=heading, exact=True)).to_be_visible()
 
         def module(name):
             harness.commercial.key_button(page, name)
@@ -312,7 +313,17 @@ def exercise(fx, tokens):
         signin("seller-operations")
         for width in (1440, 390):
             page.set_viewport_size({"width": width, "height": 1000 if width == 1440 else 844})
-            module("Graph")
+            if width == 1440:
+                with page.expect_response(
+                    lambda response: response.url.split("?")[0].endswith("/evidence-manifest")
+                    and response.request.method == "GET"
+                ) as loaded_manifest:
+                    module("Graph")
+                assert loaded_manifest.value.status == 200, (
+                    "Graph evidence manifest failed: " + str(loaded_manifest.value.status)
+                )
+            else:
+                module("Graph")
             graph = page.get_by_label("Compliance evidence provenance graph", exact=True)
             expect(graph.locator(".react-flow__node").first).to_be_visible()
             assert graph.locator(".react-flow__edge").count() > 0
@@ -324,6 +335,53 @@ def exercise(fx, tokens):
         )
         assert constraints["evaluation_hash"] and constraints["dependency_hash"]
         assert constraints["freshness"] == "STALE"  # Actual movement changed the factual context.
+        for action in ("PICKUP_CONFIRMED", "DEPARTED"):
+            journey = request("GET", f"/consignments/{cn_id}/dispatch-journey?action={action}")
+            assert journey["stages"][4]["status"] == "CONSUMED"
+            assert journey["stages"][6]["status"] == "RECORDED"
+        signin("seller-operations", "/dashboard")
+        overview = page.get_by_role("region", name="Dispatch control", exact=True)
+        expect(overview.get_by_text(journey["reference"], exact=True)).to_be_visible()
+        for width in (1440, 390):
+            page.set_viewport_size({"width": width, "height": 1000})
+            overview.get_by_role(
+                "button", name=f"Pickup journey for {journey['reference']}"
+            ).click()
+            panel = overview.get_by_role("region", name="Pickup dispatch journey", exact=True)
+            expect(panel.get_by_role("heading", name="5. Validity", exact=True)).to_be_visible()
+            for heading in (
+                "1. Evidence changes",
+                "2. Rule calculation",
+                "3. Exact binding",
+                "4. Movement",
+            ):
+                expect(panel.get_by_role("heading", name=heading, exact=True)).to_be_visible()
+            expect(panel.get_by_text("recorded", exact=True)).to_be_visible()
+            if width == 1440:
+                with page.expect_download() as manifest_download:
+                    panel.get_by_role("button", name="Export evidence manifest", exact=True).click()
+                downloaded = manifest_download.value
+                assert downloaded.suggested_filename == "tradetwin-evidence-manifest.json"
+                exported = json.loads(Path(downloaded.path()).read_text())
+                assert exported["schema"] == "PH4_EVIDENCE_MANIFEST_V1"
+                assert exported["private_declarations"] == "REDACTED"
+                assert "matching_revisions" not in json.dumps(exported)
+            assert (
+                overview.get_by_role("button", name="Record Pickup Confirmed", exact=True).count()
+                == 0
+            )
+            assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+            panel.screenshot(path=str(OUTPUT / f"dispatch-journey-{width}.png"))
+            overview.get_by_role(
+                "button", name=f"Departure journey for {journey['reference']}"
+            ).click()
+            panel = overview.get_by_role("region", name="Departure dispatch journey", exact=True)
+            expect(panel.get_by_role("heading", name="5. Validity", exact=True)).to_be_visible()
+        panel.get_by_role("link", name="Open compliance desk", exact=True).click()
+        page.wait_for_url(
+            f"**/shipments/trades/{trade_id}/operations?module=Compliance&consignment={cn_id}&dispatch_action=DEPARTED#dispatch-{cn_id}"
+        )
+        expect(page.locator(f"#dispatch-{cn_id}")).to_be_visible()
         assert not failures, failures
         expect(page.locator("main").get_by_role("alert")).to_have_count(0)
         if os.getenv("RUN_POSTMAN_SMOKE") == "true":
@@ -332,7 +390,8 @@ def exercise(fx, tokens):
     print(
         "PASS: explained EWB blocker, encrypted packet download, independent review, "
         "carrier packet, "
-        "driver ACK, distinct atomic pickup/departure, immutable evidence and mobile graph. "
+        "driver ACK, distinct atomic pickup/departure, immutable evidence, mobile graph, "
+        "five-panel dispatch journeys and authorized manifest export. "
         "SIMULATION statuses/signatures and ClamAV transport fixture only."
     )
 

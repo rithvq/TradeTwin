@@ -11,7 +11,7 @@ from app.trades.access import membership
 from app.trades.models import Grant, User
 from app.trades.terms import digest
 
-from . import context, evaluations
+from . import authorization_window, context, evaluations
 from .clock import aware, instant
 from .ledger import check_context, record, valid_window, view
 from .models import (
@@ -450,9 +450,26 @@ def issue(db, ctx, ident, payload):
         aware(packet.valid_until),
         aware(assignment.booking_end_at),
     ]
+    window_ends = [
+        authorization_window.candidate(code, end)
+        for code, end in zip(
+            (
+                "EVALUATION_VALIDITY",
+                "RELEASE_APPROVAL_VALIDITY",
+                "DISPATCH_PACKET_VALIDITY",
+                "ASSIGNMENT_BOOKING_END",
+            ),
+            windows,
+            strict=True,
+        )
+    ]
     from .review_authority import windows as reviewer_windows
 
-    windows += reviewer_windows(db, evaluation, trade, cn)
+    review_ends = reviewer_windows(db, evaluation, trade, cn)
+    windows += review_ends
+    window_ends += [
+        authorization_window.candidate("DECLARATION_REVIEW_PERMISSION", end) for end in review_ends
+    ]
     packet_expiry = live_grant(
         db,
         packet.created_by_user_id,
@@ -468,9 +485,20 @@ def issue(db, ctx, ident, payload):
         "dispatch.packet.acknowledge",
     )
     windows += [value for value in (packet_expiry, ack_expiry) if value]
+    window_ends += [
+        authorization_window.candidate(code, value)
+        for code, value in (
+            ("PACKET_PREPARER_PERMISSION", packet_expiry),
+            ("DRIVER_ACKNOWLEDGMENT_PERMISSION", ack_expiry),
+        )
+        if value
+    ]
     expiry = live_grant(db, ctx.user.id, ctx.org_id, trade.id, "dispatch.authorisation.request")
     if expiry:
         windows.append(expiry)
+        window_ends.append(
+            authorization_window.candidate("AUTHORIZATION_ISSUER_PERMISSION", expiry)
+        )
     driver_expiry = live_grant(
         db,
         assignment.driver_user_id,
@@ -480,6 +508,9 @@ def issue(db, ctx, ident, payload):
     )
     if driver_expiry:
         windows.append(driver_expiry)
+        window_ends.append(
+            authorization_window.candidate("DRIVER_MOVEMENT_PERMISSION", driver_expiry)
+        )
     reviewer_expiry = live_grant(
         db,
         review.created_by_user_id,
@@ -489,6 +520,9 @@ def issue(db, ctx, ident, payload):
     )
     if reviewer_expiry:
         windows.append(reviewer_expiry)
+        window_ends.append(
+            authorization_window.candidate("RELEASE_REVIEWER_PERMISSION", reviewer_expiry)
+        )
     from .models import Fact
     from .observations import timestamp
 
@@ -507,6 +541,16 @@ def issue(db, ctx, ident, payload):
         action_end = timestamp(cn.plan_json.get("planned_pickup_end"))
         if action_end:
             windows.append(action_end)
+            window_ends.append(authorization_window.candidate("PLANNED_PICKUP_END", action_end))
+    window_starts = [
+        authorization_window.candidate(code, value)
+        for code, value in (
+            ("ISSUED_AT", at),
+            ("ASSIGNMENT_BOOKING_START", aware(assignment.booking_start_at)),
+            ("REQUESTED_ACTION_START", requested or at),
+            ("PLANNED_ACTION_START", action_start),
+        )
+    ]
     row = Authorization(
         issued_by_organisation_id=ctx.org_id,
         trade_id=trade.id,
@@ -537,6 +581,7 @@ def issue(db, ctx, ident, payload):
         )
     db.add(row)
     record(db, ctx, "DISPATCH_AUTHORISATION_ISSUED", row)
+    authorization_window.retain(db, ctx, row, window_starts, window_ends, evaluation)
     db.add(
         AuthorizationEvent(
             authorisation_id=row.id,

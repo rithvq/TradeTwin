@@ -131,6 +131,7 @@ export async function tradeRequest<T>(
   body?: unknown,
   etag?: string,
   key?: string,
+  signal?: AbortSignal,
 ): Promise<T> {
   const headers = new Headers({ "Content-Type": "application/json" });
   if (org) headers.set("X-Organization-Id", org);
@@ -142,6 +143,7 @@ export async function tradeRequest<T>(
     headers,
     body: body === undefined ? undefined : JSON.stringify(body),
     cache: "no-store",
+    ...(signal ? { signal } : {}),
   });
   const result = await response.json();
   if (!response.ok)

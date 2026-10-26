@@ -1,5 +1,7 @@
 # TradeTwin
 
+Live dashboard dispatch journeys: [read-only control overview, permissions, refresh and verification](docs/dispatch-dashboard.md).
+
 Selective guarded-dispatch calculations: [dependency tracking, computation trace, replay and safe rollout](docs/selective-compliance.md).
 
 Guarded dispatch Phase 4: [scope, review, encrypted evidence, migration, demo and contracts](docs/guarded-dispatch-phase4.md).

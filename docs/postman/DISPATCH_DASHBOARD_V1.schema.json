@@ -1,0 +1,225 @@
+{
+  "$defs": {
+    "DispatchCounts": {
+      "additionalProperties": false,
+      "properties": {
+        "ready_to_move": {
+          "title": "Ready To Move",
+          "type": "integer"
+        },
+        "awaiting_evidence_or_review": {
+          "title": "Awaiting Evidence Or Review",
+          "type": "integer"
+        },
+        "expiring_soon": {
+          "title": "Expiring Soon",
+          "type": "integer"
+        },
+        "blocked": {
+          "title": "Blocked",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "ready_to_move",
+        "awaiting_evidence_or_review",
+        "expiring_soon",
+        "blocked"
+      ],
+      "title": "DispatchCounts",
+      "type": "object"
+    },
+    "DispatchLink": {
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "href": {
+          "title": "Href",
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "href"
+      ],
+      "title": "DispatchLink",
+      "type": "object"
+    },
+    "DispatchRow": {
+      "additionalProperties": false,
+      "properties": {
+        "consignment_id": {
+          "format": "uuid",
+          "title": "Consignment Id",
+          "type": "string"
+        },
+        "reference": {
+          "title": "Reference",
+          "type": "string"
+        },
+        "trade_id": {
+          "format": "uuid",
+          "title": "Trade Id",
+          "type": "string"
+        },
+        "trade_reference": {
+          "title": "Trade Reference",
+          "type": "string"
+        },
+        "execution_mode": {
+          "enum": [
+            "SIMULATION",
+            "PRODUCTION"
+          ],
+          "title": "Execution Mode",
+          "type": "string"
+        },
+        "movement_status": {
+          "title": "Movement Status",
+          "type": "string"
+        },
+        "action": {
+          "enum": [
+            "PICKUP_CONFIRMED",
+            "DEPARTED"
+          ],
+          "title": "Action",
+          "type": "string"
+        },
+        "state": {
+          "title": "State",
+          "type": "string"
+        },
+        "readiness_state": {
+          "title": "Readiness State",
+          "type": "string"
+        },
+        "current_stage": {
+          "title": "Current Stage",
+          "type": "string"
+        },
+        "reason_codes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reason Codes",
+          "type": "array"
+        },
+        "expiring_soon": {
+          "title": "Expiring Soon",
+          "type": "boolean"
+        },
+        "expires_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Expires At"
+        },
+        "checked_at": {
+          "title": "Checked At",
+          "type": "string"
+        },
+        "links": {
+          "items": {
+            "$ref": "#/$defs/DispatchLink"
+          },
+          "title": "Links",
+          "type": "array"
+        }
+      },
+      "required": [
+        "consignment_id",
+        "reference",
+        "trade_id",
+        "trade_reference",
+        "execution_mode",
+        "movement_status",
+        "action",
+        "state",
+        "readiness_state",
+        "current_stage",
+        "reason_codes",
+        "expiring_soon",
+        "expires_at",
+        "checked_at",
+        "links"
+      ],
+      "title": "DispatchRow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "DISPATCH_DASHBOARD_V1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "organization_id": {
+      "format": "uuid",
+      "title": "Organization Id",
+      "type": "string"
+    },
+    "checked_at": {
+      "title": "Checked At",
+      "type": "string"
+    },
+    "counts": {
+      "$ref": "#/$defs/DispatchCounts"
+    },
+    "counts_scope": {
+      "const": "ALL_AUTHORIZED_CONSIGNMENTS",
+      "title": "Counts Scope",
+      "type": "string"
+    },
+    "expiring_within_seconds": {
+      "title": "Expiring Within Seconds",
+      "type": "integer"
+    },
+    "total": {
+      "title": "Total",
+      "type": "integer"
+    },
+    "items": {
+      "items": {
+        "$ref": "#/$defs/DispatchRow"
+      },
+      "title": "Items",
+      "type": "array"
+    },
+    "next_cursor": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Next Cursor"
+    }
+  },
+  "required": [
+    "schema_version",
+    "organization_id",
+    "checked_at",
+    "counts",
+    "counts_scope",
+    "expiring_within_seconds",
+    "total",
+    "items",
+    "next_cursor"
+  ],
+  "title": "DispatchDashboardView",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

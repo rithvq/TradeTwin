@@ -13,6 +13,9 @@ import { tradeTwinModules } from "@/lib/config/tradetwin-modules";
 import type { DashboardSummaryData } from "@/types/dashboard";
 
 const push = vi.fn();
+vi.mock("@/components/dashboard/dispatch-overview", () => ({
+  DispatchOverview: () => <div data-testid="live-dispatch-control" />,
+}));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push }),

@@ -183,6 +183,77 @@
       "name": "Read-only smoke",
       "item": [
         {
+          "name": "Live organisation dispatch overview",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/dispatch-dashboard",
+            "header": [
+              {
+                "key": "X-Organization-Id",
+                "value": "{{preparer_org}}"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{preparer_token}}"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();const v=pm.collectionVariables;"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Separate seven-step dispatch journey",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/v1/consignments/{{consignment_id}}/dispatch-journey?action={{action}}",
+            "header": [
+              {
+                "key": "X-Organization-Id",
+                "value": "{{preparer_org}}"
+              }
+            ],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "type": "string",
+                  "value": "{{preparer_token}}"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+                  "const r=pm.response.json();const v=pm.collectionVariables;",
+                  "pm.test('Seven read-only stages',()=>pm.expect(r.stages.length).to.equal(7));"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Role-filtered current context",
           "request": {
             "method": "GET",

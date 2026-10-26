@@ -44,9 +44,11 @@ import {
 export function ReleaseDesk({
   cn,
   module = "Compliance",
+  initialAction,
 }: {
   cn: Consignment;
   module?: string;
+  initialAction?: DispatchAction;
 }) {
   const { org, me } = useTradeContext();
   const context = useOperationsResource<ComplianceContext>(
@@ -54,7 +56,8 @@ export function ReleaseDesk({
     org,
   );
   const [action, setAction] = useState<DispatchAction>(
-    cn.movement_status === "PICKED_UP" ? "DEPARTED" : "PICKUP_CONFIRMED",
+    initialAction ??
+      (cn.movement_status === "PICKED_UP" ? "DEPARTED" : "PICKUP_CONFIRMED"),
   );
   const readiness = useOperationsResource<Readiness>(
     `/consignments/${cn.id}/dispatch-readiness?action=${action}`,
