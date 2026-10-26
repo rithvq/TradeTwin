@@ -5996,6 +5996,494 @@
           }
         ]
       }
+    },
+    "/api/v1/consignments/{ident}/freight-route-studies": {
+      "post": {
+        "tags": [
+          "Commercial agreements",
+          "India freight route intelligence"
+        ],
+        "summary": "Request Study",
+        "operationId": "request_study_api_v1_consignments__ident__freight_route_studies_post",
+        "parameters": [
+          {
+            "name": "ident",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Ident"
+            }
+          },
+          {
+            "name": "X-Organization-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Required for organisation-scoped resources; server validates active membership."
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudyInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Field validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not accessible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Revision mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary database failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProfileSession": []
+          }
+        ]
+      }
+    },
+    "/api/v1/consignments/{ident}/freight-route-intelligence": {
+      "get": {
+        "tags": [
+          "Commercial agreements",
+          "India freight route intelligence"
+        ],
+        "summary": "Context View",
+        "operationId": "context_view_api_v1_consignments__ident__freight_route_intelligence_get",
+        "parameters": [
+          {
+            "name": "ident",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Ident"
+            }
+          },
+          {
+            "name": "X-Organization-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Required for organisation-scoped resources; server validates active membership."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Field validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not accessible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Revision mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary database failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProfileSession": []
+          }
+        ]
+      }
+    },
+    "/api/v1/freight-route-studies/{ident}": {
+      "get": {
+        "tags": [
+          "Commercial agreements",
+          "India freight route intelligence"
+        ],
+        "summary": "Study",
+        "operationId": "study_api_v1_freight_route_studies__ident__get",
+        "parameters": [
+          {
+            "name": "ident",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Ident"
+            }
+          },
+          {
+            "name": "X-Organization-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Required for organisation-scoped resources; server validates active membership."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Field validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not accessible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Revision mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary database failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProfileSession": []
+          }
+        ]
+      }
+    },
+    "/api/v1/freight-route-studies/{ident}/evidence-manifest": {
+      "get": {
+        "tags": [
+          "Commercial agreements",
+          "India freight route intelligence"
+        ],
+        "summary": "Manifest",
+        "operationId": "manifest_api_v1_freight_route_studies__ident__evidence_manifest_get",
+        "parameters": [
+          {
+            "name": "ident",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Ident"
+            }
+          },
+          {
+            "name": "X-Organization-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Required for organisation-scoped resources; server validates active membership."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Field validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not accessible",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "State or idempotency conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "Revision mismatch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Temporary database failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProfileSession": []
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -7929,7 +8417,7 @@
             "title": "Objective"
           },
           "balanced_weights": {
-            "$ref": "#/components/schemas/Weights"
+            "$ref": "#/components/schemas/app__freight__schemas__Weights"
           }
         },
         "additionalProperties": false,
@@ -8055,6 +8543,198 @@
         ],
         "title": "SelectionInput"
       },
+      "StudyInput": {
+        "properties": {
+          "source_mode": {
+            "type": "string",
+            "enum": [
+              "LIVE",
+              "RETAINED"
+            ],
+            "title": "Source Mode",
+            "default": "LIVE"
+          },
+          "departure_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Departure At"
+          },
+          "truck": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Truck"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "dataset_revision_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataset Revision Id"
+          },
+          "weights": {
+            "$ref": "#/components/schemas/app__freight_routes__schemas__Weights"
+          },
+          "include_weather": {
+            "type": "boolean",
+            "title": "Include Weather",
+            "default": true
+          },
+          "planned_stop_seconds": {
+            "type": "integer",
+            "maximum": 604800.0,
+            "minimum": 0.0,
+            "title": "Planned Stop Seconds",
+            "default": 0
+          },
+          "fuel_price_per_litre_minor": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 100000.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fuel Price Per Litre Minor"
+          },
+          "fuel_km_per_litre": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 30.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fuel Km Per Litre"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "departure_at"
+        ],
+        "title": "StudyInput"
+      },
+      "Truck": {
+        "properties": {
+          "height_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 10.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Height M"
+          },
+          "width_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 6.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Width M"
+          },
+          "length_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 50.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Length M"
+          },
+          "tare_kg": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 200000.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Tare Kg"
+          },
+          "axle_load_kg": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100000.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              }
+            ],
+            "title": "Axle Load Kg"
+          },
+          "maximum_loaded_kg": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 300000.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maximum Loaded Kg"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "height_m",
+          "width_m",
+          "length_m",
+          "tare_kg",
+          "axle_load_kg"
+        ],
+        "title": "Truck"
+      },
       "WaitTerm": {
         "properties": {
           "code": {
@@ -8109,27 +8789,6 @@
           "applicability_note"
         ],
         "title": "WaitTerm"
-      },
-      "Weights": {
-        "properties": {
-          "cost_basis_points": {
-            "type": "integer",
-            "maximum": 10000.0,
-            "minimum": 0.0,
-            "title": "Cost Basis Points",
-            "default": 5000
-          },
-          "time_basis_points": {
-            "type": "integer",
-            "maximum": 10000.0,
-            "minimum": 0.0,
-            "title": "Time Basis Points",
-            "default": 5000
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "title": "Weights"
       },
       "app__freight__schemas__Reason": {
         "properties": {
@@ -8200,7 +8859,7 @@
             "default": "LOWEST_COMPARABLE_COST"
           },
           "balanced_weights": {
-            "$ref": "#/components/schemas/Weights"
+            "$ref": "#/components/schemas/app__freight__schemas__Weights"
           },
           "comparison_policy": {
             "type": "string",
@@ -8241,6 +8900,69 @@
           "route_template_revision_ids"
         ],
         "title": "RunInput"
+      },
+      "app__freight__schemas__Weights": {
+        "properties": {
+          "cost_basis_points": {
+            "type": "integer",
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Cost Basis Points",
+            "default": 5000
+          },
+          "time_basis_points": {
+            "type": "integer",
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Time Basis Points",
+            "default": 5000
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "Weights"
+      },
+      "app__freight_routes__schemas__Weights": {
+        "properties": {
+          "distance": {
+            "type": "integer",
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Distance",
+            "default": 2000
+          },
+          "duration": {
+            "type": "integer",
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Duration",
+            "default": 3000
+          },
+          "road_weather_exposure": {
+            "type": "integer",
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Road Weather Exposure",
+            "default": 3000
+          },
+          "state_transit_history": {
+            "type": "integer",
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "State Transit History",
+            "default": 1000
+          },
+          "toll_exposure": {
+            "type": "integer",
+            "maximum": 10000.0,
+            "minimum": 0.0,
+            "title": "Toll Exposure",
+            "default": 1000
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "Weights"
       },
       "ErrorDetail": {
         "additionalProperties": false,

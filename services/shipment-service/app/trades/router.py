@@ -416,6 +416,10 @@ from app.freight.router import router as freight_router  # noqa: E402
 
 router.include_router(freight_router)
 
+from app.freight_routes.router import router as freight_routes_router  # noqa: E402
+
+router.include_router(freight_routes_router)
+
 from app.corridor.router import router as corridor_router  # noqa: E402
 
 router.include_router(corridor_router)

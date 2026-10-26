@@ -1,5 +1,7 @@
 # TradeTwin
 
+India freight route intelligence: [live truck routes, state transit evidence, weighted alternatives, corridor memory and setup](docs/india-freight-routing.md).
+
 Live dashboard dispatch journeys: [read-only control overview, permissions, refresh and verification](docs/dispatch-dashboard.md).
 
 Selective guarded-dispatch calculations: [dependency tracking, computation trace, replay and safe rollout](docs/selective-compliance.md).

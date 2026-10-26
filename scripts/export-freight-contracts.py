@@ -14,13 +14,19 @@ spec = importlib.util.spec_from_file_location(
 commercial = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(commercial)
 from app.freight import schemas as s  # noqa: E402
+from app.freight_routes.schemas import StudyInput  # noqa: E402
 
 
 def main():
     folder = ROOT / "docs/postman"
     schema = deepcopy(commercial.app.openapi())
     schema["paths"] = {
-        p: {m: o for m, o in methods.items() if "Freight planning - Phase 5" in o.get("tags", [])}
+        p: {
+            m: o
+            for m, o in methods.items()
+            if set(o.get("tags", []))
+            & {"Freight planning - Phase 5", "India freight route intelligence"}
+        }
         for p, methods in schema["paths"].items()
     }
     schema["paths"] = {p: m for p, m in schema["paths"].items() if m}
@@ -39,6 +45,7 @@ def main():
         "SCENARIO_V1": s.Scenario,
         "TRADETWIN_SELECTION_V1": s.SelectionInput,
         "FREIGHT_CANCELLATION_V1": s.CancellationInput,
+        "FREIGHT_ROUTE_STUDY_V1": StudyInput,
     }.items():
         definition = model.model_json_schema(mode="serialization")
         definition["$schema"] = "https://json-schema.org/draft/2020-12/schema"
@@ -58,6 +65,8 @@ def main():
         "rfq_id": "",
         "quote_id": "",
         "run_id": "",
+        "route_study_id": "",
+        "route_study_json": "{}",
         "selection_id": "",
         "commitment_id": "",
         "cancellation_id": "",
@@ -264,6 +273,24 @@ def main():
         "{{decision_json}}",
         "head_etag",
         409,
+    )
+    add(
+        "Route comparison inputs",
+        "GET",
+        "/consignments/{{consignment_id}}/freight-route-intelligence",
+    )
+    add(
+        "Queue India freight route comparison",
+        "POST",
+        "/consignments/{{consignment_id}}/freight-route-studies",
+        "{{route_study_json}}",
+        status=202,
+    )
+    add("Read current route comparison", "GET", "/freight-route-studies/{{route_study_id}}")
+    add(
+        "Export permitted route evidence",
+        "GET",
+        "/freight-route-studies/{{route_study_id}}/evidence-manifest",
     )
     collection = {
         "info": {

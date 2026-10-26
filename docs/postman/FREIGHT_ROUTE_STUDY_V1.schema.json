@@ -1,0 +1,188 @@
+{
+  "$defs": {
+    "Truck": {
+      "additionalProperties": false,
+      "properties": {
+        "height_m": {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "title": "Height M",
+          "type": "string"
+        },
+        "width_m": {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "title": "Width M",
+          "type": "string"
+        },
+        "length_m": {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "title": "Length M",
+          "type": "string"
+        },
+        "tare_kg": {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "title": "Tare Kg",
+          "type": "string"
+        },
+        "axle_load_kg": {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "title": "Axle Load Kg",
+          "type": "string"
+        },
+        "maximum_loaded_kg": {
+          "anyOf": [
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Maximum Loaded Kg"
+        }
+      },
+      "required": [
+        "height_m",
+        "width_m",
+        "length_m",
+        "tare_kg",
+        "axle_load_kg"
+      ],
+      "title": "Truck",
+      "type": "object"
+    },
+    "Weights": {
+      "additionalProperties": false,
+      "properties": {
+        "distance": {
+          "default": 2000,
+          "maximum": 10000,
+          "minimum": 0,
+          "title": "Distance",
+          "type": "integer"
+        },
+        "duration": {
+          "default": 3000,
+          "maximum": 10000,
+          "minimum": 0,
+          "title": "Duration",
+          "type": "integer"
+        },
+        "road_weather_exposure": {
+          "default": 3000,
+          "maximum": 10000,
+          "minimum": 0,
+          "title": "Road Weather Exposure",
+          "type": "integer"
+        },
+        "state_transit_history": {
+          "default": 1000,
+          "maximum": 10000,
+          "minimum": 0,
+          "title": "State Transit History",
+          "type": "integer"
+        },
+        "toll_exposure": {
+          "default": 1000,
+          "maximum": 10000,
+          "minimum": 0,
+          "title": "Toll Exposure",
+          "type": "integer"
+        }
+      },
+      "title": "Weights",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "source_mode": {
+      "default": "LIVE",
+      "enum": [
+        "LIVE",
+        "RETAINED"
+      ],
+      "title": "Source Mode",
+      "type": "string"
+    },
+    "departure_at": {
+      "format": "date-time",
+      "title": "Departure At",
+      "type": "string"
+    },
+    "truck": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Truck"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "dataset_revision_id": {
+      "anyOf": [
+        {
+          "format": "uuid",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Dataset Revision Id"
+    },
+    "weights": {
+      "$ref": "#/$defs/Weights"
+    },
+    "include_weather": {
+      "default": true,
+      "title": "Include Weather",
+      "type": "boolean"
+    },
+    "planned_stop_seconds": {
+      "default": 0,
+      "maximum": 604800,
+      "minimum": 0,
+      "title": "Planned Stop Seconds",
+      "type": "integer"
+    },
+    "fuel_price_per_litre_minor": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0,
+          "maximum": 100000,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Fuel Price Per Litre Minor"
+    },
+    "fuel_km_per_litre": {
+      "anyOf": [
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Fuel Km Per Litre"
+    }
+  },
+  "required": [
+    "departure_at"
+  ],
+  "title": "StudyInput",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Phase 5 command fields. Server-derived identity, execution mode and hashes are never client overrides."
+}

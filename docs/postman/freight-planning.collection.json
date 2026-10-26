@@ -38,6 +38,14 @@
       "value": ""
     },
     {
+      "key": "route_study_id",
+      "value": ""
+    },
+    {
+      "key": "route_study_json",
+      "value": "{}"
+    },
+    {
       "key": "selection_id",
       "value": ""
     },
@@ -1403,6 +1411,159 @@
             "type": "text/javascript",
             "exec": [
               "pm.test('Expected status', () => pm.response.to.have.status(409));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Route comparison inputs",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/consignments/{{consignment_id}}/freight-route-intelligence",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Queue India freight route comparison",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/api/v1/consignments/{{consignment_id}}/freight-route-studies",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Idempotency-Key",
+            "value": "{{$guid}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{{route_study_json}}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status', () => pm.response.to.have.status(202));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Read current route comparison",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/freight-route-studies/{{route_study_id}}",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Export permitted route evidence",
+      "request": {
+        "method": "GET",
+        "url": "{{base_url}}/api/v1/freight-route-studies/{{route_study_id}}/evidence-manifest",
+        "header": [
+          {
+            "key": "X-Organization-Id",
+            "value": "{{organization_id}}"
+          }
+        ],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status', () => pm.response.to.have.status(200));"
             ]
           }
         }

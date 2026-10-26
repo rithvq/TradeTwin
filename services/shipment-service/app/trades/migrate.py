@@ -6,6 +6,7 @@ from sqlalchemy import text
 
 from app.compliance import models_computation as computation_models  # noqa: F401
 from app.corridor import models as corridor_models  # noqa: F401
+from app.freight_routes import models as freight_route_models  # noqa: F401
 from app.product import models as product_models  # noqa: F401
 
 

@@ -60,6 +60,7 @@ jobs:
           services/shipment-service/tests/test_dispatch_policy.py
           services/shipment-service/tests/test_dispatch_dashboard.py
           services/shipment-service/tests/test_freight_planning.py
+          services/shipment-service/tests/test_freight_route_intelligence.py
           services/shipment-service/tests/test_corridor_intelligence.py
           services/shipment-service/tests/test_product_integration.py
           services/shipment-service/tests/test_selective_compliance.py

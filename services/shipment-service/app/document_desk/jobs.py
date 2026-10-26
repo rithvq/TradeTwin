@@ -148,11 +148,21 @@ def claim(db, worker, job_id=None):
 
             evaluation = db.get(Evaluation, row.request_json["evaluation_id"])
             evaluation.job_state, evaluation.decision = "FAILED", "BLOCKED"
+        if row.stage == "FREIGHT_ROUTE_STUDY":
+            from app.freight_routes.jobs import mark_failed
+
+            mark_failed(db, row)
         db.commit()
         return None
     if row.stage in product_jobs.STAGES:
         product_jobs.lock(db, row)
-    elif row.stage in {"EVAL_COMPLIANCE", "PROJECT_MOVEMENT", "TRADETWIN_RUN", "ROUTE_GENERATION"}:
+    elif row.stage in {
+        "EVAL_COMPLIANCE",
+        "PROJECT_MOVEMENT",
+        "TRADETWIN_RUN",
+        "ROUTE_GENERATION",
+        "FREIGHT_ROUTE_STUDY",
+    }:
         lock_trade(db, row.trade_id)
     else:
         version = db.get(Version, row.document_version_id)
@@ -171,6 +181,10 @@ def claim(db, worker, job_id=None):
         row.status, row.last_error_code, row.finished_at = "FAILED", "ATTEMPTS_EXHAUSTED", instant
         if row.stage in product_jobs.STAGES:
             product_jobs.mark(db, row, "FAILED")
+        if row.stage == "FREIGHT_ROUTE_STUDY":
+            from app.freight_routes.jobs import mark_failed
+
+            mark_failed(db, row)
         db.commit()
         return None
     attempt = Attempt(
@@ -190,7 +204,13 @@ def claim(db, worker, job_id=None):
     ctx = Context(db.get(User, row.requested_by_user_id), row.requested_by_organization_id, uid())
     if row.stage in product_jobs.STAGES:
         product_jobs.mark(db, row, "RUNNING")
-    elif row.stage in {"EVAL_COMPLIANCE", "PROJECT_MOVEMENT", "TRADETWIN_RUN", "ROUTE_GENERATION"}:
+    elif row.stage in {
+        "EVAL_COMPLIANCE",
+        "PROJECT_MOVEMENT",
+        "TRADETWIN_RUN",
+        "ROUTE_GENERATION",
+        "FREIGHT_ROUTE_STUDY",
+    }:
         from app.compliance.ledger import record as compliance_record
 
         compliance_record(db, ctx, "COMPLIANCE_ATTEMPT_STARTED", row, row.trade_id)
@@ -227,6 +247,7 @@ def leased(db, job_id, attempt_id, token, lock=True):
             "PROJECT_MOVEMENT",
             "TRADETWIN_RUN",
             "ROUTE_GENERATION",
+            "FREIGHT_ROUTE_STUDY",
         }:
             lock_trade(db, basis.trade_id)
         else:
@@ -353,6 +374,13 @@ def failed(db, lease, code):
         job.finished_at = now()
     if job.stage in product_jobs.STAGES:
         product_jobs.mark(db, job, job.status)
+        db.commit()
+        return
+    if job.stage == "FREIGHT_ROUTE_STUDY":
+        if job.status == "FAILED":
+            from app.freight_routes.jobs import mark_failed
+
+            mark_failed(db, job)
         db.commit()
         return
     if job.stage in {"TRADETWIN_RUN", "ROUTE_GENERATION"}:

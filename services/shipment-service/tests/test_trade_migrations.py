@@ -21,6 +21,7 @@ from app.compliance.models_dashboard import TABLES as DASHBOARD_TABLES  # noqa: 
 from app.corridor.models import TABLES as CORRIDOR_TABLES  # noqa: E402
 from app.document_desk.models import Document  # noqa: E402
 from app.freight.models import TABLES as FREIGHT_TABLES  # noqa: E402
+from app.freight_routes.models import TABLES as ROUTE_TABLES  # noqa: E402
 from app.operations.models import Assignment  # noqa: E402
 from app.product.models import TABLES as PRODUCT_TABLES  # noqa: E402
 from app.trades.migrate import migrate  # noqa: E402
@@ -94,6 +95,7 @@ def test_phase_migrations_only_create_their_own_tables(migration_engine):
             *PRODUCT_TABLES,
             *COMPUTATION_TABLES,
             *DASHBOARD_TABLES,
+            *ROUTE_TABLES,
         ]
     }
 
@@ -101,22 +103,35 @@ def test_phase_migrations_only_create_their_own_tables(migration_engine):
     actual = set(inspect(migration_engine).get_table_names()) - {"trade_alembic_version"}
     assert actual == expected - {
         m.__tablename__
-        for m in [*CORRIDOR_TABLES, *PRODUCT_TABLES, *COMPUTATION_TABLES, *DASHBOARD_TABLES]
+        for m in [
+            *CORRIDOR_TABLES,
+            *PRODUCT_TABLES,
+            *COMPUTATION_TABLES,
+            *DASHBOARD_TABLES,
+            *ROUTE_TABLES,
+        ]
     }
 
     upgrade_to(migration_engine, "trade_006")
     actual = set(inspect(migration_engine).get_table_names()) - {"trade_alembic_version"}
     assert actual == expected - {
-        m.__tablename__ for m in [*PRODUCT_TABLES, *COMPUTATION_TABLES, *DASHBOARD_TABLES]
+        m.__tablename__
+        for m in [*PRODUCT_TABLES, *COMPUTATION_TABLES, *DASHBOARD_TABLES, *ROUTE_TABLES]
     }
 
     upgrade_to(migration_engine, "trade_007")
     actual = set(inspect(migration_engine).get_table_names()) - {"trade_alembic_version"}
-    assert actual == expected - {m.__tablename__ for m in [*COMPUTATION_TABLES, *DASHBOARD_TABLES]}
+    assert actual == expected - {
+        m.__tablename__ for m in [*COMPUTATION_TABLES, *DASHBOARD_TABLES, *ROUTE_TABLES]
+    }
 
     upgrade_to(migration_engine, "trade_008")
     actual = set(inspect(migration_engine).get_table_names()) - {"trade_alembic_version"}
-    assert actual == expected - {m.__tablename__ for m in DASHBOARD_TABLES}
+    assert actual == expected - {m.__tablename__ for m in [*DASHBOARD_TABLES, *ROUTE_TABLES]}
+
+    upgrade_to(migration_engine, "trade_009")
+    actual = set(inspect(migration_engine).get_table_names()) - {"trade_alembic_version"}
+    assert actual == expected - {m.__tablename__ for m in ROUTE_TABLES}
 
     migrate(migration_engine)
     migrate(migration_engine)
@@ -132,5 +147,5 @@ def test_fresh_database_upgrades_directly_to_head(migration_engine):
     assert set(TradeBase.metadata.tables).issubset(inspect(migration_engine).get_table_names())
     with migration_engine.connect() as connection:
         assert (
-            connection.scalar(text("SELECT version_num FROM trade_alembic_version")) == "trade_009"
+            connection.scalar(text("SELECT version_num FROM trade_alembic_version")) == "trade_010"
         )

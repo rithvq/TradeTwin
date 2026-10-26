@@ -63,6 +63,14 @@ def complete(db, lease, output):
         attempt.status, attempt.finished_at = "SUCCEEDED", now()
         db.commit()
         return
+    if job.stage == "FREIGHT_ROUTE_STUDY":
+        from app.freight_routes.jobs import complete as complete_route_study
+
+        complete_route_study(db, ctx, job, output)
+        job.status, job.finished_at = "SUCCEEDED", now()
+        attempt.status, attempt.finished_at = "SUCCEEDED", now()
+        db.commit()
+        return
     if job.stage == "ROUTE_GENERATION":
         from app.freight.routing import complete_generation
 
@@ -172,7 +180,11 @@ def run_one(sessions=SessionLocal, job_id=None, processor=None):
         with sessions() as db:
             row = db.get(Job, lease[0])
             stage = row.stage
-        if stage in product_jobs.STAGES or stage in {
+        if stage == "FREIGHT_ROUTE_STUDY":
+            from app.freight_routes.jobs import process as process_route_study
+
+            output = processor(lease) if processor else process_route_study(sessions, lease)
+        elif stage in product_jobs.STAGES or stage in {
             "COMPARE",
             "EVAL_COMPLIANCE",
             "PROJECT_MOVEMENT",
@@ -211,6 +223,8 @@ def run_one(sessions=SessionLocal, job_id=None, processor=None):
                     lease,
                     "ACCESS_REVOKED"
                     if revoked
+                    else exc.code
+                    if isinstance(exc, TradeError) and stage == "FREIGHT_ROUTE_STUDY"
                     else "STORAGE_UNAVAILABLE"
                     if isinstance(exc, httpx.HTTPError)
                     else "INVALID_EXTRACTION_RESULT",

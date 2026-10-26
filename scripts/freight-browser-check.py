@@ -88,6 +88,46 @@ def exercise(fx, tokens, fixture_file, env):
         signin("seller-operations")
         print("Authenticated planner", flush=True)
         module("Optimizer")
+        route_studio = page.get_by_role("region", name="India freight route intelligence")
+        expect(route_studio).to_be_visible()
+        route_studio.get_by_label("Route source", exact=True).select_option("RETAINED")
+        dataset = route_studio.get_by_label("Retained route dataset")
+        dataset.select_option(index=1)
+        route_study = action(
+            route_studio.get_by_role("button", name="Compare freight routes", exact=True),
+            "/freight-route-studies",
+        )
+        queued = read(f"/freight-route-studies/{route_study['id']}", "seller-operations", "seller")
+        # The browser harness normally runs single-job workers explicitly for deterministic QA.
+        worker_code = (
+            "from app.database import SessionLocal; "
+            "from app.freight_routes.models import RouteStudy; "
+            "from app.document_desk.worker import run_one; "
+            "db=SessionLocal(); "
+            f"row=db.get(RouteStudy, {route_study['id']!r}); job=row.job_id; db.close(); "
+            "assert run_one(SessionLocal, job)"
+        )
+        assert queued["source_mode"] == "RETAINED"
+        subprocess.run(
+            [sys.executable, "-c", worker_code],
+            cwd=ROOT / "services/shipment-service",
+            env=env,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        result = route_studio.get_by_role("region", name="Freight route comparison result")
+        expect(result.get_by_role("table", name="Freight route alternatives")).to_be_visible()
+        expect(result.get_by_role("img", name="Compared freight road routes")).to_be_visible()
+        expect(result.get_by_text("Retained topology schematic", exact=False)).to_be_visible()
+        assert not result.get_by_role("button", name="Record pickup", exact=True).count()
+        for width in (1440, 390):
+            page.set_viewport_size({"width": width, "height": 1000})
+            result.scroll_into_view_if_needed()
+            page.screenshot(path=str(OUTPUT / f"state-routes-{width}.png"), full_page=True)
+            assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+        page.set_viewport_size({"width": 1440, "height": 1000})
+        print("PASS: state-wise route graph, ranked alternatives and mobile layout", flush=True)
         table = page.get_by_role("table", name="Freight candidate comparison")
         expect(table).to_be_visible()
         expect(table.get_by_text("Carrier quote", exact=True)).to_have_count(0)

@@ -16,6 +16,7 @@ import { FreightCancellation } from "./cancellation";
 import { FreightApproval } from "./approval";
 import { OperationalGraph } from "@/components/operations/graph";
 import type { Operations } from "@/lib/operations";
+import { FreightRouteStudio } from "@/components/freight-routes/studio";
 
 export function FreightDesk({
   consignmentId,
@@ -59,6 +60,7 @@ export function FreightDesk({
       )}
       {module === "Optimizer" && (
         <>
+          <FreightRouteStudio key={`${org}:${consignmentId}`} context={data} />
           <Facts
             values={{
               payer_basis: data.freight_payer_basis,

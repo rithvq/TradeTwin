@@ -50,6 +50,18 @@
       "type": "default"
     },
     {
+      "key": "route_study_id",
+      "value": "",
+      "enabled": true,
+      "type": "default"
+    },
+    {
+      "key": "route_study_json",
+      "value": "{}",
+      "enabled": true,
+      "type": "default"
+    },
+    {
       "key": "selection_id",
       "value": "",
       "enabled": true,
