@@ -31,16 +31,29 @@ from app.compliance import (  # noqa: E402
     expression,
     incremental,
     preparation,
+    reviews,
     rule_dependencies,
     scope_epochs,
 )
 from app.compliance.clock import aware, use_test_clock  # noqa: E402
-from app.compliance.models import Authorization, Evaluation, Packet, ReleaseReview  # noqa: E402
+from app.compliance.models import (  # noqa: E402
+    Authorization,
+    Evaluation,
+    Packet,
+    ReleaseReview,
+    Requirement,
+)
 from app.compliance.models_computation import (  # noqa: E402
     DependencyScopeEpoch,
     DependencyWitness,
     EvaluationExecution,
     RuleComputation,
+)
+from app.compliance.schemas_dispatch import (  # noqa: E402
+    Acknowledge,
+    AuthorizationInput,
+    PacketPrepare,
+    ReleaseDecision,
 )
 from app.compliance.schemas_facts import EvaluationInput  # noqa: E402
 from app.document_desk.models import Document  # noqa: E402
@@ -136,6 +149,163 @@ def test_full_shadow_incremental_equivalence_and_fresh_identity(fixture, monkeyp
             db.commit()
         assert len({r[0] for r in results}) == len({r[1] for r in results}) == 3
         assert results[0][2] == results[1][2] == results[2][2]
+
+
+def test_incremental_reevaluation_requires_fresh_release_chain(fixture, monkeypatch):
+    sessions, fx, cn, assignment, _ = fixture
+    at = now()
+    with use_test_clock(lambda: at), sessions() as db:
+        monkeypatch.setenv("COMPLIANCE_EVALUATION_MODE", "FULL")
+        old = db.get(Authorization, demo.authorise(db, fx, cn["id"], "PICKUP_CONFIRMED")["id"])
+        old_chain = (
+            old.evaluation_id,
+            old.evaluation_hash,
+            old.approval_id,
+            old.packet_id,
+            old.acknowledgment_id,
+        )
+        old_requirements = set(
+            db.scalars(select(Requirement.id).where(Requirement.evaluation_id == old.evaluation_id))
+        )
+        old_packet = db.get(Packet, old.packet_id)
+        db.commit()
+
+        monkeypatch.setenv("COMPLIANCE_EVALUATION_MODE", "INCREMENTAL")
+        row, execution = evaluate(db, fx, cn)
+        assert execution.trace_json["rules_reused"] > 0
+        assert execution.trace_json["permission_reused"] is False
+        assert row.id != old.evaluation_id and row.evaluation_hash != old.evaluation_hash
+        new_requirements = list(
+            db.scalars(select(Requirement).where(Requirement.evaluation_id == row.id))
+        )
+        assert old_requirements.isdisjoint(r.id for r in new_requirements)
+        for model in (ReleaseReview, Packet, Authorization):
+            assert db.scalar(select(model).where(model.evaluation_id == row.id)) is None
+
+        preparer = demo.actor(db, fx, "seller-operations")
+        reviewer = demo.actor(db, fx, "seller-approver")
+        carry_id = next(r.id for r in new_requirements if r.requirement_code == "CARRIED_DOCUMENTS")
+        choices = [
+            {
+                "requirement_id": carry_id,
+                "representation_type": item["representation_type"],
+                "carry_method": item["carry_method"],
+                "source_reference": {
+                    key: value
+                    for key, value in item["source_reference_json"].items()
+                    if key in {"document_version_id", "attachment_id", "artifact_id"}
+                },
+            }
+            for item in old_packet.manifest_json["items"]
+        ]
+
+        # The same calculation result does not make the previous approval applicable.
+        with pytest.raises(TradeError) as rejected:
+            dispatch.prepare_packet(
+                db,
+                preparer,
+                cn["id"],
+                PacketPrepare(
+                    action=row.action,
+                    evaluation_id=row.id,
+                    evaluation_hash=row.evaluation_hash,
+                    approval_id=old.approval_id,
+                    selected_representations=choices,
+                ),
+            )
+        assert rejected.value.code == "COMPLIANCE_NOT_READY"
+        approval = reviews.release(
+            db,
+            reviewer,
+            row.id,
+            ReleaseDecision(
+                decision="APPROVE_RELEASE",
+                evaluation_hash=row.evaluation_hash,
+                reason="Fresh independent review of the incremental evaluation",
+            ),
+        )
+
+        def authorisation_input(packet_id, packet_hash, acknowledgment_id):
+            version = context.version(db, fx["trade_id"])
+            preparer.if_match = f'"{version}"'
+            return AuthorizationInput(
+                action=row.action,
+                evaluation_id=row.id,
+                evaluation_hash=row.evaluation_hash,
+                approval_id=approval["id"],
+                packet_id=packet_id,
+                packet_hash=packet_hash,
+                acknowledgment_id=acknowledgment_id,
+                expected_context_version=version,
+            )
+
+        with pytest.raises(TradeError) as rejected:
+            dispatch.issue(
+                db,
+                preparer,
+                cn["id"],
+                authorisation_input(old.packet_id, old.packet_hash, old.acknowledgment_id),
+            )
+        assert rejected.value.code == "PACKET_STALE"
+        packet = dispatch.prepare_packet(
+            db,
+            preparer,
+            cn["id"],
+            PacketPrepare(
+                action=row.action,
+                evaluation_id=row.id,
+                evaluation_hash=row.evaluation_hash,
+                approval_id=approval["id"],
+                selected_representations=choices,
+            ),
+        )
+        with pytest.raises(TradeError) as rejected:
+            dispatch.issue(
+                db,
+                preparer,
+                cn["id"],
+                authorisation_input(packet["id"], packet["packet_hash"], old.acknowledgment_id),
+            )
+        assert rejected.value.code == "PACKET_NOT_ACKNOWLEDGED"
+        assert db.scalar(select(Authorization).where(Authorization.evaluation_id == row.id)) is None
+
+        driver_role = next(
+            role
+            for role in ("driver-one", "driver-two")
+            if fx["users"][role] == db.get(Assignment, assignment["id"]).driver_user_id
+        )
+        acknowledgment = dispatch.acknowledge(
+            db,
+            demo.actor(db, fx, driver_role),
+            packet["id"],
+            Acknowledge(
+                packet_hash=packet["packet_hash"],
+                assignment_id=assignment["id"],
+                possession_confirmed=True,
+                carry_methods=sorted({item["carry_method"] for item in packet["items"]}),
+            ),
+        )
+        issued = dispatch.issue(
+            db,
+            preparer,
+            cn["id"],
+            authorisation_input(packet["id"], packet["packet_hash"], acknowledgment["id"]),
+        )
+        db.commit()
+        fresh = db.get(Authorization, issued["id"])
+        assert fresh.id != old.id
+        assert (fresh.evaluation_id, fresh.evaluation_hash) == (row.id, row.evaluation_hash)
+        assert fresh.approval_id != old.approval_id
+        assert fresh.packet_id != old.packet_id
+        assert fresh.acknowledgment_id != old.acknowledgment_id
+        assert (
+            old.evaluation_id,
+            old.evaluation_hash,
+            old.approval_id,
+            old.packet_id,
+            old.acknowledgment_id,
+        ) == old_chain
+        assert old.consumed_event_id is None
 
 
 def test_pure_full_and_encrypted_replay(fixture, monkeypatch):

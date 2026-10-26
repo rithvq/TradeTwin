@@ -122,10 +122,16 @@ Historical replay creates no current readiness or permission.
 
 ## Reproducible verification and measurements
 
-Run `pytest services/shipment-service/tests/test_selective_compliance.py` for pure/full
+Run `pytest services/shipment-service/tests/test_selective_compliance.py services/shipment-service/tests/test_computation_certificates.py` for pure/full
 equivalence, shadow authority, reused/new identities, absence, unreviewed uploads,
 epoch loss, canonical/mapping witnesses, temporal boundaries, immutability, privacy,
-stale workers, independent dependencies and current global blocks. Set
+stale workers, independent dependencies and current global blocks. The release-chain
+regression starts with an existing authorisation, reuses its rule computations in a
+new evaluation, rejects its approval, packet and acknowledgment against that new
+evaluation, and issues a separate authorisation after a fresh release workflow.
+Certificate tests exercise the real validator with altered specifications, witnesses,
+results, references and intervals, plus partition/version mismatches. They check
+half-open validity and rule effectivity for all four date bases. Set
 `TRADE_TEST_DATABASE_URL` to a **disposable PostgreSQL** database to exercise row-lock
 races; each fixture creates and removes a random schema. CI includes this suite in
 its PostgreSQL job. Existing dispatch concurrency tests also run with
