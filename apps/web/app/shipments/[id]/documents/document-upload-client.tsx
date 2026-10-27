@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  ArrowLeft,
-  RefreshCw,
-  ScanText,
-  ShieldCheck,
-  Upload,
-} from "lucide-react";
+import { ArrowLeft, RefreshCw, ScanText, Upload } from "lucide-react";
 import Link from "next/link";
 import type { FormEvent } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -45,7 +39,6 @@ export default function DocumentUploadClient({
   const [extractingDocumentId, setExtractingDocumentId] = useState<
     string | null
   >(null);
-  const [evaluating, setEvaluating] = useState(false);
 
   const loadEvidence = useCallback(async (assessmentId: string) => {
     const evidenceRecords = await documentFetch<EvidenceRecord[]>(
@@ -165,7 +158,6 @@ export default function DocumentUploadClient({
       return;
     }
 
-    setEvaluating(true);
     setError(null);
     try {
       const uploadedDocuments = documents
@@ -186,8 +178,6 @@ export default function DocumentUploadClient({
       setError(
         err instanceof Error ? err.message : "Could not reevaluate compliance",
       );
-    } finally {
-      setEvaluating(false);
     }
   }
 
@@ -325,27 +315,6 @@ export default function DocumentUploadClient({
             </button>
           </form>
 
-          <div className="mt-6 border-t border-slate-200 pt-5">
-            <h2 className="text-lg font-semibold text-slate-950">
-              Compliance Reevaluation
-            </h2>
-            <button
-              type="button"
-              disabled={evaluating}
-              onClick={() => void reevaluateCompliance()}
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded bg-slate-950 px-4 py-2.5 font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
-            >
-              <ShieldCheck className="size-4" aria-hidden="true" />
-              {evaluating ? "Reevaluating..." : "Reevaluate with evidence"}
-            </button>
-            {latestAssessment ? (
-              <p className="mt-4 text-xs text-slate-500">
-                Last assessment:{" "}
-                {new Date(latestAssessment.created_at).toLocaleString()}
-              </p>
-            ) : null}
-          </div>
-
           {error ? (
             <p className="mt-4 rounded bg-red-50 p-3 text-sm text-red-700">
               {error}
@@ -440,7 +409,7 @@ export default function DocumentUploadClient({
             </div>
             {evidence.length === 0 ? (
               <p className="mt-4 text-sm text-slate-600">
-                Evidence records will appear after a compliance assessment.
+                No assessment evidence yet.
               </p>
             ) : (
               <div className="mt-5 space-y-3">
@@ -469,12 +438,17 @@ export default function DocumentUploadClient({
                     <p className="mt-3 text-sm text-slate-700">
                       {record.explanation}
                     </p>
-                    <div className="mt-3 grid gap-2 text-xs text-slate-500 sm:grid-cols-2">
-                      <p>Rule: {record.rule_id}</p>
-                      <p>Event: {record.shipment_event_id ?? "None"}</p>
-                      <p>Document: {record.document?.filename ?? "None"}</p>
-                      <p>Source: {record.regulation_source_url}</p>
-                    </div>
+                    <details className="mt-3 text-xs text-slate-500">
+                      <summary className="cursor-pointer">
+                        Evidence references
+                      </summary>
+                      <div className="mt-2 grid gap-2 break-words sm:grid-cols-2">
+                        <p>Rule: {record.rule_id}</p>
+                        <p>Event: {record.shipment_event_id ?? "None"}</p>
+                        <p>Document: {record.document?.filename ?? "None"}</p>
+                        <p>Source: {record.regulation_source_url}</p>
+                      </div>
+                    </details>
                   </article>
                 ))}
               </div>

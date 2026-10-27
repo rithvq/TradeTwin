@@ -153,8 +153,8 @@ export function AgreementView({
         </div>
       </details>
       <p className="text-xs text-muted">
-        Registration and HSN declarations are not authoritative verification. No
-        statutory place-of-supply or final tax determination is made here.
+        Declarations only; registration, HSN, place of supply and final tax are
+        not verified.
       </p>
     </section>
   );

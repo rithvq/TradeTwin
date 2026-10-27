@@ -11,11 +11,6 @@ export interface TradeTwinModuleMetric {
   isMock?: boolean;
 }
 
-export interface TradeTwinModuleAction {
-  label: string;
-  route: string;
-}
-
 export interface TradeTwinModule {
   id: string;
   title: string;
@@ -26,7 +21,6 @@ export interface TradeTwinModule {
   relatedIds: string[];
   status: TradeTwinModuleStatus;
   metric?: TradeTwinModuleMetric;
-  quickActions: TradeTwinModuleAction[];
   accent: "blue" | "cyan" | "amber" | "red" | "violet";
 }
 

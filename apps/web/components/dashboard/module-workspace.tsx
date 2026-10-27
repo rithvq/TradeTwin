@@ -80,7 +80,6 @@ function WorkspaceContent({
                 <Icon className="size-5" aria-hidden="true" />
               </span>
               <div>
-                <p className="tt-kicker">TradeTwin module</p>
                 <h1 className="mt-1 text-2xl font-semibold text-ink">
                   {module.title}
                 </h1>
@@ -97,7 +96,6 @@ function WorkspaceContent({
       <div className="mx-auto max-w-[1320px] px-4 py-6 sm:px-6">
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-line pb-5">
           <div>
-            <p className="tt-kicker">Shipment context</p>
             <h2 className="mt-1 text-xl font-semibold text-ink">
               Choose a shipment
             </h2>
@@ -139,8 +137,7 @@ function WorkspaceContent({
         ) : null}
         {shipmentsQuery.isError ? (
           <div className="mt-5 border border-red-300/20 bg-red-300/[0.06] p-4 text-sm text-red-800">
-            Shipment Service is unavailable. Start the Docker environment and
-            refresh this view.
+            Shipments unavailable. Refresh to retry.
           </div>
         ) : null}
         {!shipmentsQuery.isLoading &&

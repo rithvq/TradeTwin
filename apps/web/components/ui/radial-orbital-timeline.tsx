@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ElementType } from "react";
-import { ArrowRight, Link2, Pause, Play, Radio, Zap } from "lucide-react";
+import { ArrowRight, Link2, Pause, Play, Radio } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,6 @@ export interface TimelineItem {
   icon: ElementType;
   relatedIds: TimelineNodeId[];
   status: "completed" | "in-progress" | "pending";
-  energy: number;
 }
 
 interface RadialOrbitalTimelineProps {
@@ -175,24 +174,6 @@ export default function RadialOrbitalTimeline({
                 <p className="text-sm leading-6 text-secondary">
                   {activeItem.content}
                 </p>
-
-                <div className="mt-5 border-t border-line pt-4">
-                  <div className="mb-2 flex items-center justify-between text-xs text-secondary">
-                    <span className="flex items-center gap-2">
-                      <Zap className="size-3.5" aria-hidden="true" />
-                      Twin signal
-                    </span>
-                    <span>{Math.round(activeItem.energy)}%</span>
-                  </div>
-                  <div className="h-1.5 overflow-hidden rounded-full bg-soft">
-                    <div
-                      className="h-full rounded-full bg-accent transition-[width] duration-700"
-                      style={{
-                        width: `${Math.max(4, Math.min(100, activeItem.energy))}%`,
-                      }}
-                    />
-                  </div>
-                </div>
 
                 {activeItem.relatedIds.length > 0 ? (
                   <div className="mt-5 border-t border-line pt-4">

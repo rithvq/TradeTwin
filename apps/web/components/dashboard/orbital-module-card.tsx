@@ -45,9 +45,6 @@ export function OrbitalModuleCard({
           <Icon className="size-5" aria-hidden="true" />
         </span>
         <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase text-muted">
-            Control module
-          </p>
           <h2 className="mt-1 text-xl font-semibold text-ink">
             {module.title}
           </h2>
@@ -62,7 +59,6 @@ export function OrbitalModuleCard({
       {module.metric ? (
         <div className="mt-5 flex items-end justify-between border-y border-line py-4">
           <div>
-            <p className="text-xs font-medium text-muted">Current metric</p>
             <p className="mt-1 text-sm text-secondary">{module.metric.label}</p>
           </div>
           <div className="text-right">
@@ -77,25 +73,6 @@ export function OrbitalModuleCard({
           </div>
         </div>
       ) : null}
-
-      <div className="mt-5 space-y-2">
-        <p className="text-xs font-semibold uppercase text-muted">
-          Quick actions
-        </p>
-        {module.quickActions.map((action) => (
-          <Button
-            key={action.route}
-            asChild
-            variant="outline"
-            className="w-full justify-between"
-          >
-            <Link href={action.route}>
-              {action.label}
-              <ArrowUpRight className="size-4" aria-hidden="true" />
-            </Link>
-          </Button>
-        ))}
-      </div>
 
       <Button
         type="button"

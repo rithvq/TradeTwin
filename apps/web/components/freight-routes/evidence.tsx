@@ -83,18 +83,15 @@ export function FreightRouteEvidence({
             {candidate.history.sample_count} matching completed journeys ·
             median excess {routeHours(candidate.history.median_extra_seconds)}
           </p>
-          <p className="mt-2 text-xs text-secondary">
-            {candidate.history.basis}
-          </p>
+          <details className="mt-2 text-xs text-secondary">
+            <summary className="cursor-pointer">History basis</summary>
+            <p className="mt-2">{candidate.history.basis}</p>
+          </details>
         </section>
         <section className="rounded-lg border border-line p-4">
           <h4 className="font-semibold text-ink">Forecasts and road data</h4>
           <p className="mt-2 text-sm capitalize">
             {routeWords(candidate.weather.status)}
-          </p>
-          <p className="mt-2 text-xs text-secondary">
-            {candidate.weather.method ??
-              "Weather was not confirmed for the sampled route and traversal time."}
           </p>
           <p className="mt-2 text-xs">
             <SourceLink url={candidate.weather.source_url}>
@@ -106,6 +103,11 @@ export function FreightRouteEvidence({
               <summary className="cursor-pointer font-medium">
                 Route-time forecast samples
               </summary>
+              {candidate.weather.method && (
+                <p className="mt-2 text-secondary">
+                  {candidate.weather.method}
+                </p>
+              )}
               <ol className="mt-2 space-y-2">
                 {candidate.weather.samples.map((sample, i) => (
                   <li key={i}>

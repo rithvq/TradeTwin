@@ -1,14 +1,11 @@
 "use client";
 
 import { ModuleWorkspace } from "@/components/dashboard/module-workspace";
-import { tradeTwinModules } from "@/lib/config/tradetwin-modules";
+import { evidenceWorkspaceModule } from "@/lib/config/tradetwin-modules";
 
 export default function DashboardReportsPage() {
-  const evidenceModule = tradeTwinModules.find(
-    (item) => item.id === "evidence",
-  )!;
   const reportModule = {
-    ...evidenceModule,
+    ...evidenceWorkspaceModule,
     id: "reports",
     title: "Compliance Reports",
     shortTitle: "Reports",

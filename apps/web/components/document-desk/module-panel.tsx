@@ -66,21 +66,13 @@ function DocumentModuleData({
       >
         Open document register
       </Link>
-      {module === "Compliance" && (
-        <>
-          <p className="text-sm">Document reconciliation results</p>
-        </>
-      )}
       {module === "Risk" && (
         <>
           <p className="text-sm text-secondary">
-            Document discrepancies are review signals, not automatic fraud
-            conclusions.
+            Discrepancies need review; they do not prove fraud.
           </p>
           {!data.signals.length && (
-            <p className="text-sm">
-              No accessible document review signals recorded.
-            </p>
+            <p className="text-sm">No review signals.</p>
           )}
           {data.signals.map((signal, index) => (
             <article
@@ -144,8 +136,8 @@ function CheckPack() {
     <Panel title="Document data-check pack">
       <strong className="text-sm">PH3_DOCUMENT_DATA_CHECKS_V1</strong>
       <p className="text-sm text-secondary">
-        Data reconciliation only. Mandatory-document applicability and dispatch
-        gating belong to Phase 4.
+        Reconciliation checks only. Dispatch requires a separate compliance
+        review.
       </p>
       <ErrorNotice message={data.error} />
       {data.data && (

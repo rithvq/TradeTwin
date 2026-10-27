@@ -1,15 +1,12 @@
 "use client";
 
 import { ModuleWorkspace } from "@/components/dashboard/module-workspace";
-import { tradeTwinModules } from "@/lib/config/tradetwin-modules";
+import { evidenceWorkspaceModule } from "@/lib/config/tradetwin-modules";
 import Link from "next/link";
 import { Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function DashboardEvidencePage() {
-  const dashboardModule = tradeTwinModules.find(
-    (item) => item.id === "evidence",
-  )!;
   return (
     <>
       <div className="mb-4">
@@ -21,7 +18,7 @@ export default function DashboardEvidencePage() {
         </Button>
       </div>
       <ModuleWorkspace
-        module={dashboardModule}
+        module={evidenceWorkspaceModule}
         destination={(shipmentId) =>
           `/shipments/${shipmentId}/documents#evidence`
         }

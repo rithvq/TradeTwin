@@ -117,21 +117,20 @@ export function FreightRouteResult({ id }: { id: string }) {
           role="alert"
           className="rounded-md border border-line bg-soft p-3 font-medium"
         >
-          Historical comparison. Updated inputs or expired evidence require a
-          new comparison.
+          Historical comparison. Run again with current inputs.
         </p>
       )}
       <p className="rounded-lg border border-line bg-soft p-3 text-sm">
         {comparison.notice ??
           "No route has enough comparable information to rank."}{" "}
         {comparison.comparison_status === "CONDITIONAL"
-          ? "This preference is conditional on the outstanding checks below."
+          ? "Outstanding checks require review."
           : ""}
       </p>
       {!!data.provider_failures.length && (
         <details className="rounded-lg border border-line p-3 text-sm">
           <summary className="cursor-pointer font-medium">
-            Some requested alternatives were unavailable
+            Unavailable alternatives
           </summary>
           <ul className="mt-2 space-y-1">
             {data.provider_failures.map((failure, i) => (
@@ -144,9 +143,9 @@ export function FreightRouteResult({ id }: { id: string }) {
       )}
       {!!comparison.omitted_factors.length && (
         <p className="text-sm text-secondary">
-          Not scored because evidence is incomplete across the alternatives:{" "}
+          Not scored (incomplete evidence):{" "}
           {comparison.omitted_factors.map((f) => routeFactors[f]).join(", ")}.
-          Their weights are redistributed across the displayed observed factors.
+          Weights redistributed across scored factors.
         </p>
       )}
       {!active ? (
@@ -268,8 +267,8 @@ export function FreightRouteResult({ id }: { id: string }) {
               Why this route has this position
             </h4>
             <p className="mt-1 text-sm text-secondary">
-              Weighted loss is lower when better. It is a comparison score, not
-              a confidence or safety percentage.
+              Lower loss ranks better; this is not a confidence or safety
+              percentage.
             </p>
             <ul className="mt-4 space-y-3">
               {ranking?.contributions.map((part) => (

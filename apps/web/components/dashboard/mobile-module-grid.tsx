@@ -14,7 +14,6 @@ export function MobileModuleGrid({ modules }: { modules: TradeTwinModule[] }) {
       data-testid="mobile-module-grid"
     >
       <div className="mb-4">
-        <p className="tt-kicker">Control modules</p>
         <h2
           id="mobile-modules-title"
           className="mt-1 text-xl font-semibold text-ink"
@@ -55,18 +54,6 @@ export function MobileModuleGrid({ modules }: { modules: TradeTwinModule[] }) {
                     </span>
                   </div>
                 ) : null}
-                <div className="mt-4 space-y-2">
-                  {module.quickActions.map((action) => (
-                    <Link
-                      key={action.route}
-                      href={action.route}
-                      className="flex min-h-9 items-center justify-between rounded px-2 text-sm text-secondary hover:bg-soft hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-                    >
-                      {action.label}
-                      <ArrowUpRight className="size-4" aria-hidden="true" />
-                    </Link>
-                  ))}
-                </div>
                 <Button asChild className="mt-4 w-full justify-between">
                   <Link href={module.route}>
                     Open module

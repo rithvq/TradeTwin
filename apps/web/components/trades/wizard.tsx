@@ -404,9 +404,8 @@ export function TradeWizard({ tradeId }: { tradeId?: string }) {
           {step === 6 ? (
             <div className="space-y-4">
               <p className="text-sm text-secondary">
-                Publishing freezes the proposed terms. Neither party is
-                implicitly confirmed. Both authorised approvers must separately
-                accept the same revision.
+                Publishing locks these terms. Both authorised parties must then
+                approve the same revision.
               </p>
               <Button
                 onClick={() => void publish()}

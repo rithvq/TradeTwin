@@ -49,7 +49,6 @@ export function DispatchOverview() {
     >
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="tt-kicker">Live operations</p>
           <h2
             id="dispatch-control-title"
             className="mt-1 text-2xl font-semibold text-ink"
@@ -57,8 +56,7 @@ export function DispatchOverview() {
             Dispatch control
           </h2>
           <p className="mt-2 max-w-2xl text-sm text-secondary">
-            Separate pickup and departure journeys, checked by the existing
-            dispatch gate.
+            Track pickup and departure readiness.
           </p>
         </div>
         <div className="flex flex-wrap items-end gap-3">

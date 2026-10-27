@@ -100,17 +100,12 @@ export function FreightRouteStudio({
       className="space-y-5 rounded-xl border border-line bg-surface p-4 sm:p-6"
     >
       <header>
-        <p className="text-xs font-semibold uppercase tracking-wider text-accent">
-          Road freight · state-wise comparison
-        </p>
         <h3 className="mt-1 text-xl font-semibold text-ink">
           Find the best supported route
         </h3>
         <p className="mt-2 max-w-3xl text-sm text-secondary">
-          Compare actual road alternatives with truck dimensions, state transit
-          evidence, reviewed restrictions, weather and your organization’s
-          corridor history. See the trade-offs before requesting or committing
-          freight.
+          Compare routes using truck limits, transit rules, forecasts and
+          journey history.
         </p>
       </header>
       {canPrepare && (
@@ -197,15 +192,13 @@ export function FreightRouteStudio({
           </div>
           {!data.pins_confirmed && (
             <p className="rounded-md border border-line bg-soft p-3 text-sm">
-              Confirm the exact pickup and drop gates in the routing form below
-              before comparing routes.
+              Confirm pickup and drop gates in the form below to compare routes.
             </p>
           )}
           {mode === "LIVE" && !data.live_routing_configured && (
             <p className="rounded-md border border-line bg-soft p-3 text-sm">
-              Live routing is not configured on the server. Configure the ORS
-              integration or select an explicitly retained topology. Live
-              failures never use a demo route.
+              Live routing unavailable. Configure ORS or choose a published
+              dataset.
             </p>
           )}
           <details className="rounded-lg border border-line p-3">
@@ -219,8 +212,7 @@ export function FreightRouteStudio({
                   checked={assigned}
                   onChange={(event) => setAssigned(event.target.checked)}
                 />
-                Use the assigned truck’s current routing profile and reviewed
-                permit references
+                Use assigned truck profile and reviewed permits
               </label>
             )}
             <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -248,9 +240,8 @@ export function FreightRouteStudio({
             </div>
             {!assigned && (
               <p className="mt-3 text-xs text-secondary">
-                Declared truck inputs guide the road provider. Vehicle-bound
-                permits and release approvals are not transferred to a
-                hypothetical truck.
+                Declared truck inputs do not transfer permits or dispatch
+                approvals.
               </p>
             )}
           </details>
@@ -296,7 +287,7 @@ export function FreightRouteStudio({
               checked={weather}
               onChange={(event) => setWeather(event.target.checked)}
             />
-            Include sampled forecasts for estimated route traversal times
+            Include route-time forecasts
           </label>
           <button
             type="submit"

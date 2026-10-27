@@ -117,9 +117,7 @@ export function TradeArea({ children }: { children: ReactNode }) {
             <div>
               <p className="tt-kicker">Shipments / Commercial agreements</p>
               <h1 className="mt-1 text-2xl font-semibold">Trade workspace</h1>
-              <p className="mt-2 text-sm text-secondary">
-                Operational timezone: Asia/Kolkata (IST)
-              </p>
+              <p className="mt-2 text-sm text-secondary">Times in IST</p>
             </div>
             <div className="flex flex-wrap gap-2">
               <Button variant="outline" asChild>
@@ -198,15 +196,24 @@ export function TradeArea({ children }: { children: ReactNode }) {
                   ))}
                 </div>
               </fieldset>
-              <p className="text-xs text-secondary sm:col-span-2">
-                Capabilities:{" "}
-                {member?.capabilities.join(", ") ||
-                  "No commercial capabilities"}{" "}
-                | Registrations:{" "}
-                {member?.registrations
-                  .map((item) => `${item.gstin} (${item.verification_status})`)
-                  .join(", ") || "None declared"}
-              </p>
+              <details className="text-xs text-secondary sm:col-span-2">
+                <summary className="cursor-pointer">
+                  Access & registrations
+                </summary>
+                <p className="mt-2 break-words">
+                  Capabilities:{" "}
+                  {member?.capabilities.join(", ") ||
+                    "No commercial capabilities"}
+                </p>
+                <p className="mt-1 break-words">
+                  Registrations:{" "}
+                  {member?.registrations
+                    .map(
+                      (item) => `${item.gstin} (${item.verification_status})`,
+                    )
+                    .join(", ") || "None declared"}
+                </p>
+              </details>
             </div>
           ) : null}
         </div>

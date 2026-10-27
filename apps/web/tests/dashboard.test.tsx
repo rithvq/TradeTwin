@@ -50,17 +50,25 @@ describe("TradeTwin orbital dashboard", () => {
     push.mockReset();
   });
 
-  it("renders all eight TradeTwin module nodes", () => {
+  it("renders seven modules with one document and evidence entry", () => {
     renderDashboard();
 
-    expect(tradeTwinModules).toHaveLength(8);
+    expect(tradeTwinModules).toHaveLength(7);
     for (const dashboardModule of tradeTwinModules) {
+      expect(
+        dashboardModule.relatedIds.every((id) =>
+          tradeTwinModules.some((item) => item.id === id),
+        ),
+      ).toBe(true);
       expect(
         screen.getByRole("button", {
           name: `Open ${dashboardModule.title} details`,
         }),
       ).toBeInTheDocument();
     }
+    expect(
+      screen.queryByRole("button", { name: "Open Evidence & Reports details" }),
+    ).not.toBeInTheDocument();
     expect(
       screen.queryByRole("button", {
         name: "Return to TradeTwin dashboard overview",
@@ -208,8 +216,11 @@ describe("TradeTwin orbital dashboard", () => {
       ).toBeInTheDocument();
     }
     expect(screen.getAllByRole("link", { name: /open module/i })).toHaveLength(
-      8,
+      7,
     );
+    expect(
+      screen.queryByRole("heading", { name: "Evidence & Reports" }),
+    ).not.toBeInTheDocument();
   });
 });
 

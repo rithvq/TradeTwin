@@ -234,9 +234,6 @@ export function useShipmentDetails(shipmentId: string) {
           icon: eventIcons[shipmentEvent.event_type] ?? CircleCheck,
           relatedIds,
           status: index === events.length - 1 ? "in-progress" : "completed",
-          energy: Math.round(
-            35 + ((index + 1) / Math.max(events.length, 1)) * 65,
-          ),
         };
       }),
     [events, shipment],

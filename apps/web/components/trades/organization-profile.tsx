@@ -215,8 +215,7 @@ export function OrganizationProfile() {
           <section className="space-y-4 border-t border-line pt-5">
             <h3 className="text-lg font-semibold">Declared registrations</h3>
             <p className="text-sm text-secondary">
-              Format validation checks structure and checksum only. It does not
-              prove active registration or assign business ownership.
+              Format checks do not verify registration status or ownership.
             </p>
             {profile.registrations.map((item) => (
               <p key={item.id} className="text-sm">
@@ -362,8 +361,8 @@ export function OrganizationProfile() {
                 Membership and capabilities
               </h3>
               <p className="text-sm text-secondary">
-                An organisation administrator is not automatically a commercial
-                approver. Assign each capability explicitly to a signed-in user.
+                Assign approval permissions explicitly; administrator access
+                alone does not grant them.
               </p>
               <ul className="text-sm">
                 {members.map((item) => (
