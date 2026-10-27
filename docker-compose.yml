@@ -11,6 +11,9 @@ services:
   web:
     build:
       context: ./apps/web
+      args:
+        NEXT_PUBLIC_FREIGHT_MAP_TILE_URL: ${NEXT_PUBLIC_FREIGHT_MAP_TILE_URL:-}
+        NEXT_PUBLIC_FREIGHT_MAP_TILE_ATTRIBUTION: ${NEXT_PUBLIC_FREIGHT_MAP_TILE_ATTRIBUTION:-}
     env_file:
       - path: .env.example
       - path: .env
@@ -160,6 +163,7 @@ services:
     environment:
       DOCUMENT_WORKER_TOKEN_FILE: /run/secrets/document-worker-token
       DOCUMENT_ENCRYPTION_KEY_FILE: /run/secrets/document-keyring.json
+      DOCUMENT_FIXTURE_DIRECTORY: /app/data/fixtures/document-desk
       TRADETWIN_OPERATIONAL_FENCE_FILE: ${TRADETWIN_OPERATIONAL_FENCE_FILE:-}
     volumes:
       - type: bind

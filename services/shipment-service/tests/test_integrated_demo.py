@@ -17,7 +17,7 @@ for name in list(sys.modules):
         del sys.modules[name]
 
 from app.compliance import demo as release  # noqa: E402
-from app.demo_center import scenario, service  # noqa: E402
+from app.demo_center import fixtures, scenario, service  # noqa: E402
 from app.demo_center.catalog import STEPS  # noqa: E402
 from app.demo_center.models import Command, Launch  # noqa: E402
 from app.demo_center.router import CreateDemo, Step  # noqa: E402
@@ -81,6 +81,27 @@ def ctx(db, ident):
     return Context(db.get(User, ident), None, uid())
 
 
+def test_demo_invoice_resolves_packaged_layout_without_repository_depth(tmp_path, monkeypatch):
+    module = tmp_path / "app/app/demo_center/fixtures.py"
+    bundled = tmp_path / "app/data/fixtures/document-desk/invoice.pdf"
+    bundled.parent.mkdir(parents=True)
+    bundled.write_bytes(b"%PDF-packaged-simulation")
+    monkeypatch.setattr(fixtures, "__file__", str(module))
+    monkeypatch.delenv("DOCUMENT_FIXTURE_DIRECTORY", raising=False)
+    assert fixtures.invoice() == b"%PDF-packaged-simulation"
+
+
+def test_configured_demo_invoice_directory_is_honoured(tmp_path, monkeypatch):
+    bundled = tmp_path / "invoice.pdf"
+    bundled.write_bytes(b"%PDF-configured-simulation")
+    monkeypatch.setenv("DOCUMENT_FIXTURE_DIRECTORY", str(tmp_path))
+    assert fixtures.invoice() == b"%PDF-configured-simulation"
+    monkeypatch.setenv("DOCUMENT_FIXTURE_DIRECTORY", str(tmp_path / "missing"))
+    with pytest.raises(TradeError) as error:
+        fixtures.invoice()
+    assert error.value.code == "DEMO_FIXTURE_UNAVAILABLE"
+
+
 def create(sessions, owner):
     with sessions() as db:
         value = service.launch(db, ctx(db, owner), CreateDemo())
@@ -105,6 +126,19 @@ def test_owner_isolation_step_order_and_no_production_permissions(env):
         with pytest.raises(TradeError):
             service.step(db, ctx(db, owner), ident, Step(step_code="PICKUP"))
         assert not list(db.scalars(select(Trade)))
+
+
+def test_missing_invoice_fails_before_provisioning_records(env, monkeypatch, tmp_path):
+    sessions, (owner, _) = env
+    ident = create(sessions, owner)
+    lease = claim(sessions, ident)
+    monkeypatch.setenv("DOCUMENT_FIXTURE_DIRECTORY", str(tmp_path / "missing"))
+    with pytest.raises(TradeError) as error:
+        scenario.install(sessions, ident, lease)
+    assert error.value.code == "DEMO_FIXTURE_UNAVAILABLE"
+    with sessions() as db:
+        assert not list(db.scalars(select(Trade)))
+        assert not list(db.scalars(select(Membership).where(Membership.user_id == owner)))
 
 
 def test_full_registered_journey_and_route_memory(env, monkeypatch):

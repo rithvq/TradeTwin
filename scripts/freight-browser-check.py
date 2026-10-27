@@ -118,7 +118,7 @@ def exercise(fx, tokens, fixture_file, env):
         )
         result = route_studio.get_by_role("region", name="Freight route comparison result")
         expect(result.get_by_role("table", name="Freight route alternatives")).to_be_visible()
-        expect(result.get_by_role("img", name="Compared freight road routes")).to_be_visible()
+        expect(result.get_by_role("region", name="India freight route map")).to_be_visible()
         expect(result.get_by_text("Retained topology schematic", exact=False)).to_be_visible()
         assert not result.get_by_role("button", name="Record pickup", exact=True).count()
         for width in (1440, 390):

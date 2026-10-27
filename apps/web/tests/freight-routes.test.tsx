@@ -20,6 +20,9 @@ const reload = vi.hoisted(() => vi.fn(async () => {}));
 vi.mock("@/components/trades/trade-context", () => ({
   useTradeContext: () => ({ org: "seller" }),
 }));
+vi.mock("@/components/freight-routes/map-canvas", () => ({
+  FreightMapCanvas: () => <div>Geographic map canvas</div>,
+}));
 vi.mock("@/hooks/use-operations", () => ({
   useOperationsResource: (path: string) => ({
     data: path.endsWith("freight-route-intelligence")
@@ -170,7 +173,7 @@ describe("state-wise freight route comparison", () => {
   it("shows actual routes, alternatives, reasons, and missing evidence without a safety score", () => {
     render(<FreightRouteResult id="study" />);
     expect(
-      screen.getByRole("img", { name: "Compared freight road routes" }),
+      screen.getByRole("region", { name: "India freight route map" }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("table", { name: "Freight route alternatives" }),

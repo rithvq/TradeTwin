@@ -55,6 +55,33 @@ The feature does not automatically book, dispatch, reroute or reprice a shipment
 
 ## Configuration
 
+### Geographic route display
+
+Both live comparisons and the integrated demo now use a zoomable India road map.
+The selected route is highlighted; select another line or its route button to inspect
+an alternative. **Fit routes** frames the complete comparison; **All India** and the
+India overview show its location within the country. The layout refits on smaller screens.
+
+Live studies draw the complete recorded provider geometry without replacing it with
+straight lines or requesting a different route. Retained studies without road geometry
+remain explicitly dashed simulated connections at their recorded coordinates. Choose
+**Live truck roads** when requesting a new comparison to obtain road-following geometry;
+adding a basemap does not turn retained topology into measured highways.
+
+The default browser basemap uses OpenStreetMap's standard tiles and visible attribution.
+It needs internet access and sends the displayed tile area to that provider, not trade
+documents, shipment references or credentials. A bundled, attributed geoBoundaries India
+state reference keeps geographical context available when street tiles fail. Its 2011
+vintage is labelled; it is a display asset and does not change the boundaries or evidence
+used by the route/compliance engines.
+
+For a different tile service, set `NEXT_PUBLIC_FREIGHT_MAP_TILE_URL` to its raster tile
+template (`{z}/{x}/{y}`), and `NEXT_PUBLIC_FREIGHT_MAP_TILE_ATTRIBUTION` to the provider's
+required attribution. These are public build settings; do not put private keys in them.
+Rebuild/recreate only `web` after changing them. Blank settings use OpenStreetMap.
+
+### Routing providers
+
 Set server-only variables in the repository-root `.env` (names are in `.env.example`):
 
 ```dotenv

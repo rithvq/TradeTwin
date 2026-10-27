@@ -7,7 +7,6 @@ this runner. Failed partial setups are retained; a new session uses a new namesp
 import time
 from copy import deepcopy
 from datetime import timedelta
-from pathlib import Path
 
 from app.compliance import demo as release
 from app.compliance.cli import real_storage
@@ -33,7 +32,7 @@ from app.trades import profiles
 from app.trades.models import Trade, uid
 from app.trades.schemas import MembershipChange
 
-from . import flows
+from . import fixtures, flows
 from .models import Launch
 from .service import FRESH_FOR, job_access
 
@@ -207,6 +206,9 @@ def install(sessions, ident, lease, store=real_storage):
         row = runner.guard(db)
         if row.fixture_json:
             fail("DEMO_SETUP_ALREADY_STARTED", "Create a fresh demo after interrupted setup.")
+        # Resolve required assets before creating any simulation records. Container
+        # images have a different source-tree depth from a repository checkout.
+        sample_invoice = fixtures.invoice()
         fx = seed_demo(db, namespace="phase4-appdemo-" + ident)
         # Checkpoint before storage calls: the signed import verifies this exact launch.
         row.trade_id, row.fixture_json = fx["trade_id"], deepcopy(fx)
@@ -275,9 +277,8 @@ def install(sessions, ident, lease, store=real_storage):
         runner.guard(db)
         ctx = release.actor(db, fx, "seller-operations")
         trade, cn = db.get(Trade, fx["trade_id"]), db.get(Consignment, fx["consignment_id"])
-        source = Path(__file__).resolve().parents[4] / "data/fixtures/document-desk/invoice.pdf"
         asset = store(
-            db, ctx, trade, cn, "sample-invoice.pdf", source.read_bytes(), "DOCUMENT_FINANCIAL"
+            db, ctx, trade, cn, "sample-invoice.pdf", sample_invoice, "DOCUMENT_FINANCIAL"
         )
         doc = register.create(
             db,

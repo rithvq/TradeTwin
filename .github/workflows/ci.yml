@@ -165,6 +165,11 @@ jobs:
           PLAYWRIGHT_CHANNEL: chromium
         run: python scripts/freight-browser-check.py
 
+      - name: Geographic freight map browser acceptance
+        env:
+          PLAYWRIGHT_CHANNEL: chromium
+        run: python scripts/freight-map-browser-check.py
+
       - name: Product integration browser acceptance
         env:
           PLAYWRIGHT_CHANNEL: chromium
