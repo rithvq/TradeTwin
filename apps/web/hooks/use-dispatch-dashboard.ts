@@ -41,7 +41,9 @@ export function useDispatchOrganization() {
   }, []);
   const org = me?.memberships.some((m) => m.organization_id === selected)
     ? selected
-    : (me?.memberships[0]?.organization_id ?? "");
+    : (me?.memberships.find(
+        (m) => !m.capabilities?.includes("SELLER_DEMO_EXPLORER"),
+      )?.organization_id ?? "");
   function setOrg(value: string) {
     select(value);
     try {

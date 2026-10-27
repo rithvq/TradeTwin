@@ -271,6 +271,12 @@ def trading_partners(db, query):
         select(Organization)
         .where(
             Organization.profile_status == "COMPLETE",
+            ~select(User.id)
+            .where(
+                User.id == Organization.created_by,
+                User.identity_subject.like("operations-demo:phase4-appdemo-%"),
+            )
+            .exists(),
             or_(
                 Organization.legal_name.ilike(f"%{query[:100]}%"),
                 Organization.trade_name.ilike(f"%{query[:100]}%"),

@@ -346,6 +346,7 @@ def settlement(db, ctx, trade):
     if not side or not any(
         has(db, ctx, p, trade.id, side)
         for p in (
+            "payment.settlement.read",
             "payment.report",
             "payment.acknowledge",
             "payment_schedule.propose",

@@ -11,6 +11,7 @@ from sqlalchemy import select
 from tradetwin_security.document_worker import headers as worker_headers
 
 from app.database import SessionLocal, engine
+from app.demo_center import jobs as demo_jobs
 from app.product import jobs as product_jobs
 from app.trades.errors import TradeError
 from app.trades.migrate import migrate
@@ -57,6 +58,12 @@ def publish_outbox(sessions):
 def complete(db, lease, output):
     job, attempt = jobs.leased(db, *lease)
     ctx = jobs.job_context(db, job)
+    if job.stage in demo_jobs.STAGES:
+        demo_jobs.complete(db, job, output)
+        job.status, job.finished_at = "SUCCEEDED", now()
+        attempt.status, attempt.finished_at = "SUCCEEDED", now()
+        db.commit()
+        return
     if job.stage in product_jobs.STAGES:
         product_jobs.complete(db, ctx, job)
         job.status, job.finished_at = "SUCCEEDED", now()
@@ -180,7 +187,9 @@ def run_one(sessions=SessionLocal, job_id=None, processor=None):
         with sessions() as db:
             row = db.get(Job, lease[0])
             stage = row.stage
-        if stage == "FREIGHT_ROUTE_STUDY":
+        if stage in demo_jobs.STAGES:
+            output = processor(lease) if processor else demo_jobs.process(sessions, lease)
+        elif stage == "FREIGHT_ROUTE_STUDY":
             from app.freight_routes.jobs import process as process_route_study
 
             output = processor(lease) if processor else process_route_study(sessions, lease)
@@ -224,7 +233,8 @@ def run_one(sessions=SessionLocal, job_id=None, processor=None):
                     "ACCESS_REVOKED"
                     if revoked
                     else exc.code
-                    if isinstance(exc, TradeError) and stage == "FREIGHT_ROUTE_STUDY"
+                    if isinstance(exc, TradeError)
+                    and stage in {"FREIGHT_ROUTE_STUDY", *demo_jobs.STAGES}
                     else "STORAGE_UNAVAILABLE"
                     if isinstance(exc, httpx.HTTPError)
                     else "INVALID_EXTRACTION_RESULT",

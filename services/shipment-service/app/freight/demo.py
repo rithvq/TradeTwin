@@ -65,7 +65,7 @@ def seed(sessions, namespace="phase4-freight"):
     }
 
 
-def refresh_phase4(db, fx, ident):
+def refresh_phase4(db, fx, ident, immediate=False):
     """Explicit independent simulation review, reusing the original issued invoice."""
     from copy import deepcopy
 
@@ -100,8 +100,10 @@ def refresh_phase4(db, fx, ident):
     value = {k: v for k, v in value.items() if k in Facts.model_fields and k != "field_provenance"}
     value.update(
         declared_transit_state_codes=route["state_sequence"][1:-1],
-        requested_pickup_at=route["planned_pickup_at"],
-        requested_departure_at=route["planned_departure_at"],
+        requested_pickup_at=instant(db).isoformat() if immediate else route["planned_pickup_at"],
+        requested_departure_at=instant(db).isoformat()
+        if immediate
+        else route["planned_departure_at"],
         expected_arrival_at=route["estimated_arrival_at"],
         corridor_declaration_basis="SUPPORTED_ROUTE_RECORD",
     )
@@ -187,7 +189,7 @@ def refresh_phase4(db, fx, ident):
     )
 
 
-def prepare(db, fx, ident):
+def prepare(db, fx, ident, modern=False):
     cn = db.get(Consignment, ident)
     trade = db.get(Trade, cn.trade_id)
     if trade.execution_mode != "SIMULATION":
@@ -267,7 +269,7 @@ def prepare(db, fx, ident):
             "node_key": "detour",
             "latitude": "13.5",
             "longitude": "78.7",
-            "state_code": "28",
+            "state_code": "37" if modern else "28",
             "node_kind": "JUNCTION",
         },
         {
@@ -282,7 +284,7 @@ def prepare(db, fx, ident):
     for code, distance, seconds, states in [
         ("direct", 360000, 21600, ["29", "33"]),
         ("fast", 400000, 18000, ["29", "33"]),
-        ("detour", 480000, 28800, ["29", "28", "33"]),
+        ("detour", 480000, 28800, ["29", "37" if modern else "28", "33"]),
     ]:
         for index, (origin, destination) in enumerate([("pickup", code), (code, "drop")]):
             edges.append(
@@ -309,7 +311,7 @@ def prepare(db, fx, ident):
             version="1",
             source_kind="SIMULATION_FIXTURE",
             source_reference="Phase 5 retained synthetic fixture; not highway measurements",
-            supported_state_codes=["29", "28", "33"],
+            supported_state_codes=["29", "37" if modern else "28", "33"],
             supported_vehicle_profile_codes=["ORDINARY_GOODS"],
             observed_at=at,
             valid_from=at - timedelta(days=1),
@@ -319,7 +321,9 @@ def prepare(db, fx, ident):
             retention_policy="PERMITTED_ARCHIVE",
             export_allowed=True,
             limitations=[
-                "SIMULATION geography, restrictions, prices and timing. State 28 is an "
+                "SIMULATION geography, restrictions, prices and timing. Not highway measurements."
+                if modern
+                else "SIMULATION geography, restrictions, prices and timing. State 28 is an "
                 "artificial fixture corridor label, not a current GST state code."
             ],
             nodes=nodes,

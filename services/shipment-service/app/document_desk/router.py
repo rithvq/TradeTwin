@@ -54,8 +54,6 @@ def fixture_input(payload: FixtureImport, db: Session = Depends(get_db)):
     from app.trades.models import User
     from app.trades.transactions import Context
 
-    if os.getenv("DOCUMENT_DEMO_ENABLED", "false").lower() != "true":
-        fail("NOT_FOUND", "Development fixture import is disabled.", status=404)
     row = exists(db, Attachment, payload.attachment_id)
     user = exists(db, User, payload.user_id)
     if not user.active:
@@ -64,6 +62,10 @@ def fixture_input(payload: FixtureImport, db: Session = Depends(get_db)):
     trade, _ = attachments.access(db, ctx, row, True)
     if trade.execution_mode != "SIMULATION":
         fail("FORBIDDEN", "Development fixtures cannot enter production trades.", status=403)
+    if os.getenv("DOCUMENT_DEMO_ENABLED", "false").lower() != "true":
+        from app.demo_center.service import fixture_access
+
+        fixture_access(db, user, ctx.org_id, trade)
     return {**result(row), "execution_mode": trade.execution_mode}
 
 

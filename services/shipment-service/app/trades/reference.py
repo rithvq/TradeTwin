@@ -383,3 +383,24 @@ ROLE_PERMISSIONS.update(
         },
     }
 )
+
+# Granted only inside an owner's isolated SIMULATION workspace. Never an approver,
+# driver, organisation administrator, source publisher, or production operator.
+ROLE_PERMISSIONS["SELLER_DEMO_EXPLORER"] = (
+    _READ
+    | _DOCUMENT_READ
+    | _DOCUMENT_OPERATOR
+    | {
+        "tradetwin.read",
+        "tradetwin.run",
+        "tradetwin.plan.prepare",
+        "freight.price.read",
+        "attachment.upload",
+        "routing.dataset.read",
+        "compliance.read",
+        "evidence.replay.request",
+        "evidence.bundle.request",
+        "payment.settlement.read",
+        "dispatch.packet.read",
+    }
+)

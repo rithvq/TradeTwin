@@ -427,3 +427,7 @@ router.include_router(corridor_router)
 from app.product.router import router as product_router  # noqa: E402
 
 router.include_router(product_router)
+
+from app.demo_center.router import router as demo_center_router  # noqa: E402
+
+router.include_router(demo_center_router)

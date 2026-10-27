@@ -19,6 +19,7 @@ vi.mock("next/navigation", () => ({
 vi.mock("@/lib/shipments", () => ({
   apiFetch: apiFetchMock,
 }));
+vi.mock("@/lib/trades", () => ({ tradeRequest: apiFetchMock }));
 
 function renderAppShell() {
   const queryClient = new QueryClient({
@@ -42,7 +43,7 @@ describe("TradeTwin demo launcher", () => {
     pushMock.mockReset();
   });
 
-  it("prepares the seeded scenario and opens its shipment", async () => {
+  it("prepares the integrated demo and opens its journey", async () => {
     const user = userEvent.setup();
     apiFetchMock.mockResolvedValue({ id: "demo-shipment-id" });
     renderAppShell();
@@ -50,10 +51,13 @@ describe("TradeTwin demo launcher", () => {
     await user.click(screen.getByRole("button", { name: "TradeTwin Demo" }));
 
     await waitFor(() => {
-      expect(apiFetchMock).toHaveBeenCalledWith("/demo/seed", {
-        method: "POST",
-      });
-      expect(pushMock).toHaveBeenCalledWith("/shipments/demo-shipment-id");
+      expect(apiFetchMock).toHaveBeenCalledWith(
+        "/demo-sessions",
+        undefined,
+        "POST",
+        {},
+      );
+      expect(pushMock).toHaveBeenCalledWith("/demo/demo-shipment-id");
     });
   });
 

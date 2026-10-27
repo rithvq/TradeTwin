@@ -6,6 +6,7 @@ from datetime import timedelta
 
 from sqlalchemy import or_, select
 
+from app.demo_center import jobs as demo_jobs
 from app.operations.access import exists, fail, lock_trade
 from app.product import jobs as product_jobs
 from app.trades.access import aware
@@ -143,6 +144,8 @@ def claim(db, worker, job_id=None):
         row.status, row.last_error_code, row.finished_at = "FAILED", "ACCESS_REVOKED", instant
         if row.stage in product_jobs.STAGES:
             product_jobs.mark(db, row, "FAILED")
+        if row.stage in demo_jobs.STAGES:
+            demo_jobs.mark(db, row, "FAILED")
         if row.stage == "EVAL_COMPLIANCE":
             from app.compliance.models import Evaluation
 
@@ -156,6 +159,8 @@ def claim(db, worker, job_id=None):
         return None
     if row.stage in product_jobs.STAGES:
         product_jobs.lock(db, row)
+    elif row.stage in demo_jobs.STAGES:
+        demo_jobs.lock(db, row)
     elif row.stage in {
         "EVAL_COMPLIANCE",
         "PROJECT_MOVEMENT",
@@ -177,10 +182,12 @@ def claim(db, worker, job_id=None):
     if row.current_attempt_id:
         previous = db.get(Attempt, row.current_attempt_id)
         previous.status, previous.finished_at = "LEASE_LOST", instant
-    if row.attempt_count >= 3:
+    if row.attempt_count >= (1 if row.stage in demo_jobs.STAGES else 3):
         row.status, row.last_error_code, row.finished_at = "FAILED", "ATTEMPTS_EXHAUSTED", instant
         if row.stage in product_jobs.STAGES:
             product_jobs.mark(db, row, "FAILED")
+        if row.stage in demo_jobs.STAGES:
+            demo_jobs.mark(db, row, "FAILED")
         if row.stage == "FREIGHT_ROUTE_STUDY":
             from app.freight_routes.jobs import mark_failed
 
@@ -204,6 +211,8 @@ def claim(db, worker, job_id=None):
     ctx = Context(db.get(User, row.requested_by_user_id), row.requested_by_organization_id, uid())
     if row.stage in product_jobs.STAGES:
         product_jobs.mark(db, row, "RUNNING")
+    elif row.stage in demo_jobs.STAGES:
+        demo_jobs.mark(db, row, "RUNNING")
     elif row.stage in {
         "EVAL_COMPLIANCE",
         "PROJECT_MOVEMENT",
@@ -242,6 +251,8 @@ def leased(db, job_id, attempt_id, token, lock=True):
             fail("JOB_ALREADY_TERMINAL", "Job no longer exists.")
         if basis.stage in product_jobs.STAGES:
             product_jobs.lock(db, basis)
+        elif basis.stage in demo_jobs.STAGES:
+            demo_jobs.lock(db, basis)
         elif basis.stage in {
             "EVAL_COMPLIANCE",
             "PROJECT_MOVEMENT",
@@ -326,6 +337,11 @@ def cancel(db, ctx, ident, payload):
 
 
 def job_view(db, ctx, row):
+    if row.stage in demo_jobs.STAGES:
+        from app.demo_center.service import owned
+
+        owned(db, ctx, row.request_json["launch_id"])
+        return {"id": row.id, "status": row.status, "last_error_code": row.last_error_code}
     if row.stage in product_jobs.STAGES:
         return product_jobs.view(db, ctx, row)
     if row.stage in {"EVAL_COMPLIANCE", "PROJECT_MOVEMENT"}:
@@ -365,13 +381,21 @@ def failed(db, lease, code):
         "Processing failed; original evidence and earlier attempts are preserved."
     )
     job.last_error_code = code
-    retryable = code in {"STORAGE_UNAVAILABLE", "PROVIDER_UNAVAILABLE", "STAGE_TIMEOUT"}
+    retryable = job.stage not in demo_jobs.STAGES and code in {
+        "STORAGE_UNAVAILABLE",
+        "PROVIDER_UNAVAILABLE",
+        "STAGE_TIMEOUT",
+    }
     job.status = "QUEUED" if retryable and job.attempt_count < 3 else "FAILED"
     job.next_attempt_at = now() + timedelta(
         seconds=int(os.getenv("DOCUMENT_JOB_BACKOFF_SECONDS", "10")) * job.attempt_count
     )
     if job.status == "FAILED":
         job.finished_at = now()
+    if job.stage in demo_jobs.STAGES:
+        demo_jobs.mark(db, job, job.status)
+        db.commit()
+        return
     if job.stage in product_jobs.STAGES:
         product_jobs.mark(db, job, job.status)
         db.commit()

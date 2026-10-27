@@ -168,6 +168,9 @@ def document(db, ctx, trade, cn, kind, canonical, store=None):
 
 
 def source_pack(db, fx, trade, store=None):
+    from app.trades.context_locks import registry_lock
+
+    registry_lock(db, True)
     author, publisher = actor(db, fx, "seller-operations"), actor(db, fx, "seller-approver")
     existing = db.scalar(
         select(Pack).where(Pack.family_code == templates.FAMILY, Pack.environment == "SIMULATION")
@@ -187,6 +190,14 @@ def source_pack(db, fx, trade, store=None):
         store,
         "OTHER",
     )
+    # Encrypted storage commits the upload before network I/O. Reacquire the
+    # registry lock and recheck so concurrent profile demos cannot publish two packs.
+    registry_lock(db, True)
+    existing = db.scalar(
+        select(Pack).where(Pack.family_code == templates.FAMILY, Pack.environment == "SIMULATION")
+    )
+    if existing:
+        return existing
     source = governance.source(
         db,
         author,
@@ -714,18 +725,31 @@ def prepare(db, fx, cn_id, store=None, wrong_vehicle=False, omit_ewb=False):
     }
 
 
-def authorise(db, fx, cn_id, action):
+def authorise(db, fx, cn_id, action, evaluation_id=None):
     preparer, reviewer = actor(db, fx, "seller-operations"), actor(db, fx, "seller-approver")
     cn, trade = db.get(Consignment, cn_id), db.get(Trade, fx["trade_id"])
     assignment = db.get(Assignment, cn.active_assignment_id)
     preparer.if_match = f'"{context.version(db, trade.id)}"'
-    queued = evaluations.request(
-        db,
-        preparer,
-        cn.id,
-        EvaluationInput(action=action, expected_context_version=context.version(db, trade.id)),
-    )
-    evaluation = evaluations.complete(db, preparer, queued["evaluation_id"])
+    if evaluation_id is None:
+        queued = evaluations.request(
+            db,
+            preparer,
+            cn.id,
+            EvaluationInput(action=action, expected_context_version=context.version(db, trade.id)),
+        )
+        evaluation = evaluations.complete(db, preparer, queued["evaluation_id"])
+    else:
+        evaluation, _, _, _ = evaluations.exact(
+            db, preparer, evaluation_id, "compliance.evaluate", True
+        )
+        if (
+            evaluation.consignment_id != cn.id
+            or evaluation.action != action
+            or evaluation.job_state != "COMPLETED"
+        ):
+            from app.operations.access import fail
+
+            fail("COMPLIANCE_NOT_READY", "Use the completed evaluation for this exact demo action.")
     if evaluation.decision != "ELIGIBLE_FOR_REVIEW":
         import json
 

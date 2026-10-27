@@ -1,5 +1,14 @@
 # TradeTwin API Reference
 
+The integrated in-app demo uses profile-scoped `POST /api/v1/demo-sessions`
+(`{"fresh": false}`), `GET /api/v1/demo-sessions/{id}`, and
+`POST /api/v1/demo-sessions/{id}/steps` (`{"step_code": "..."}`). Commands require
+OAuth and an idempotency key; they accept only the registered next simulation
+step. Responses contain public receipt/status information, expiry and ordinary
+workspace IDs; synthetic actor subjects and private fixture configuration remain
+server-side. Another profile cannot read or operate the session. See the
+[current demo walkthrough](demo-walkthrough.md).
+
 Live organization-scoped dispatch projections: `GET /api/v1/dispatch-dashboard` and
 `GET /api/v1/consignments/{id}/dispatch-journey?action=PICKUP_CONFIRMED|DEPARTED`.
 See [the dispatch dashboard contract and access rules](dispatch-dashboard.md).

@@ -26,7 +26,10 @@ class GeneratedFixture(BaseModel):
 
 @router.post("/internal/document-desk/import-generated-fixture", include_in_schema=False)
 def import_generated(payload: GeneratedFixture, request: Request):
-    if os.getenv("DOCUMENT_DEMO_ENABLED", "false").lower() != "true":
+    if not any(
+        os.getenv(flag, "false").lower() == "true"
+        for flag in ("DOCUMENT_DEMO_ENABLED", "IN_APP_DEMO_ENABLED")
+    ):
         raise HTTPException(404, "Development fixture import is disabled")
     try:
         content = base64.b64decode(payload.content_base64, validate=True)

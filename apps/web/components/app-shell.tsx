@@ -46,6 +46,9 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { apiFetch, type Shipment } from "@/lib/shipments";
+import { tradeRequest } from "@/lib/trades";
+import { exitDemo } from "@/lib/demo-center";
+import { DemoBanner } from "@/components/demo-center/banner";
 
 import { cn } from "@/lib/utils";
 
@@ -137,6 +140,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
+      <DemoBanner />
       {children}
 
       <footer className="border-t border-line bg-surface">
@@ -158,10 +162,13 @@ function TradeTwinDemoLauncher() {
     setError(null);
     setIsLaunching(true);
     try {
-      const shipment = await apiFetch<Shipment>("/demo/seed", {
-        method: "POST",
-      });
-      router.push(`/shipments/${shipment.id}`);
+      const demo = await tradeRequest<{ id: string }>(
+        "/demo-sessions",
+        undefined,
+        "POST",
+        {},
+      );
+      router.push(`/demo/${demo.id}`);
     } catch (launchError) {
       setError(
         launchError instanceof Error
@@ -199,7 +206,7 @@ function TradeTwinDemoLauncher() {
             </span>
           </Button>
         </TooltipTrigger>
-        <TooltipContent>Run the seeded demo scenario</TooltipContent>
+        <TooltipContent>Open the integrated simulation demo</TooltipContent>
       </Tooltip>
 
       {error ? (
@@ -417,6 +424,7 @@ function UserDialog() {
     try {
       const response = await fetch("/api/auth/logout", { method: "POST" });
       if (!response.ok) throw new Error();
+      exitDemo();
       window.sessionStorage.removeItem("tradetwin-token");
       window.location.replace("/login");
     } catch {

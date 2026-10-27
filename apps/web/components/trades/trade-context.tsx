@@ -46,7 +46,9 @@ export function TradeArea({ children }: { children: ReactNode }) {
       selectOrg(
         profile.memberships.some((member) => member.organization_id === stored)
           ? stored!
-          : (profile.memberships[0]?.organization_id ?? ""),
+          : (profile.memberships.find(
+              (m) => !m.capabilities.includes("SELLER_DEMO_EXPLORER"),
+            )?.organization_id ?? ""),
       );
       setMe(profile);
       setRefs(data);
